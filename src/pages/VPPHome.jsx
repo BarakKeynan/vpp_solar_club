@@ -106,27 +106,22 @@ export default function VPPHome() {
         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
         className="grid grid-cols-3 gap-3"
       >
-        <button
-          onClick={() => toast.success('הסוללה מתחילה להיטען...')}
-          className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 active:scale-95 transition-all"
-        >
-          <Battery className="w-6 h-6" />
-          <span className="leading-tight text-center">טען סוללה עכשיו</span>
-        </button>
-        <button
-          onClick={() => toast.success('מכירה אוטומטית הופעלה')}
-          className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-secondary text-secondary-foreground font-bold text-xs hover:bg-secondary/90 active:scale-95 transition-all"
-        >
-          <Zap className="w-6 h-6" />
-          <span className="leading-tight text-center">מכור לרשת אוטומטית</span>
-        </button>
-        <button
-          onClick={() => toast.success('הרכב מתחיל להיטען...')}
-          className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-accent text-accent-foreground font-bold text-xs hover:bg-accent/90 active:scale-95 transition-all"
-        >
-          <Car className="w-6 h-6" />
-          <span className="leading-tight text-center">טען רכב</span>
-        </button>
+        {[
+          { label: 'טען סוללה', icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
+          { label: 'מכור לרשת', icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid' },
+          { label: 'טען רכב', icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
+        ].map(({ label, icon: Icon, color, path }) => (
+          <motion.button
+            key={path}
+            whileTap={{ scale: 0.93 }}
+            whileHover={{ scale: 1.04 }}
+            onClick={() => navigate(path)}
+            className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}
+          >
+            <Icon className="w-6 h-6" />
+            <span className="leading-tight text-center">{label}</span>
+          </motion.button>
+        ))}
       </motion.div>
 
       {/* Stats Row */}

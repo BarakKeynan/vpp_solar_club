@@ -1,151 +1,108 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Battery, Sun, Moon, Zap, Clock } from 'lucide-react';
+import { Battery, Zap, Settings } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
-const timeLabels = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+const fmt = (h) => `${String(h).padStart(2, '0')}:00`;
 
 export default function Schedule() {
-  const [chargeRange, setChargeRange] = useState([8, 16]);
-  const [sellRange, setSellRange] = useState([18, 22]);
-  const [autoMode, setAutoMode] = useState(false);
+  const [chargeRange, setChargeRange] = useState([8, 14]);
+  const [sellRange, setSellRange] = useState([20, 23]);
+  const [auto, setAuto] = useState(false);
 
-  const formatTime = (val) => {
-    const h = String(val).padStart(2, '0');
-    return `${h}:00`;
-  };
-
-  const handleAutoToggle = (checked) => {
-    setAutoMode(checked);
-    if (checked) {
-      toast.success('מצב אוטומטי הופעל! המערכת תנהל את האגירה.');
-    } else {
-      toast.info('מצב אוטומטי כובה.');
-    }
+  const handleAuto = (v) => {
+    setAuto(v);
+    toast.success(v ? 'מצב אוטומטי הופעל – AI ינהל את האגירה' : 'מצב ידני הופעל');
   };
 
   return (
-    <div className="px-4 pt-6 space-y-5">
-      <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-        <h1 className="text-xl font-bold">תזמון אגירה</h1>
-        <p className="text-sm text-muted-foreground mt-1">נהל מתי לטעון ומתי למכור</p>
+    <div className="p-4 space-y-4 pb-28">
+      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between">
+        <h1 className="text-xl font-black text-foreground">תזמון אגירה</h1>
+        <Settings className="w-5 h-5 text-muted-foreground" />
       </motion.div>
 
       {/* Battery Status */}
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="bg-card border border-border rounded-2xl p-6 flex flex-col items-center"
-      >
-        <div className="relative">
-          <div className="absolute -inset-4 bg-primary/15 rounded-full blur-xl animate-pulse" />
-          <div className="relative p-6 rounded-full border-4 border-primary bg-primary/5">
-            <Battery className="w-12 h-12 text-primary" />
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+        className="bg-card rounded-2xl border border-primary/30 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Battery className="w-5 h-5 text-primary" />
+            <span className="text-sm font-bold text-foreground">סוללה ביתית</span>
           </div>
+          <span className="text-2xl font-black text-primary">82%</span>
         </div>
-        <p className="text-4xl font-black text-primary mt-3">82%</p>
-        <p className="text-sm text-muted-foreground">נטען • 2.4 kWh</p>
+        <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }} animate={{ width: '82%' }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="h-full bg-primary rounded-full"
+          />
+        </div>
+        <div className="flex justify-between mt-2">
+          <span className="text-xs text-muted-foreground">16.4 kWh נשאר</span>
+          <span className="text-xs text-muted-foreground">קיבולת: 20 kWh</span>
+        </div>
+      </motion.div>
+
+      {/* Auto Toggle */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
+        className={`rounded-2xl border p-4 flex items-center justify-between transition-colors ${auto ? 'border-primary/50 bg-primary/10' : 'border-border bg-card'}`}>
+        <div>
+          <p className="text-sm font-bold text-foreground">מצב אוטומטי (AI)</p>
+          <p className="text-xs text-muted-foreground">המערכת תנהל טעינה ומכירה אוטומטית</p>
+        </div>
+        <Switch checked={auto} onCheckedChange={handleAuto} />
       </motion.div>
 
       {/* Charge Schedule */}
-      <motion.div
-        initial={{ x: 30, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-card border border-border rounded-2xl p-5 space-y-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-primary/20">
-            <Sun className="w-5 h-5 text-primary" />
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
+        className={`bg-card rounded-2xl border border-border p-4 space-y-4 transition-opacity ${auto ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-primary/20">
+            <Battery className="w-4 h-4 text-primary" />
           </div>
-          <div>
-            <h3 className="font-bold text-sm">טען ביום</h3>
-            <p className="text-xs text-muted-foreground">אגור אנרגיה סולארית</p>
-          </div>
+          <p className="text-sm font-bold text-foreground">שעות טעינה</p>
         </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{formatTime(chargeRange[0])}</span>
-            <span className="font-bold text-primary">
-              {formatTime(chargeRange[0])} - {formatTime(chargeRange[1])}
-            </span>
-            <span>{formatTime(chargeRange[1])}</span>
-          </div>
-          <Slider
-            value={chargeRange}
-            onValueChange={setChargeRange}
-            min={6}
-            max={20}
-            step={1}
-            className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-primary [&_[data-orientation=horizontal]>.bg-primary]:bg-primary"
-          />
+        <div className="flex justify-between text-sm font-bold">
+          <span className="text-primary">{fmt(chargeRange[0])}</span>
+          <span className="text-muted-foreground">עד</span>
+          <span className="text-primary">{fmt(chargeRange[1])}</span>
         </div>
-
-        <div className="flex justify-between text-xs text-muted-foreground px-1">
-          {timeLabels.map(t => <span key={t}>{t}</span>)}
-        </div>
+        <Slider min={0} max={23} step={1} value={chargeRange} onValueChange={setChargeRange} className="w-full" />
+        <p className="text-xs text-muted-foreground">
+          טעינה מהפאנלים בשעות שיא הייצור
+        </p>
       </motion.div>
 
       {/* Sell Schedule */}
-      <motion.div
-        initial={{ x: 30, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="bg-card border border-border rounded-2xl p-5 space-y-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-accent/20">
-            <Moon className="w-5 h-5 text-accent" />
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}
+        className={`bg-card rounded-2xl border border-border p-4 space-y-4 transition-opacity ${auto ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-secondary/20">
+            <Zap className="w-4 h-4 text-secondary" />
           </div>
-          <div>
-            <h3 className="font-bold text-sm">מכור בלילה</h3>
-            <p className="text-xs text-muted-foreground">מכור אנרגיה כשהמחיר גבוה</p>
-          </div>
+          <p className="text-sm font-bold text-foreground">שעות מכירה לרשת</p>
         </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{formatTime(sellRange[0])}</span>
-            <span className="font-bold text-accent">
-              {formatTime(sellRange[0])} - {formatTime(sellRange[1])}
-            </span>
-            <span>{formatTime(sellRange[1])}</span>
-          </div>
-          <Slider
-            value={sellRange}
-            onValueChange={setSellRange}
-            min={16}
-            max={24}
-            step={1}
-            className="[&_[role=slider]]:bg-accent [&_[role=slider]]:border-accent"
-          />
+        <div className="flex justify-between text-sm font-bold">
+          <span className="text-secondary">{fmt(sellRange[0])}</span>
+          <span className="text-muted-foreground">עד</span>
+          <span className="text-secondary">{fmt(sellRange[1])}</span>
         </div>
+        <Slider min={0} max={23} step={1} value={sellRange} onValueChange={setSellRange} className="w-full" />
+        <p className="text-xs text-muted-foreground">
+          מכירה לרשת בשעות שיא הצריכה (מחיר גבוה)
+        </p>
       </motion.div>
 
-      {/* Auto Mode */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="bg-card border border-border rounded-2xl p-5"
+      <button
+        onClick={() => toast.success('הגדרות נשמרו בהצלחה!')}
+        className="w-full py-4 bg-primary text-primary-foreground font-black text-base rounded-2xl hover:bg-primary/90 active:scale-95 transition-all"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-secondary/20">
-              <Zap className="w-5 h-5 text-secondary" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm">הפעל אוטומטי</h3>
-              <p className="text-xs text-muted-foreground">המערכת תנהל הכול חכם</p>
-            </div>
-          </div>
-          <Switch checked={autoMode} onCheckedChange={handleAutoToggle} />
-        </div>
-      </motion.div>
+        שמור הגדרות
+      </button>
     </div>
   );
 }

@@ -14,6 +14,9 @@ import Savings from './pages/Savings';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
+import ChargeBattery from './pages/actions/ChargeBattery';
+import SellToGrid from './pages/actions/SellToGrid';
+import ChargeEV from './pages/actions/ChargeEV';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

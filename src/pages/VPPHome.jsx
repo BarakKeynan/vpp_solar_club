@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, ShieldCheck } from 'lucide-react';
-import { toast } from 'sonner';
+import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (

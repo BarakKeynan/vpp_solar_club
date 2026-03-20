@@ -1,117 +1,84 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Bell, Wifi, Car, Shield, ChevronLeft, Cpu,
-  Volume2, VolumeX, Eye, EyeOff, LogOut
-} from 'lucide-react';
+import { Bell, Plug, Shield, ChevronRight, LogOut } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 
-const settingSections = [
+const sections = [
   {
     title: 'התראות',
+    icon: Bell,
     items: [
-      { key: 'priceAlerts', label: 'התראות מחיר חשמל', desc: 'קבל עדכון כשהמחיר משתנה', icon: Bell },
-      { key: 'batteryAlerts', label: 'התראות סוללה', desc: 'כשהסוללה מלאה או נמוכה', icon: Volume2 },
+      { key: 'alerts_price', label: 'התראות מחיר חשמל', defaultOn: true },
+      { key: 'alerts_battery', label: 'התראות סוללה נמוכה', defaultOn: true },
+      { key: 'alerts_export', label: 'אישור מכירה לרשת', defaultOn: false },
     ],
   },
   {
-    title: 'חיבור מכשירים',
+    title: 'מכשירים מחוברים',
+    icon: Plug,
     items: [
-      { key: 'inverter', label: 'אינוורטר SolarEdge', desc: 'מחובר • SE10K', icon: Cpu, connected: true },
-      { key: 'ev', label: 'רכב חשמלי', desc: 'Tesla Model 3 • מחובר', icon: Car, connected: true },
-      { key: 'wifi', label: 'רשת Wi-Fi', desc: 'MyHome_5G • מחובר', icon: Wifi, connected: true },
+      { key: 'inverter', label: 'אינוורטר SolarEdge', status: 'מחובר', statusColor: 'text-primary' },
+      { key: 'ev', label: 'רכב חשמלי Tesla', status: 'מחובר', statusColor: 'text-primary' },
+      { key: 'meter', label: 'מונה חכם', status: 'ממתין', statusColor: 'text-accent' },
     ],
   },
   {
     title: 'אבטחה',
+    icon: Shield,
     items: [
-      { key: 'twoFactor', label: 'אימות דו-שלבי', desc: 'שכבת הגנה נוספת', icon: Shield },
-      { key: 'biometric', label: 'כניסה ביומטרית', desc: 'טביעת אצבע או Face ID', icon: Eye },
+      { key: 'biometric', label: 'כניסה ביומטרית', defaultOn: true },
+      { key: '2fa', label: 'אימות דו-שלבי', defaultOn: false },
     ],
   },
 ];
 
 export default function Settings() {
   const [toggles, setToggles] = useState({
-    priceAlerts: true,
-    batteryAlerts: true,
-    twoFactor: false,
-    biometric: true,
+    alerts_price: true, alerts_battery: true, alerts_export: false,
+    biometric: true, '2fa': false,
   });
 
-  const handleToggle = (key) => {
-    setToggles(prev => {
-      const newVal = !prev[key];
-      toast.success(newVal ? 'הופעל' : 'כובה');
-      return { ...prev, [key]: newVal };
-    });
+  const toggle = (key) => {
+    setToggles(p => ({ ...p, [key]: !p[key] }));
+    toast.success('הגדרה עודכנה');
   };
 
   return (
-    <div className="px-4 pt-6 space-y-5 pb-4">
-      <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-        <h1 className="text-xl font-bold">הגדרות</h1>
-        <p className="text-sm text-muted-foreground mt-1">נהל את המערכת שלך</p>
-      </motion.div>
+    <div className="p-4 space-y-4 pb-28">
+      <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
+        הגדרות
+      </motion.h1>
 
-      {settingSections.map((section, si) => (
-        <motion.div
-          key={section.title}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 + si * 0.1 }}
-          className="space-y-2"
-        >
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
-            {section.title}
-          </h3>
-          <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
-            {section.items.map((item) => (
-              <div key={item.key} className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${
-                    item.connected ? 'bg-primary/20' : 'bg-muted'
-                  }`}>
-                    <item.icon className={`w-5 h-5 ${
-                      item.connected ? 'text-primary' : 'text-muted-foreground'
-                    }`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">{item.desc}</p>
-                  </div>
-                </div>
-                {item.connected !== undefined ? (
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-primary" />
-                    <span className="text-xs text-primary font-medium">מחובר</span>
-                  </div>
-                ) : (
-                  <Switch
-                    checked={toggles[item.key] || false}
-                    onCheckedChange={() => handleToggle(item.key)}
-                  />
-                )}
-              </div>
-            ))}
+      {sections.map((section, si) => (
+        <motion.div key={section.title}
+          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: si * 0.1 }}
+          className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="flex items-center gap-2 p-4 pb-2">
+            <section.icon className="w-4 h-4 text-primary" />
+            <p className="text-xs font-bold text-muted-foreground">{section.title}</p>
           </div>
+          {section.items.map((item, ii) => (
+            <div key={item.key} className={`flex items-center justify-between px-4 py-3 ${ii < section.items.length - 1 ? 'border-b border-border' : ''}`}>
+              <span className="text-sm font-medium text-foreground">{item.label}</span>
+              {item.status ? (
+                <span className={`text-xs font-bold ${item.statusColor}`}>{item.status}</span>
+              ) : (
+                <Switch checked={toggles[item.key] ?? item.defaultOn} onCheckedChange={() => toggle(item.key)} />
+              )}
+            </div>
+          ))}
         </motion.div>
       ))}
 
-      {/* Logout */}
-      <motion.button
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => base44.auth.logout()}
-        className="w-full bg-destructive/10 border border-destructive/20 rounded-2xl p-4 flex items-center justify-center gap-2 text-destructive font-semibold text-sm"
+      <button
+        onClick={() => base44.auth.logout('/')}
+        className="w-full py-3 rounded-2xl border border-destructive/40 text-destructive font-semibold text-sm flex items-center justify-center gap-2 hover:bg-destructive/10 transition-colors"
       >
         <LogOut className="w-4 h-4" />
-        <span>התנתקות</span>
-      </motion.button>
+        התנתק
+      </button>
     </div>
   );
 }

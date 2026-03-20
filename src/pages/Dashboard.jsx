@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import VPPHome from './VPPHome';
-import SolarClub from './SolarClub';
+import VPPHome from './VPPHome.jsx';
+import SolarClub from './SolarClub.jsx';
 
 export default function Dashboard() {
   const [mode, setMode] = useState('home'); // 'home' | 'club'

@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
+// Pages
 import AppLayout from './components/layout/AppLayout';
 import Dashboard from './pages/Dashboard';
 import Schedule from './pages/Schedule';
@@ -21,20 +22,16 @@ const AuthenticatedApp = () => {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-muted border-t-primary rounded-full animate-spin"></div>
-          <p className="text-sm text-muted-foreground font-heebo">טוען...</p>
+          <div className="w-10 h-10 border-4 border-muted border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">טוען...</p>
         </div>
       </div>
     );
   }
 
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
   }
 
   return (
@@ -63,7 +60,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

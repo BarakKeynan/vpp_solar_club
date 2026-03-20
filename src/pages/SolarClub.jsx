@@ -39,15 +39,16 @@ function JoinForm({ onJoin }) {
       {/* Benefits */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { icon: '💰', label: 'חיסכון', desc: 'עד 80 ₪/חודש' },
-          { icon: '🌱', label: 'ירוק', desc: '100% מתחדש' },
-          { icon: '🏙️', label: 'לדיירים', desc: 'ללא גג נדרש' },
+          { icon: '💰', label: 'חיסכון', desc: 'עד 80 ₪/חודש', path: '/club/savings' },
+          { icon: '🌱', label: 'ירוק', desc: '100% מתחדש', path: '/club/green' },
+          { icon: '🏙️', label: 'לדיירים', desc: 'ללא גג נדרש', path: '/club/tenants' },
         ].map(b => (
-          <div key={b.label} className="bg-card border border-border rounded-xl p-3 text-center">
+          <motion.button key={b.label} whileTap={{ scale: 0.95 }} onClick={() => navigate(b.path)}
+            className="bg-card border border-border rounded-xl p-3 text-center hover:border-primary/50 transition-colors">
             <div className="text-2xl mb-1">{b.icon}</div>
             <p className="text-xs font-bold text-foreground">{b.label}</p>
             <p className="text-[10px] text-muted-foreground">{b.desc}</p>
-          </div>
+          </motion.button>
         ))}
       </div>
 

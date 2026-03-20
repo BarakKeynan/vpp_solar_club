@@ -1,36 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import StatusBar from '../components/dashboard/StatusBar';
-import PowerFlow from '../components/dashboard/PowerFlow';
-import SavingsCounter from '../components/dashboard/SavingsCounter';
-import ActionButtons from '../components/dashboard/ActionButtons';
+import VPPHome from './VPPHome';
+import SolarClub from './SolarClub';
 
 export default function Dashboard() {
+  const [mode, setMode] = useState('home'); // 'home' | 'club'
+
   return (
-    <div className="px-4 pt-6 space-y-5">
-      {/* Header */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="text-center"
-      >
-        <h1 className="text-2xl font-black tracking-tight">
-          <span className="text-primary">VPP</span>{' '}
-          <span className="text-foreground">הבית שלי</span>
-        </h1>
-      </motion.div>
+    <div className="min-h-screen bg-background">
+      {/* Mode Toggle */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 pt-4 pb-3">
+        <div className="flex bg-muted rounded-2xl p-1 gap-1">
+          <button
+            onClick={() => setMode('home')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              mode === 'home'
+                ? 'bg-primary text-primary-foreground shadow-lg'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            🏠 VPP Home
+          </button>
+          <button
+            onClick={() => setMode('club')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              mode === 'club'
+                ? 'bg-secondary text-secondary-foreground shadow-lg'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            ☀️ Solar Club
+          </button>
+        </div>
+      </div>
 
-      {/* Status */}
-      <StatusBar />
-
-      {/* Savings Counter */}
-      <SavingsCounter />
-
-      {/* Power Flow */}
-      <PowerFlow />
-
-      {/* Action Buttons */}
-      <ActionButtons />
+      {mode === 'home' ? <VPPHome /> : <SolarClub />}
     </div>
   );
 }

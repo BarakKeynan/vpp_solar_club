@@ -17,6 +17,9 @@ import Support from './pages/Support';
 import ChargeBattery from './pages/actions/ChargeBattery';
 import SellToGrid from './pages/actions/SellToGrid';
 import ChargeEV from './pages/actions/ChargeEV';
+import SavingsInfo from './pages/club/SavingsInfo';
+import GreenInfo from './pages/club/GreenInfo';
+import TenantsInfo from './pages/club/TenantsInfo';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +53,9 @@ const AuthenticatedApp = () => {
         <Route path="/charge-battery" element={<ChargeBattery />} />
         <Route path="/sell-to-grid" element={<SellToGrid />} />
         <Route path="/charge-ev" element={<ChargeEV />} />
+        <Route path="/club/savings" element={<SavingsInfo />} />
+        <Route path="/club/green" element={<GreenInfo />} />
+        <Route path="/club/tenants" element={<TenantsInfo />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

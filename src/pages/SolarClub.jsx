@@ -15,6 +15,7 @@ const savingsData = [
 ];
 
 function JoinForm({ onJoin }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', address: '', apartment: '', shares: '1' });
 
   const handleSubmit = (e) => {

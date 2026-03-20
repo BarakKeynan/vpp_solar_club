@@ -47,6 +47,9 @@ const AuthenticatedApp = () => {
         <Route path="/Profile" element={<Profile />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/Support" element={<Support />} />
+        <Route path="/charge-battery" element={<ChargeBattery />} />
+        <Route path="/sell-to-grid" element={<SellToGrid />} />
+        <Route path="/charge-ev" element={<ChargeEV />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -31,6 +31,7 @@ function FlowDots({ active }) {
 }
 
 export default function VPPHome() {
+  const navigate = useNavigate();
   return (
     <div className="p-4 space-y-4 pb-28">
       {/* Header */}

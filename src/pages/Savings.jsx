@@ -6,7 +6,24 @@ import {
   BarChart, Bar, CartesianGrid,
 } from 'recharts';
 
-const monthlyData = [
+const periodData = {
+  day: [
+    { month: '08:00', vpp: 12, club: 3 },
+    { month: '10:00', vpp: 28, club: 6 },
+    { month: '12:00', vpp: 45, club: 9 },
+    { month: '14:00', vpp: 38, club: 8 },
+    { month: '16:00', vpp: 32, club: 7 },
+    { month: '18:00', vpp: 22, club: 5 },
+  ],
+  week: [
+    { month: 'א׳', vpp: 42, club: 9 },
+    { month: 'ב׳', vpp: 38, club: 8 },
+    { month: 'ג׳', vpp: 55, club: 12 },
+    { month: 'ד׳', vpp: 61, club: 14 },
+    { month: 'ה׳', vpp: 47, club: 10 },
+    { month: 'ו׳', vpp: 70, club: 16 },
+  ],
+  month: [
   { month: 'אוק', vpp: 180, club: 38 },
   { month: 'נוב', vpp: 210, club: 42 },
   { month: 'דצ', vpp: 165, club: 35 },

@@ -5,6 +5,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import SplashScreen from './components/SplashScreen';
 
 // Pages
 import AppLayout from './components/layout/AppLayout';
@@ -63,12 +66,19 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
+        <AnimatePresence>
+          {showSplash && <SplashScreen key="splash" onDone={() => setShowSplash(false)} />}
+        </AnimatePresence>
+        {!showSplash && (
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+        )}
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

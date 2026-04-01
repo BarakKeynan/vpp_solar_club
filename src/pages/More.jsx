@@ -1,9 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp } from 'lucide-react';
 
 const items = [
+  {
+    path: '/financial',
+    icon: TrendingUp,
+    emoji: '📈',
+    title: 'ביצועים פיננסיים',
+    subtitle: 'ROI היסטורי, תחזיות רווח ומחשבון חיסכון אישי',
+    color: 'border-primary/30 bg-primary/5',
+    accent: 'text-primary',
+  },
   {
     path: '/providers',
     icon: Plug,

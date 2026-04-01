@@ -27,6 +27,7 @@ import Providers from './pages/Providers';
 import SmartCare from './pages/SmartCare';
 import Marketplace from './pages/Marketplace';
 import More from './pages/More';
+import FinancialPerformance from './pages/FinancialPerformance';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
         <Route path="/smart-care" element={<SmartCare />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/more" element={<More />} />
+        <Route path="/financial" element={<FinancialPerformance />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

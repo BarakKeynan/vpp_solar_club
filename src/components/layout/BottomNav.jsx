@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Sun, TrendingUp, User, HelpCircle, Clock } from 'lucide-react';
+import { Home, TrendingUp, User, Clock, LayoutGrid } from 'lucide-react';
 
 const navItems = [
   { path: '/Dashboard', label: 'בית', icon: Home },
   { path: '/Schedule', label: 'תזמון', icon: Clock },
   { path: '/Savings', label: 'חיסכון', icon: TrendingUp },
   { path: '/Profile', label: 'פרופיל', icon: User },
-  { path: '/Support', label: 'תמיכה', icon: HelpCircle },
+  { path: '/more', label: 'עוד', icon: LayoutGrid },
 ];
 
 export default function BottomNav() {

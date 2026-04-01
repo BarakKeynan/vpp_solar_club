@@ -23,6 +23,10 @@ import ChargeEV from './pages/actions/ChargeEV';
 import SavingsInfo from './pages/club/SavingsInfo';
 import GreenInfo from './pages/club/GreenInfo';
 import TenantsInfo from './pages/club/TenantsInfo';
+import Providers from './pages/Providers';
+import SmartCare from './pages/SmartCare';
+import Marketplace from './pages/Marketplace';
+import More from './pages/More';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -59,6 +63,10 @@ const AuthenticatedApp = () => {
         <Route path="/club/savings" element={<SavingsInfo />} />
         <Route path="/club/green" element={<GreenInfo />} />
         <Route path="/club/tenants" element={<TenantsInfo />} />
+        <Route path="/providers" element={<Providers />} />
+        <Route path="/smart-care" element={<SmartCare />} />
+        <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/more" element={<More />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

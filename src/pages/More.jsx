@@ -1,9 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store, TrendingUp } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp, Shield, Users } from 'lucide-react';
 
 const items = [
+  {
+    path: '/referral',
+    icon: Users,
+    emoji: '🤝',
+    title: 'חבר מביא חבר',
+    subtitle: 'הפנה חברים וצבור פאנל וירטואלי + VIP Founder Circle',
+    color: 'border-yellow-400/30 bg-yellow-400/5',
+    accent: 'text-yellow-400',
+  },
+  {
+    path: '/compliance',
+    icon: Shield,
+    emoji: '🛡️',
+    title: 'שקיפות ואמינות',
+    subtitle: 'רגולציה, AES-256, ISO 27001 ו-Privacy by Design',
+    color: 'border-secondary/30 bg-secondary/5',
+    accent: 'text-secondary',
+  },
   {
     path: '/financial',
     icon: TrendingUp,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
+import WhatsAppButton from '../WhatsAppButton';
 
 export default function AppLayout() {
   return (
@@ -9,6 +10,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
       <BottomNav />
+      <WhatsAppButton />
     </div>
   );
 }

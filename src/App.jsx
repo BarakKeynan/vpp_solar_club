@@ -28,6 +28,8 @@ import SmartCare from './pages/SmartCare';
 import Marketplace from './pages/Marketplace';
 import More from './pages/More';
 import FinancialPerformance from './pages/FinancialPerformance';
+import ComplianceHub from './pages/ComplianceHub';
+import Referral from './pages/Referral';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -69,6 +71,8 @@ const AuthenticatedApp = () => {
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/more" element={<More />} />
         <Route path="/financial" element={<FinancialPerformance />} />
+        <Route path="/compliance" element={<ComplianceHub />} />
+        <Route path="/referral" element={<Referral />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

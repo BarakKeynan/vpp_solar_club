@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Sun, TrendingUp, Star, CheckCircle, ChevronRight } from 'lucide-react';
+import { Users, Sun, TrendingUp, Star, CheckCircle, ChevronRight, Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -16,7 +16,7 @@ const savingsData = [
 
 function JoinForm({ onJoin }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', address: '', apartment: '', shares: '1' });
+  const [form, setForm] = useState({ name: '', address: '', apartment: '', shares: 1 });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -84,17 +84,17 @@ function JoinForm({ onJoin }) {
           className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
         />
         <div>
-          <p className="text-xs text-muted-foreground mb-2">כמות מניות ({form.shares} מניות × 29 ₪)</p>
-          <div className="flex gap-2">
-            {['1', '2', '3', '4'].map(n => (
-              <button
-                key={n} type="button"
-                onClick={() => setForm({ ...form, shares: n })}
-                className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${form.shares === n ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
-              >
-                {n}
-              </button>
-            ))}
+          <p className="text-xs text-muted-foreground mb-2">כמות מניות ({form.shares} מניות × 29 ₪ = <span className="text-primary font-bold">{form.shares * 29} ₪/חודש</span>)</p>
+          <div className="flex items-center justify-between bg-muted rounded-2xl px-4 py-3">
+            <button type="button" onClick={() => setForm({ ...form, shares: Math.max(1, form.shares - 1) })}
+              className="p-1.5 rounded-xl bg-card border border-border">
+              <Minus className="w-4 h-4 text-foreground" />
+            </button>
+            <span className="text-2xl font-black text-foreground">{form.shares}</span>
+            <button type="button" onClick={() => setForm({ ...form, shares: form.shares + 1 })}
+              className="p-1.5 rounded-xl bg-card border border-border">
+              <Plus className="w-4 h-4 text-foreground" />
+            </button>
           </div>
         </div>
         <button type="submit" className="w-full py-4 bg-primary text-primary-foreground font-black text-base rounded-2xl hover:bg-primary/90 active:scale-95 transition-all">

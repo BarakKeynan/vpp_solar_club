@@ -60,13 +60,14 @@ const farms = [
   },
 ];
 
-function BuyModal({ farm, onClose }) {
+function BuyModal({ farm, onClose, onBought }) {
   const [qty, setQty] = useState(1);
   const total = (farm.sharePrice * qty).toFixed(2);
 
   const handleBuy = () => {
     addShares(farm.id, qty, farm);
     toast.success(`רכשת ${qty} מניות ב-${farm.name} בסך ₪${total}`);
+    onBought();
     onClose();
   };
 
@@ -253,7 +254,13 @@ export default function Marketplace() {
       })}
 
       <AnimatePresence>
-        {selected && <BuyModal farm={selected} onClose={() => setSelected(null)} />}
+        {selected && (
+          <BuyModal
+            farm={selected}
+            onClose={() => setSelected(null)}
+            onBought={() => setPortfolio(getPortfolio())}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

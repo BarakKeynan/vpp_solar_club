@@ -1,7 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -30,8 +32,79 @@ function FlowDots({ active }) {
   );
 }
 
+const alerts = [
+  {
+    id: 'cleaning',
+    icon: '🛠️',
+    type: 'maintenance',
+    title: 'נצילות הפאנלים ירדה ל-85%',
+    desc: 'זיהינו ירידה עקב לכלוך. ניקוי יחזיר ~8% ייצור.',
+    action: 'הזמן ניקוי (₪280)',
+    color: 'border-accent/40 bg-accent/5',
+    tag: 'תחזוקה',
+    tagColor: 'bg-accent/20 text-accent',
+  },
+  {
+    id: 'farm',
+    icon: '📈',
+    type: 'investment',
+    title: 'מכסה חדשה בחוות גלבוע',
+    desc: 'תשואה 10.4% שנתית. ניתן להוסיף 5 יחידות ייצור לתיק.',
+    action: 'בדוק היתכנות',
+    color: 'border-secondary/40 bg-secondary/5',
+    tag: 'השקעה',
+    tagColor: 'bg-secondary/20 text-secondary',
+  },
+  {
+    id: 'inverter',
+    icon: '⚡',
+    type: 'hardware',
+    title: 'זוהתה תקלה בממיר',
+    desc: 'ממיר מספר 2 מדווח על תקלת תקשורת. מומלץ לתאם טכנאי.',
+    action: 'תאם טכנאי',
+    color: 'border-destructive/40 bg-destructive/5',
+    tag: 'חומרה',
+    tagColor: 'bg-destructive/20 text-destructive',
+  },
+];
+
 export default function VPPHome() {
   const navigate = useNavigate();
+  const [autoPilot, setAutoPilot] = useState(false);
+  const [tradeCount, setTradeCount] = useState(0);
+  const [surplusProfit, setSurplusProfit] = useState(0);
+  const [dismissedAlerts, setDismissedAlerts] = useState([]);
+
+  // Simulate autonomous trades when auto-pilot is ON
+  useEffect(() => {
+    if (!autoPilot) return;
+    const interval = setInterval(() => {
+      setTradeCount(c => c + 1);
+      setSurplusProfit(p => +(p + (Math.random() * 8 + 2)).toFixed(2));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [autoPilot]);
+
+  const handleAutoPilot = (v) => {
+    setAutoPilot(v);
+    if (v) {
+      toast.success('מצב אופטימיזציה אקטיבית הופעל – המערכת מנהלת מסחר אוטונומי מול נגה');
+    } else {
+      toast('מצב ידני הופעל – אין פעולות אוטומטיות');
+      setTradeCount(0);
+      setSurplusProfit(0);
+    }
+  };
+
+  const handleAlertAction = (alert) => {
+    if (alert.type === 'maintenance') navigate('/smart-care');
+    else if (alert.type === 'investment') navigate('/farm-detail');
+    else toast.success('פנייתך נשלחה – טכנאי יחזור אליך תוך 24 שעות');
+    setDismissedAlerts(d => [...d, alert.id]);
+  };
+
+  const activeAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id));
+
   return (
     <div className="p-4 space-y-4 pb-28">
       {/* Header */}
@@ -41,17 +114,54 @@ export default function VPPHome() {
           <p className="text-xs text-muted-foreground">מערכת אנרגיה ביתית</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs text-primary font-medium">פעיל</span>
-          <Wifi className="w-4 h-4 text-primary" />
+          <div className={`w-2 h-2 rounded-full ${autoPilot ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
+          <span className={`text-xs font-medium ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`}>
+            {autoPilot ? 'ACTIVE' : 'ידני'}
+          </span>
+          <Wifi className={`w-4 h-4 ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`} />
         </div>
       </motion.div>
 
+      {/* Auto-Pilot Toggle */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
+        className={`rounded-2xl border p-4 transition-all ${autoPilot ? 'border-primary/60 bg-primary/10' : 'border-border bg-card'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl ${autoPilot ? 'bg-primary/20' : 'bg-muted'}`}>
+              <Bot className={`w-5 h-5 ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-foreground">טייס אוטומטי – ACTIVE</p>
+              <p className="text-xs text-muted-foreground">ניהול מסחר אוטונומי מול נגה</p>
+            </div>
+          </div>
+          <Switch checked={autoPilot} onCheckedChange={handleAutoPilot} />
+        </div>
+
+        <AnimatePresence>
+          {autoPilot && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden mt-4 pt-4 border-t border-primary/20 space-y-2">
+              <p className="text-xs text-primary font-bold">ברק, המערכת במצב אופטימיזציה אקטיבית.</p>
+              <p className="text-xs text-muted-foreground">המערכת מנהלת כעת את המסחר מול נגה באופן אוטונומי.</p>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-primary/10 rounded-xl p-3 text-center">
+                  <p className="text-lg font-black text-primary">{tradeCount}</p>
+                  <p className="text-[10px] text-muted-foreground">פעולות אוטומטיות</p>
+                </div>
+                <div className="bg-primary/10 rounded-xl p-3 text-center">
+                  <p className="text-lg font-black text-primary">+{surplusProfit.toFixed(0)} ₪</p>
+                  <p className="text-[10px] text-muted-foreground">רווח עודף שנצבר</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
       {/* Savings Counter */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 p-5"
-      >
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+        className="bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-primary/20">
@@ -70,13 +180,9 @@ export default function VPPHome() {
       </motion.div>
 
       {/* Power Flow */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-        className="bg-card rounded-2xl border border-border p-4 space-y-4"
-      >
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
+        className="bg-card rounded-2xl border border-border p-4 space-y-4">
         <p className="text-xs text-muted-foreground font-medium">זרימת אנרגיה</p>
-
-        {/* Row 1: Sun → Battery → Home */}
         <div className="flex items-center justify-center gap-1">
           <PowerNode icon={Sun} label="שמש" value="4.2 kW" colorClass="border-accent text-accent" />
           <FlowDots active />
@@ -93,31 +199,52 @@ export default function VPPHome() {
           <FlowDots active />
           <PowerNode icon={Home} label="בית" value="1.8 kW" colorClass="border-secondary text-secondary" />
         </div>
-
-        {/* Row 2: EV + Grid */}
         <div className="flex items-center justify-center gap-8">
           <PowerNode icon={Car} label="רכב חשמלי" value="טוען" colorClass="border-accent text-accent" />
           <PowerNode icon={Zap} label="רשת" value="מייצא" colorClass="border-secondary text-secondary" />
         </div>
       </motion.div>
 
+      {/* Manual Approvals – Alerts */}
+      {activeAlerts.length > 0 && (
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }} className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-accent" />
+            <p className="text-xs font-bold text-muted-foreground">הזדמנויות וניהול נכס – נדרש אישור ידני</p>
+          </div>
+          {activeAlerts.map(alert => (
+            <div key={alert.id} className={`rounded-2xl border p-4 ${alert.color}`}>
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{alert.icon}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${alert.tagColor}`}>{alert.tag}</span>
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{alert.desc}</p>
+                  <button
+                    onClick={() => handleAlertAction(alert)}
+                    className="mt-2 px-3 py-1.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground hover:border-primary/50 transition-colors active:scale-95">
+                    {alert.action} ←
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
       {/* Action Buttons */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
-        className="grid grid-cols-3 gap-3"
-      >
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
+        className="grid grid-cols-3 gap-3">
         {[
           { label: 'טען סוללה', icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
           { label: 'מכור לרשת', icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid' },
           { label: 'טען רכב', icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
         ].map(({ label, icon: Icon, color, path }) => (
-          <motion.button
-            key={path}
-            whileTap={{ scale: 0.93 }}
-            whileHover={{ scale: 1.04 }}
+          <motion.button key={path} whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.04 }}
             onClick={() => navigate(path)}
-            className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}
-          >
+            className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}>
             <Icon className="w-6 h-6" />
             <span className="leading-tight text-center">{label}</span>
           </motion.button>
@@ -125,10 +252,8 @@ export default function VPPHome() {
       </motion.div>
 
       {/* Stats Row */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}
-        className="grid grid-cols-3 gap-3"
-      >
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}
+        className="grid grid-cols-3 gap-3">
         {[
           { label: 'ייצור היום', value: '18.4 kWh', color: 'text-accent' },
           { label: 'צריכה', value: '6.2 kWh', color: 'text-secondary' },
@@ -140,6 +265,20 @@ export default function VPPHome() {
           </div>
         ))}
       </motion.div>
+
+      {/* Farm Detail Link */}
+      <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45 }}
+        onClick={() => navigate('/farm-detail')}
+        className="w-full flex items-center justify-between bg-card border border-border rounded-2xl p-4 active:scale-[0.98] transition-transform">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">☀️</span>
+          <div className="text-right">
+            <p className="text-sm font-black text-foreground">החווה הסולארית שלי</p>
+            <p className="text-xs text-muted-foreground">גלבוע פאוור · 3 יחידות · ROI 10.4%</p>
+          </div>
+        </div>
+        <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+      </motion.button>
     </div>
   );
 }

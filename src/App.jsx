@@ -30,6 +30,7 @@ import More from './pages/More';
 import FinancialPerformance from './pages/FinancialPerformance';
 import ComplianceHub from './pages/ComplianceHub';
 import Referral from './pages/Referral';
+import FarmDetail from './pages/FarmDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -73,6 +74,7 @@ const AuthenticatedApp = () => {
         <Route path="/financial" element={<FinancialPerformance />} />
         <Route path="/compliance" element={<ComplianceHub />} />
         <Route path="/referral" element={<Referral />} />
+        <Route path="/farm-detail" element={<FarmDetail />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

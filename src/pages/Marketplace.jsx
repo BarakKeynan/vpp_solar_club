@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, TrendingDown, Sun, MapPin, Zap, X, Plus, Minus } from 'lucide-react';
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
+import { addShares } from '@/lib/portfolio';
 
 const farms = [
   {
@@ -64,6 +65,7 @@ function BuyModal({ farm, onClose }) {
   const total = (farm.sharePrice * qty).toFixed(2);
 
   const handleBuy = () => {
+    addShares(farm.id, qty, farm);
     toast.success(`רכשת ${qty} מניות ב-${farm.name} בסך ₪${total}`);
     onClose();
   };

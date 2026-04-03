@@ -28,7 +28,10 @@ export default function FarmDetail() {
   const [showAlertForm, setShowAlertForm] = useState(false);
 
   useEffect(() => {
-    setPortfolio(getPortfolio());
+    const refresh = () => setPortfolio(getPortfolio());
+    refresh();
+    window.addEventListener('portfolio_updated', refresh);
+    return () => window.removeEventListener('portfolio_updated', refresh);
   }, []);
 
   const holdings = Object.entries(portfolio).map(([id, data]) => {

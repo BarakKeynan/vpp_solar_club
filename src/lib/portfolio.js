@@ -23,4 +23,5 @@ export function addShares(farmId, qty, farmMeta) {
     };
   }
   localStorage.setItem(KEY, JSON.stringify(portfolio));
+  window.dispatchEvent(new Event('portfolio_updated'));
 }

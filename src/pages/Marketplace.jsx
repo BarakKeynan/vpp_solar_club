@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, TrendingDown, Sun, MapPin, Zap, X, Plus, Minus } from 'lucide-react';
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
-import { addShares } from '@/lib/portfolio';
+import { addShares, getPortfolio } from '@/lib/portfolio';
 
 const farms = [
   {
@@ -140,6 +140,14 @@ function BuyModal({ farm, onClose }) {
 export default function Marketplace() {
   const [selected, setSelected] = useState(null);
   const [sort, setSort] = useState('yield');
+  const [portfolio, setPortfolio] = useState({});
+
+  useEffect(() => {
+    const refresh = () => setPortfolio(getPortfolio());
+    refresh();
+    window.addEventListener('portfolio_updated', refresh);
+    return () => window.removeEventListener('portfolio_updated', refresh);
+  }, []);
 
   const sorted = [...farms].sort((a, b) => {
     if (sort === 'yield') return parseFloat(b.yield) - parseFloat(a.yield);
@@ -228,10 +236,17 @@ export default function Marketplace() {
                   <p className="text-sm font-bold text-foreground">{farm.available}</p>
                 </div>
               </div>
-              <button onClick={() => setSelected(farm)}
-                className="px-4 py-2 bg-primary text-primary-foreground text-sm font-black rounded-xl active:scale-95 transition-all">
-                רכוש מניות
-              </button>
+              <div className="flex items-center gap-2">
+                {portfolio[farm.id] && (
+                  <div className="flex items-center gap-1 bg-primary/15 px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-black text-primary">✓ {portfolio[farm.id].qty} מניות</span>
+                  </div>
+                )}
+                <button onClick={() => setSelected(farm)}
+                  className="px-4 py-2 bg-primary text-primary-foreground text-sm font-black rounded-xl active:scale-95 transition-all">
+                  רכוש מניות
+                </button>
+              </div>
             </div>
           </motion.div>
         );

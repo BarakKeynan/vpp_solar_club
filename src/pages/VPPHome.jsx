@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
+import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
@@ -204,6 +205,9 @@ export default function VPPHome() {
           <PowerNode icon={Zap} label="רשת" value="מייצא" colorClass="border-secondary text-secondary" />
         </div>
       </motion.div>
+
+      {/* Provider Insight – Profit Gap Analysis */}
+      <ProviderInsightCard />
 
       {/* Manual Approvals – Alerts */}
       {activeAlerts.length > 0 && (

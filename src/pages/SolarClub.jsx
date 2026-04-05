@@ -4,6 +4,7 @@ import { Users, Sun, TrendingUp, Star, CheckCircle, ChevronRight, Plus, Minus } 
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import SegmentModal from '@/components/dashboard/SegmentModal';
 
 const savingsData = [
   { month: 'אוק', savings: 38 },
@@ -36,21 +37,32 @@ function JoinForm({ onJoin }) {
         </p>
       </div>
 
-      {/* Benefits */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { icon: '💰', label: 'חיסכון', desc: 'עד 80 ₪/חודש', path: '/club/savings' },
-          { icon: '🌱', label: 'ירוק', desc: '100% מתחדש', path: '/club/green' },
-          { icon: '🏙️', label: 'לדיירים', desc: 'ללא גג נדרש', path: '/club/tenants' },
-        ].map(b => (
-          <motion.button key={b.label} whileTap={{ scale: 0.95 }} onClick={() => navigate(b.path)}
-            className="bg-card border border-border rounded-xl p-3 text-center hover:border-primary/50 transition-colors">
-            <div className="text-2xl mb-1">{b.icon}</div>
-            <p className="text-xs font-bold text-foreground">{b.label}</p>
-            <p className="text-[10px] text-muted-foreground">{b.desc}</p>
-          </motion.button>
-        ))}
-      </div>
+      {/* Onboarding Segments */}
+      {(() => {
+        const [activeSegment, setActiveSegment] = React.useState(null);
+        const segments = [
+          { key: 'renters', emoji: '🏠', label: 'שוכרי דירה', desc: 'PPA וירטואלי' },
+          { key: 'apartment', emoji: '🏢', label: 'דיירי בניין', desc: 'מונה משותף' },
+          { key: 'families', emoji: '👨‍👩‍👧', label: 'משפחות', desc: 'סוללה ביתית' },
+          { key: 'cities', emoji: '🌆', label: 'תושבי ערים', desc: 'רשת לאומית' },
+        ];
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              {segments.map(s => (
+                <motion.button key={s.key} whileTap={{ scale: 0.96 }}
+                  onClick={() => setActiveSegment(s.key)}
+                  className="bg-card border border-border rounded-xl p-3 text-center hover:border-primary/50 transition-colors active:scale-95">
+                  <div className="text-2xl mb-1">{s.emoji}</div>
+                  <p className="text-xs font-bold text-foreground">{s.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{s.desc}</p>
+                </motion.button>
+              ))}
+            </div>
+            <SegmentModal segmentKey={activeSegment} onClose={() => setActiveSegment(null)} />
+          </>
+        );
+      })()}
 
       {/* Pricing */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-2">

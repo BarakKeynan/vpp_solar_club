@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
+import LiveTradingMetrics from '@/components/dashboard/LiveTradingMetrics';
 import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
@@ -209,6 +210,9 @@ export default function VPPHome() {
 
       {/* Community Synergy Hub */}
       <CommunitySynergyHub />
+
+      {/* Live Trading Metrics */}
+      <LiveTradingMetrics />
 
       {/* Provider Insight – Profit Gap Analysis */}
       <ProviderInsightCard />

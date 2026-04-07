@@ -2,69 +2,72 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Plug, Wrench, Store, TrendingUp, Shield, Users } from 'lucide-react';
-
-const items = [
-  {
-    path: '/referral',
-    icon: Users,
-    emoji: '🤝',
-    title: 'חבר מביא חבר',
-    subtitle: 'הפנה חברים וצבור פאנל וירטואלי + VIP Founder Circle',
-    color: 'border-yellow-400/30 bg-yellow-400/5',
-    accent: 'text-yellow-400',
-  },
-  {
-    path: '/compliance',
-    icon: Shield,
-    emoji: '🛡️',
-    title: 'שקיפות ואמינות',
-    subtitle: 'רגולציה, AES-256, ISO 27001 ו-Privacy by Design',
-    color: 'border-secondary/30 bg-secondary/5',
-    accent: 'text-secondary',
-  },
-  {
-    path: '/financial',
-    icon: TrendingUp,
-    emoji: '📈',
-    title: 'ביצועים פיננסיים',
-    subtitle: 'ROI היסטורי, תחזיות רווח ומחשבון חיסכון אישי',
-    color: 'border-primary/30 bg-primary/5',
-    accent: 'text-primary',
-  },
-  {
-    path: '/providers',
-    icon: Plug,
-    emoji: '⚡',
-    title: 'ניהול ספקים',
-    subtitle: 'Electra · אמישראגז · IEC – השווה ועבור',
-    color: 'border-primary/30 bg-primary/5',
-    accent: 'text-primary',
-  },
-  {
-    path: '/smart-care',
-    icon: Wrench,
-    emoji: '🔧',
-    title: 'Smart Care',
-    subtitle: 'ניטור פאנלים, מזג אוויר והזמנת תחזוקה',
-    color: 'border-accent/30 bg-accent/5',
-    accent: 'text-accent',
-  },
-  {
-    path: '/marketplace',
-    icon: Store,
-    emoji: '☀️',
-    title: 'Solar Farm Marketplace',
-    subtitle: 'רכישת מניות בחוות סולאריות ברחבי ישראל',
-    color: 'border-secondary/30 bg-secondary/5',
-    accent: 'text-secondary',
-  },
-];
+import { useLang } from '@/lib/i18n';
 
 export default function More() {
+  const { t } = useLang();
+
+  const items = [
+    {
+      path: '/referral',
+      icon: Users,
+      emoji: '🤝',
+      title: t('more_referral_title'),
+      subtitle: t('more_referral_sub'),
+      color: 'border-yellow-400/30 bg-yellow-400/5',
+      accent: 'text-yellow-400',
+    },
+    {
+      path: '/compliance',
+      icon: Shield,
+      emoji: '🛡️',
+      title: t('more_compliance_title'),
+      subtitle: t('more_compliance_sub'),
+      color: 'border-secondary/30 bg-secondary/5',
+      accent: 'text-secondary',
+    },
+    {
+      path: '/financial',
+      icon: TrendingUp,
+      emoji: '📈',
+      title: t('more_financial_title'),
+      subtitle: t('more_financial_sub'),
+      color: 'border-primary/30 bg-primary/5',
+      accent: 'text-primary',
+    },
+    {
+      path: '/providers',
+      icon: Plug,
+      emoji: '⚡',
+      title: t('more_providers_title'),
+      subtitle: t('more_providers_sub'),
+      color: 'border-primary/30 bg-primary/5',
+      accent: 'text-primary',
+    },
+    {
+      path: '/smart-care',
+      icon: Wrench,
+      emoji: '🔧',
+      title: t('more_smartcare_title'),
+      subtitle: t('more_smartcare_sub'),
+      color: 'border-accent/30 bg-accent/5',
+      accent: 'text-accent',
+    },
+    {
+      path: '/marketplace',
+      icon: Store,
+      emoji: '☀️',
+      title: t('more_marketplace_title'),
+      subtitle: t('more_marketplace_sub'),
+      color: 'border-secondary/30 bg-secondary/5',
+      accent: 'text-secondary',
+    },
+  ];
+
   return (
     <div className="p-4 space-y-4 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        שירותים נוספים
+        {t('more_title')}
       </motion.h1>
 
       {items.map((item, i) => (

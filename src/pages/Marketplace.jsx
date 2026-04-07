@@ -1,72 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, TrendingDown, Sun, MapPin, Zap, X, Plus, Minus } from 'lucide-react';
-import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, TrendingDown, MapPin, Zap, X, Plus, Minus } from 'lucide-react';
+import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 import { addShares, getPortfolio } from '@/lib/portfolio';
+import { useLang } from '@/lib/i18n';
 
 const farms = [
-  {
-    id: 'negev1',
-    name: 'נגב סולאר A',
-    location: 'באר שבע',
-    capacity: '4.2 MW',
-    sharePrice: 142.5,
-    change: +3.2,
-    totalShares: 10000,
-    available: 320,
-    yield: '9.8%',
-    icon: '☀️',
-    history: [130, 134, 136, 138, 135, 139, 142, 142.5],
-  },
-  {
-    id: 'galilee1',
-    name: 'גליל אנרגיה',
-    location: 'כנרת',
-    capacity: '2.8 MW',
-    sharePrice: 98.3,
-    change: +1.1,
-    totalShares: 8000,
-    available: 540,
-    yield: '8.4%',
-    icon: '🌊',
-    history: [92, 94, 93, 95, 96, 97, 98, 98.3],
-  },
-  {
-    id: 'arava1',
-    name: 'ערבה פאוור',
-    location: 'ערד',
-    capacity: '6.5 MW',
-    sharePrice: 211.0,
-    change: -0.8,
-    totalShares: 15000,
-    available: 890,
-    yield: '11.2%',
-    icon: '🏜️',
-    history: [215, 214, 213, 212, 214, 213, 211, 211],
-  },
-  {
-    id: 'carmel1',
-    name: 'כרמל גרין',
-    location: 'חיפה',
-    capacity: '1.9 MW',
-    sharePrice: 76.8,
-    change: +5.4,
-    totalShares: 5000,
-    available: 120,
-    yield: '7.6%',
-    icon: '🌿',
-    history: [66, 68, 70, 71, 72, 74, 76, 76.8],
-  },
+  { id: 'negev1', name: 'נגב סולאר A', location: 'באר שבע', capacity: '4.2 MW', sharePrice: 142.5, change: +3.2, available: 320, yield: '9.8%', icon: '☀️', history: [130, 134, 136, 138, 135, 139, 142, 142.5] },
+  { id: 'galilee1', name: 'גליל אנרגיה', location: 'כנרת', capacity: '2.8 MW', sharePrice: 98.3, change: +1.1, available: 540, yield: '8.4%', icon: '🌊', history: [92, 94, 93, 95, 96, 97, 98, 98.3] },
+  { id: 'arava1', name: 'ערבה פאוור', location: 'ערד', capacity: '6.5 MW', sharePrice: 211.0, change: -0.8, available: 890, yield: '11.2%', icon: '🏜️', history: [215, 214, 213, 212, 214, 213, 211, 211] },
+  { id: 'carmel1', name: 'כרמל גרין', location: 'חיפה', capacity: '1.9 MW', sharePrice: 76.8, change: +5.4, available: 120, yield: '7.6%', icon: '🌿', history: [66, 68, 70, 71, 72, 74, 76, 76.8] },
 ];
 
 function BuyModal({ farm, onClose, onBought }) {
+  const { t } = useLang();
   const [qty, setQty] = useState(1);
   const total = (farm.sharePrice * qty).toFixed(2);
 
   const handleBuy = () => {
     addShares(farm.id, qty, farm);
-    toast.success(`רכשת ${qty} מניות ב-${farm.name} בסך ₪${total}`);
+    toast.success(`${t('lang') === 'en' ? 'Bought' : 'רכשת'} ${qty} ${t('lang') === 'en' ? 'shares in' : 'מניות ב-'}${farm.name}`);
     onBought();
     onClose();
   };
@@ -75,11 +29,9 @@ function BuyModal({ farm, onClose, onBought }) {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center p-4"
-      onClick={onClose}>
+      className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center p-4" onClick={onClose}>
       <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
-        className="bg-card border border-border rounded-3xl p-5 w-full max-w-md space-y-4"
-        onClick={e => e.stopPropagation()}>
+        className="bg-card border border-border rounded-3xl p-5 w-full max-w-md space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{farm.icon}</span>
@@ -91,19 +43,18 @@ function BuyModal({ farm, onClose, onBought }) {
           <button onClick={onClose} className="p-2 rounded-xl bg-muted"><X className="w-4 h-4 text-muted-foreground" /></button>
         </div>
 
-        {/* Mini Chart */}
         <ResponsiveContainer width="100%" height={80}>
           <LineChart data={histData}>
             <Line type="monotone" dataKey="v" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-            <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 11 }} formatter={(v) => [`₪${v}`, 'מחיר']} />
+            <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 11 }} formatter={(v) => [`₪${v}`, t('price_label')]} />
           </LineChart>
         </ResponsiveContainer>
 
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
-            { label: 'מחיר מניה', value: `₪${farm.sharePrice}` },
-            { label: 'תשואה שנתית', value: farm.yield },
-            { label: 'זמינות', value: farm.available },
+            { label: t('share_price'), value: `₪${farm.sharePrice}` },
+            { label: t('annual_yield'), value: farm.yield },
+            { label: t('availability'), value: farm.available },
           ].map(s => (
             <div key={s.label} className="bg-muted rounded-xl p-2">
               <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -112,10 +63,9 @@ function BuyModal({ farm, onClose, onBought }) {
           ))}
         </div>
 
-        {/* Qty Selector */}
         <div className="bg-muted rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">כמות מניות</p>
+            <p className="text-xs text-muted-foreground">{t('shares_count')}</p>
             <p className="text-2xl font-black text-foreground mt-1">₪{total}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -129,9 +79,8 @@ function BuyModal({ farm, onClose, onBought }) {
           </div>
         </div>
 
-        <button onClick={handleBuy}
-          className="w-full py-4 bg-primary text-primary-foreground font-black text-base rounded-2xl active:scale-95 transition-all">
-          רכוש {qty} מניות · ₪{total}
+        <button onClick={handleBuy} className="w-full py-4 bg-primary text-primary-foreground font-black text-base rounded-2xl active:scale-95 transition-all">
+          {t('buy_cta', { qty, total })}
         </button>
       </motion.div>
     </motion.div>
@@ -139,6 +88,7 @@ function BuyModal({ farm, onClose, onBought }) {
 }
 
 export default function Marketplace() {
+  const { t } = useLang();
   const [selected, setSelected] = useState(null);
   const [sort, setSort] = useState('yield');
   const [portfolio, setPortfolio] = useState({});
@@ -160,16 +110,14 @@ export default function Marketplace() {
   return (
     <div className="p-4 space-y-4 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        Solar Farm Marketplace
+        {t('marketplace_title')}
       </motion.h1>
 
-      {/* Market Summary */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
-        className="grid grid-cols-3 gap-2">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }} className="grid grid-cols-3 gap-2">
         {[
-          { label: 'חוות ברשת', value: '4', color: 'text-foreground' },
-          { label: 'תשואה ממוצעת', value: '9.25%', color: 'text-primary' },
-          { label: 'מניות זמינות', value: '1,870', color: 'text-secondary' },
+          { label: t('farms_count'), value: '4', color: 'text-foreground' },
+          { label: t('avg_yield'), value: '9.25%', color: 'text-primary' },
+          { label: t('shares_available'), value: '1,870', color: 'text-secondary' },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border rounded-2xl p-3 text-center">
             <p className={`text-lg font-black ${s.color}`}>{s.value}</p>
@@ -178,17 +126,15 @@ export default function Marketplace() {
         ))}
       </motion.div>
 
-      {/* Sort */}
       <div className="flex bg-muted rounded-xl p-1 gap-1">
-        {[{ k: 'yield', l: 'תשואה' }, { k: 'price', l: 'מחיר' }, { k: 'change', l: 'שינוי' }].map(o => (
+        {[{ k: 'yield', lKey: 'sort_yield' }, { k: 'price', lKey: 'sort_price' }, { k: 'change', lKey: 'sort_change' }].map(o => (
           <button key={o.k} onClick={() => setSort(o.k)}
             className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${sort === o.k ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-            {o.l}
+            {t(o.lKey)}
           </button>
         ))}
       </div>
 
-      {/* Farm Cards */}
       {sorted.map((farm, i) => {
         const up = farm.change >= 0;
         const histData = farm.history.map((v, idx) => ({ i: idx, v }));
@@ -217,7 +163,6 @@ export default function Marketplace() {
               </div>
             </div>
 
-            {/* Sparkline */}
             <div className="h-12 mb-3">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={histData}>
@@ -229,23 +174,22 @@ export default function Marketplace() {
             <div className="flex items-center justify-between">
               <div className="flex gap-3">
                 <div>
-                  <p className="text-xs text-muted-foreground">תשואה</p>
+                  <p className="text-xs text-muted-foreground">{t('yield_label')}</p>
                   <p className="text-sm font-black text-primary">{farm.yield}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">זמינות</p>
+                  <p className="text-xs text-muted-foreground">{t('availability')}</p>
                   <p className="text-sm font-bold text-foreground">{farm.available}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {portfolio[farm.id] && (
                   <div className="flex items-center gap-1 bg-primary/15 px-2.5 py-1 rounded-full">
-                    <span className="text-xs font-black text-primary">✓ {portfolio[farm.id].qty} מניות</span>
+                    <span className="text-xs font-black text-primary">✓ {t('my_shares', { qty: portfolio[farm.id].qty })}</span>
                   </div>
                 )}
-                <button onClick={() => setSelected(farm)}
-                  className="px-4 py-2 bg-primary text-primary-foreground text-sm font-black rounded-xl active:scale-95 transition-all">
-                  רכוש מניות
+                <button onClick={() => setSelected(farm)} className="px-4 py-2 bg-primary text-primary-foreground text-sm font-black rounded-xl active:scale-95 transition-all">
+                  {t('buy_shares')}
                 </button>
               </div>
             </div>
@@ -255,11 +199,7 @@ export default function Marketplace() {
 
       <AnimatePresence>
         {selected && (
-          <BuyModal
-            farm={selected}
-            onClose={() => setSelected(null)}
-            onBought={() => setPortfolio(getPortfolio())}
-          />
+          <BuyModal farm={selected} onClose={() => setSelected(null)} onBought={() => setPortfolio(getPortfolio())} />
         )}
       </AnimatePresence>
     </div>

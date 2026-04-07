@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Zap, Home, Car } from 'lucide-react';
-import {
-  AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useLang } from '@/lib/i18n';
 
 const periodData = {
   day: [
@@ -32,42 +31,47 @@ const periodData = {
   ],
 };
 
-const summaryByPeriod = {
-  day: [
-    { label: 'חיסכון היום', value: '+187 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'ייצור היום', value: '28 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
-    { label: 'Solar Club', value: '+9 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'שיא שעות', value: '12:00', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
-  ],
-  week: [
-    { label: 'חיסכון השבוע', value: '+1,210 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'ייצור השבוע', value: '74 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
-    { label: 'Solar Club', value: '+37 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'יום שיא', value: 'ה׳', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
-  ],
-  month: [
-    { label: 'חיסכון החודש', value: '+4,230 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'ייצור החודש', value: '310 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
-    { label: 'Solar Club', value: '+74 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-    { label: 'חיסכון השנה', value: '+18,400 ₪', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
-  ],
-};
-
-const periodLabels = { day: 'יום', week: 'שבוע', month: 'חודש' };
-
-const devices = [
-  { icon: Home, label: 'מזגן', saving: 42, action: 'הוזז לשעות זול' },
-  { icon: Car, label: 'רכב חשמלי', saving: 85, action: 'טעינה בלילה' },
-  { icon: Zap, label: 'מדיח כלים', saving: 18, action: 'הוזז לבוקר' },
-];
-
 export default function Savings() {
+  const { t } = useLang();
   const [period, setPeriod] = useState('month');
+
+  const summaryByPeriod = {
+    day: [
+      { label: t('savings_today'), value: '+187 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('production_today'), value: '28 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
+      { label: 'Solar Club', value: '+9 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('lang') === 'en' ? 'Peak Hour' : 'שיא שעות', value: '12:00', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+    ],
+    week: [
+      { label: t('lang') === 'en' ? 'This Week Savings' : 'חיסכון השבוע', value: '+1,210 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('lang') === 'en' ? 'This Week Production' : 'ייצור השבוע', value: '74 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
+      { label: 'Solar Club', value: '+37 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('lang') === 'en' ? 'Peak Day' : 'יום שיא', value: "ה׳", color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+    ],
+    month: [
+      { label: t('savings_this_month') || 'חיסכון החודש', value: '+4,230 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('lang') === 'en' ? 'This Month Production' : 'ייצור החודש', value: '310 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
+      { label: 'Solar Club', value: '+74 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('lang') === 'en' ? 'Annual Savings' : 'חיסכון השנה', value: '+18,400 ₪', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+    ],
+  };
+
+  const periodLabels = {
+    day: t('period_day'),
+    week: t('period_week'),
+    month: t('period_month'),
+  };
+
+  const devices = [
+    { icon: Home, label: t('lang') === 'en' ? 'AC' : 'מזגן', saving: 42, action: t('lang') === 'en' ? 'Shifted to off-peak hours' : 'הוזז לשעות זול' },
+    { icon: Car, label: t('lang') === 'en' ? 'Electric Vehicle' : 'רכב חשמלי', saving: 85, action: t('lang') === 'en' ? 'Night charging' : 'טעינה בלילה' },
+    { icon: Zap, label: t('lang') === 'en' ? 'Dishwasher' : 'מדיח כלים', saving: 18, action: t('lang') === 'en' ? 'Shifted to morning' : 'הוזז לבוקר' },
+  ];
 
   return (
     <div className="p-4 space-y-4 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        חיסכון ואנרגיה
+        {t('savings_title')}
       </motion.h1>
 
       {/* Period Toggle */}
@@ -77,9 +81,7 @@ export default function Savings() {
             key={key}
             onClick={() => setPeriod(key)}
             className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${
-              period === key
-                ? 'bg-primary text-primary-foreground shadow'
-                : 'text-muted-foreground hover:text-foreground'
+              period === key ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {label}
@@ -89,14 +91,7 @@ export default function Savings() {
 
       {/* Summary Cards */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key={period}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-          className="grid grid-cols-2 gap-3"
-        >
+        <motion.div key={period} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid grid-cols-2 gap-3">
           {summaryByPeriod[period].map(card => (
             <div key={card.label} className={`rounded-2xl border p-4 ${card.bg}`}>
               <p className="text-xs text-muted-foreground">{card.label}</p>
@@ -108,16 +103,10 @@ export default function Savings() {
 
       {/* Area Chart */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key={`chart-${period}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="bg-card rounded-2xl border border-border p-4"
-        >
+        <motion.div key={`chart-${period}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+          className="bg-card rounded-2xl border border-border p-4">
           <p className="text-xs font-medium text-muted-foreground mb-3">
-            חיסכון ל{periodLabels[period]} (₪) – VPP Home vs Solar Club
+            {t('chart_label', { period: periodLabels[period] })}
           </p>
           <ResponsiveContainer width="100%" height={160}>
             <AreaChart data={periodData[period]}>
@@ -145,7 +134,7 @@ export default function Savings() {
 
       {/* Smart Devices */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-        <p className="text-xs font-medium text-muted-foreground">מכשירים חכמים</p>
+        <p className="text-xs font-medium text-muted-foreground">{t('smart_devices')}</p>
         {devices.map((d) => (
           <div key={d.label} className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-muted">

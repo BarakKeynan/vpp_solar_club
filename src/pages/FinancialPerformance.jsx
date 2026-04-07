@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid
-} from 'recharts';
-import { TrendingUp, Zap, Calendar, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
+import { TrendingUp, Zap, Calendar, DollarSign } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
-// --- Mock Data ---
 const JOIN_DATE = 'מרץ 2023';
 const MONTHS_ACTIVE = 25;
 
@@ -45,16 +43,7 @@ const futureProjections = [
   { year: '2029', pessimistic: 77000, realistic: 100000, optimistic: 124000 },
 ];
 
-const breakdownItems = [
-  { label: 'חיסכון על חשבון חשמל', value: 9800, color: 'bg-primary', textColor: 'text-primary' },
-  { label: 'מכירת חשמל לרשת', value: 4200, color: 'bg-secondary', textColor: 'text-secondary' },
-  { label: 'Solar Club דיבידנדים', value: 2100, color: 'bg-accent', textColor: 'text-accent' },
-  { label: 'הטבות מס', value: 1100, color: 'bg-chart-4', textColor: 'text-purple-400' },
-];
-const totalEarned = breakdownItems.reduce((s, i) => s + i.value, 0);
 const investmentCost = 28000;
-const netProfit = totalEarned - investmentCost;
-const roiPercent = ((totalEarned / investmentCost) * 100).toFixed(1);
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -69,53 +58,61 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function FinancialPerformance() {
+  const { t } = useLang();
   const [projectionScenario, setProjectionScenario] = useState('realistic');
 
+  const breakdownItems = [
+    { label: t('lang') === 'en' ? 'Electricity Bill Savings' : 'חיסכון על חשבון חשמל', value: 9800, color: 'bg-primary', textColor: 'text-primary' },
+    { label: t('lang') === 'en' ? 'Grid Energy Sales' : 'מכירת חשמל לרשת', value: 4200, color: 'bg-secondary', textColor: 'text-secondary' },
+    { label: t('lang') === 'en' ? 'Solar Club Dividends' : 'Solar Club דיבידנדים', value: 2100, color: 'bg-accent', textColor: 'text-accent' },
+    { label: t('lang') === 'en' ? 'Tax Benefits' : 'הטבות מס', value: 1100, color: 'bg-chart-4', textColor: 'text-purple-400' },
+  ];
+
+  const totalEarned = breakdownItems.reduce((s, i) => s + i.value, 0);
+  const netProfit = totalEarned - investmentCost;
+  const roiPercent = ((totalEarned / investmentCost) * 100).toFixed(1);
+
   const scenarios = [
-    { key: 'pessimistic', label: 'שמרני', color: 'text-muted-foreground' },
-    { key: 'realistic', label: 'ריאלי', color: 'text-primary' },
-    { key: 'optimistic', label: 'אופטימי', color: 'text-accent' },
+    { key: 'pessimistic', label: t('scenario_pessimistic'), color: 'text-muted-foreground' },
+    { key: 'realistic', label: t('scenario_realistic'), color: 'text-primary' },
+    { key: 'optimistic', label: t('scenario_optimistic'), color: 'text-accent' },
   ];
 
   return (
     <div className="p-4 space-y-5 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        ביצועים פיננסיים
+        {t('financial_title')}
       </motion.h1>
 
-      {/* Summary KPI Cards */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
-        className="grid grid-cols-2 gap-3">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 gap-3">
         <div className="bg-card border border-primary/30 rounded-2xl p-4 bg-primary/5">
-          <p className="text-xs text-muted-foreground">סה״כ הרווחת</p>
+          <p className="text-xs text-muted-foreground">{t('total_earned')}</p>
           <p className="text-2xl font-black text-primary mt-1">+{totalEarned.toLocaleString()} ₪</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">מאז {JOIN_DATE}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{t('since')} {JOIN_DATE}</p>
         </div>
         <div className={`bg-card border rounded-2xl p-4 ${netProfit >= 0 ? 'border-primary/30 bg-primary/5' : 'border-accent/30 bg-accent/5'}`}>
-          <p className="text-xs text-muted-foreground">רווח נקי</p>
+          <p className="text-xs text-muted-foreground">{t('net_profit')}</p>
           <p className={`text-2xl font-black mt-1 ${netProfit >= 0 ? 'text-primary' : 'text-accent'}`}>
             {netProfit >= 0 ? '+' : ''}{netProfit.toLocaleString()} ₪
           </p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">לאחר עלות ההשקעה</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{t('after_investment')}</p>
         </div>
         <div className="bg-card border border-secondary/30 rounded-2xl p-4 bg-secondary/5">
-          <p className="text-xs text-muted-foreground">ROI מצטבר</p>
+          <p className="text-xs text-muted-foreground">{t('cumulative_roi')}</p>
           <p className="text-2xl font-black text-secondary mt-1">{roiPercent}%</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">תשואה על ההשקעה</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{t('roi_on_investment')}</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
-          <p className="text-xs text-muted-foreground">חודשים פעיל</p>
+          <p className="text-xs text-muted-foreground">{t('months_active')}</p>
           <p className="text-2xl font-black text-foreground mt-1">{MONTHS_ACTIVE}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">מאז {JOIN_DATE}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{t('since')} {JOIN_DATE}</p>
         </div>
       </motion.div>
 
-      {/* ROI History Chart */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="bg-card border border-border rounded-2xl p-4">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="w-4 h-4 text-primary" />
-          <p className="text-sm font-bold text-foreground">ROI מצטבר לאורך זמן</p>
+          <p className="text-sm font-bold text-foreground">{t('roi_chart_title')}</p>
         </div>
         <ResponsiveContainer width="100%" height={180}>
           <AreaChart data={roiHistory} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
@@ -127,23 +124,19 @@ export default function FinancialPerformance() {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} interval={4} />
-            <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false}
-              tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={0} stroke="hsl(var(--accent))" strokeDasharray="4 4" strokeWidth={1.5} />
-            <Area type="monotone" dataKey="cumulative" name="ROI מצטבר"
-              stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#roiGrad)" />
+            <Area type="monotone" dataKey="cumulative" name="ROI" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#roiGrad)" />
           </AreaChart>
         </ResponsiveContainer>
-        <p className="text-[10px] text-muted-foreground mt-2 text-center">קו כתום = נקודת איזון (Break-even)</p>
+        <p className="text-[10px] text-muted-foreground mt-2 text-center">{t('breakeven_note')}</p>
       </motion.div>
 
-      {/* Breakdown */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-        className="bg-card border border-border rounded-2xl p-4">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <DollarSign className="w-4 h-4 text-accent" />
-          <p className="text-sm font-bold text-foreground">פירוט מקורות הכנסה</p>
+          <p className="text-sm font-bold text-foreground">{t('income_breakdown')}</p>
         </div>
         <div className="space-y-3">
           {breakdownItems.map(item => (
@@ -153,29 +146,22 @@ export default function FinancialPerformance() {
                 <span className={`font-bold ${item.textColor}`}>+{item.value.toLocaleString()} ₪</span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(item.value / totalEarned) * 100}%` }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className={`h-full rounded-full ${item.color}`}
-                />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / totalEarned) * 100}%` }} transition={{ duration: 0.8, delay: 0.3 }} className={`h-full rounded-full ${item.color}`} />
               </div>
             </div>
           ))}
         </div>
         <div className="mt-3 pt-3 border-t border-border flex justify-between">
-          <span className="text-xs text-muted-foreground">סה״כ הכנסות</span>
+          <span className="text-xs text-muted-foreground">{t('total_income')}</span>
           <span className="text-sm font-black text-primary">+{totalEarned.toLocaleString()} ₪</span>
         </div>
       </motion.div>
 
-      {/* Future Projections */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-        className="bg-card border border-border rounded-2xl p-4">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-secondary" />
-            <p className="text-sm font-bold text-foreground">תחזית רווח עתידית</p>
+            <p className="text-sm font-bold text-foreground">{t('future_projection')}</p>
           </div>
           <div className="flex bg-muted rounded-xl p-0.5 gap-0.5">
             {scenarios.map(s => (
@@ -190,31 +176,25 @@ export default function FinancialPerformance() {
           <BarChart data={futureProjections} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="year" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} />
-            <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false}
-              tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey={projectionScenario} name="רווח מצטבר" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+            <Bar dataKey={projectionScenario} name={t('net_profit')} fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-        <p className="text-[10px] text-muted-foreground mt-2">
-          מבוסס על: תעריף חשמל נוכחי (0.61 ₪/kWh) + עלייה שנתית צפויה של {projectionScenario === 'pessimistic' ? '2%' : projectionScenario === 'realistic' ? '4%' : '7%'} + יעילות פאנלים {projectionScenario === 'pessimistic' ? '85%' : projectionScenario === 'realistic' ? '91%' : '95%'}
-        </p>
       </motion.div>
 
-      {/* Personal Calculator */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-        className="bg-card border border-border rounded-2xl p-4">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }} className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-4 h-4 text-accent" />
-          <p className="text-sm font-bold text-foreground">מחשבון חיסכון אישי</p>
+          <p className="text-sm font-bold text-foreground">{t('calculator_title')}</p>
         </div>
         <div className="space-y-2">
           {[
-            { label: 'השקעה ראשונית', value: `-${investmentCost.toLocaleString()} ₪`, color: 'text-destructive' },
-            { label: 'הכנסות מצטברות', value: `+${totalEarned.toLocaleString()} ₪`, color: 'text-primary' },
-            { label: `ממוצע חודשי (${MONTHS_ACTIVE} חודשים)`, value: `+${Math.round(totalEarned / MONTHS_ACTIVE).toLocaleString()} ₪/חודש`, color: 'text-secondary' },
-            { label: 'חיסכון על חשמל ביתי', value: '+9,800 ₪', color: 'text-primary' },
-            { label: 'הכנסה מהרשת + Solar Club', value: '+6,300 ₪', color: 'text-accent' },
+            { label: t('initial_investment'), value: `-${investmentCost.toLocaleString()} ₪`, color: 'text-destructive' },
+            { label: t('cumulative_income'), value: `+${totalEarned.toLocaleString()} ₪`, color: 'text-primary' },
+            { label: t('monthly_avg', { n: MONTHS_ACTIVE }), value: `+${Math.round(totalEarned / MONTHS_ACTIVE).toLocaleString()} ₪/חודש`, color: 'text-secondary' },
+            { label: t('home_electricity_saving'), value: '+9,800 ₪', color: 'text-primary' },
+            { label: t('grid_club_income'), value: '+6,300 ₪', color: 'text-accent' },
           ].map(row => (
             <div key={row.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
               <span className="text-xs text-muted-foreground">{row.label}</span>
@@ -222,7 +202,7 @@ export default function FinancialPerformance() {
             </div>
           ))}
           <div className="flex items-center justify-between pt-2">
-            <span className="text-sm font-bold text-foreground">רווח נקי עד היום</span>
+            <span className="text-sm font-bold text-foreground">{t('net_profit_today')}</span>
             <span className={`text-lg font-black ${netProfit >= 0 ? 'text-primary' : 'text-accent'}`}>
               {netProfit >= 0 ? '+' : ''}{netProfit.toLocaleString()} ₪
             </span>

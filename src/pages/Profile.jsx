@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-
-const INTEGRATIONS = [
-  { label: 'ספק אנרגיה', value: 'Cellcom Energy', status: 'מחובר', color: '#8B5CF6' },
-  { label: 'מונה חכם', value: 'Noga Data Hub', status: 'סנכרון פעיל', color: '#10B981' },
-  { label: 'מערכת סולארית', value: 'SolarEdge API', status: 'מחובר', color: '#3B82F6' },
-];
+import { useLang } from '@/lib/i18n';
 
 export default function Profile() {
+  const { t } = useLang();
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
@@ -25,16 +21,22 @@ export default function Profile() {
   };
 
   const stats = [
-    { label: 'חיסכון החודש', value: '+4,230 ₪', color: 'text-primary' },
-    { label: 'ייצור השנה', value: '2,840 kWh', color: 'text-accent' },
-    { label: 'פחמן חסכתי', value: '1.4 טון', color: 'text-secondary' },
-    { label: 'מניות Solar Club', value: '2 מניות', color: 'text-primary' },
+    { label: t('savings_this_month'), value: '+4,230 ₪', color: 'text-primary' },
+    { label: t('production_year'), value: '2,840 kWh', color: 'text-accent' },
+    { label: t('carbon_saved'), value: '1.4 טון', color: 'text-secondary' },
+    { label: t('club_shares'), value: '2 מניות', color: 'text-primary' },
+  ];
+
+  const INTEGRATIONS = [
+    { label: t('lang') === 'en' ? 'Energy Provider' : 'ספק אנרגיה', value: 'Cellcom Energy', status: t('lang') === 'en' ? 'Connected' : 'מחובר', color: '#8B5CF6' },
+    { label: t('lang') === 'en' ? 'Smart Meter' : 'מונה חכם', value: 'Noga Data Hub', status: t('lang') === 'en' ? 'Active Sync' : 'סנכרון פעיל', color: '#10B981' },
+    { label: t('lang') === 'en' ? 'Solar System' : 'מערכת סולארית', value: 'SolarEdge API', status: t('lang') === 'en' ? 'Connected' : 'מחובר', color: '#3B82F6' },
   ];
 
   return (
     <div className="p-4 space-y-4 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        פרופיל טכני וחיבורים
+        {t('profile_title')}
       </motion.h1>
 
       {/* Avatar & Name */}
@@ -56,7 +58,7 @@ export default function Profile() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="text-base font-bold text-foreground">{user?.full_name || 'משתמש'}</p>
+              <p className="text-base font-bold text-foreground">{user?.full_name || t('user_default')}</p>
               <button onClick={() => setEditing(true)}>
                 <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
@@ -71,7 +73,7 @@ export default function Profile() {
         className="rounded-2xl border border-border p-4 space-y-3"
         style={{ background: 'rgba(255,255,255,0.02)' }}
       >
-        <p className="text-xs font-bold text-muted-foreground">חיבורים פעילים</p>
+        <p className="text-xs font-bold text-muted-foreground">{t('active_connections')}</p>
         {INTEGRATIONS.map(item => (
           <div key={item.label} className="flex items-center justify-between">
             <div>
@@ -97,20 +99,20 @@ export default function Profile() {
           border: '1px solid rgba(59,130,246,0.2)',
         }}
       >
-        <p className="text-xs font-bold" style={{ color: 'rgba(147,197,253,0.7)' }}>קהילה וסינדיקט</p>
+        <p className="text-xs font-bold" style={{ color: 'rgba(147,197,253,0.7)' }}>{t('community')}</p>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">שיוך שכונתי</span>
+            <span className="text-xs text-muted-foreground">{t('neighborhood')}</span>
             <span className="text-xs font-bold text-white">מרכז הכרמל, חיפה</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">סטטוס סינדיקט</span>
+            <span className="text-xs text-muted-foreground">{t('syndicate_status')}</span>
             <div
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer"
               style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}
             >
               <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              84% פעיל
+              84% {t('autopilot_active')}
             </div>
           </div>
         </div>
@@ -130,11 +132,11 @@ export default function Profile() {
       {/* Account Info */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.22 }}
         className="bg-card rounded-2xl border border-border p-4 space-y-3">
-        <p className="text-xs font-medium text-muted-foreground">פרטי חשבון</p>
+        <p className="text-xs font-medium text-muted-foreground">{t('account_info')}</p>
         {[
-          { icon: Mail, label: 'דואל', value: user?.email || '—' },
-          { icon: Home, label: 'סוג מערכת', value: 'VPP Home + Solar Club' },
-          { icon: Zap, label: 'תעריף חשמל', value: '0.61 ₪/kWh' },
+          { icon: Mail, label: t('email_label'), value: user?.email || '—' },
+          { icon: Home, label: t('system_type'), value: 'VPP Home + Solar Club' },
+          { icon: Zap, label: t('tariff'), value: '0.61 ₪/kWh' },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-muted">
@@ -153,10 +155,10 @@ export default function Profile() {
         className="rounded-2xl border border-border p-4 space-y-2"
         style={{ background: 'rgba(255,255,255,0.02)' }}
       >
-        <p className="text-xs font-bold text-muted-foreground">מסמכים וחוזים</p>
+        <p className="text-xs font-bold text-muted-foreground">{t('documents')}</p>
         {[
-          { label: 'סיכום תנאי שירות', icon: FileText },
-          { label: 'הסכם חלוקת הכנסות', icon: ExternalLink },
+          { label: t('doc_terms'), icon: FileText },
+          { label: t('doc_revenue'), icon: ExternalLink },
         ].map(doc => (
           <button key={doc.label} className="w-full flex items-center gap-3 py-2 text-right group">
             <div className="p-2 rounded-lg bg-muted">
@@ -174,13 +176,12 @@ export default function Profile() {
         className="w-full py-3 rounded-2xl border border-destructive/40 text-destructive font-semibold text-sm flex items-center justify-center gap-2 hover:bg-destructive/10 transition-colors"
       >
         <LogOut className="w-4 h-4" />
-        התנתק
+        {t('logout')}
       </button>
     </div>
   );
 }
 
-// local helper — avoid import cycle
 function ChevronLeft({ className }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

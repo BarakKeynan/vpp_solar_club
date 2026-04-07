@@ -1,40 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Plug, Shield, ChevronRight, LogOut } from 'lucide-react';
+import { Bell, Plug, Shield, LogOut } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
-
-const sections = [
-  {
-    title: 'התראות',
-    icon: Bell,
-    items: [
-      { key: 'alerts_price', label: 'התראות מחיר חשמל', defaultOn: true },
-      { key: 'alerts_battery', label: 'התראות סוללה נמוכה', defaultOn: true },
-      { key: 'alerts_export', label: 'אישור מכירה לרשת', defaultOn: false },
-    ],
-  },
-  {
-    title: 'מכשירים מחוברים',
-    icon: Plug,
-    items: [
-      { key: 'inverter', label: 'אינוורטר SolarEdge', status: 'מחובר', statusColor: 'text-primary' },
-      { key: 'ev', label: 'רכב חשמלי Tesla', status: 'מחובר', statusColor: 'text-primary' },
-      { key: 'meter', label: 'מונה חכם', status: 'ממתין', statusColor: 'text-accent' },
-    ],
-  },
-  {
-    title: 'אבטחה',
-    icon: Shield,
-    items: [
-      { key: 'biometric', label: 'כניסה ביומטרית', defaultOn: true },
-      { key: '2fa', label: 'אימות דו-שלבי', defaultOn: false },
-    ],
-  },
-];
+import { useLang } from '@/lib/i18n';
 
 export default function Settings() {
+  const { t } = useLang();
   const [toggles, setToggles] = useState({
     alerts_price: true, alerts_battery: true, alerts_export: false,
     biometric: true, '2fa': false,
@@ -42,22 +15,51 @@ export default function Settings() {
 
   const toggle = (key) => {
     setToggles(p => ({ ...p, [key]: !p[key] }));
-    toast.success('הגדרה עודכנה');
+    toast.success(t('setting_updated'));
   };
+
+  const sections = [
+    {
+      titleKey: 'section_alerts',
+      icon: Bell,
+      items: [
+        { key: 'alerts_price', label: t('alert_price'), defaultOn: true },
+        { key: 'alerts_battery', label: t('alert_battery'), defaultOn: true },
+        { key: 'alerts_export', label: t('alert_export'), defaultOn: false },
+      ],
+    },
+    {
+      titleKey: 'section_devices',
+      icon: Plug,
+      items: [
+        { key: 'inverter', label: t('device_inverter'), status: t('status_connected'), statusColor: 'text-primary' },
+        { key: 'ev', label: t('device_ev'), status: t('status_connected'), statusColor: 'text-primary' },
+        { key: 'meter', label: t('device_meter'), status: t('status_pending'), statusColor: 'text-accent' },
+      ],
+    },
+    {
+      titleKey: 'section_security',
+      icon: Shield,
+      items: [
+        { key: 'biometric', label: t('security_biometric'), defaultOn: true },
+        { key: '2fa', label: t('security_2fa'), defaultOn: false },
+      ],
+    },
+  ];
 
   return (
     <div className="p-4 space-y-4 pb-28">
       <motion.h1 initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-xl font-black text-foreground">
-        הגדרות
+        {t('settings_title')}
       </motion.h1>
 
       {sections.map((section, si) => (
-        <motion.div key={section.title}
+        <motion.div key={section.titleKey}
           initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: si * 0.1 }}
           className="bg-card rounded-2xl border border-border overflow-hidden">
           <div className="flex items-center gap-2 p-4 pb-2">
             <section.icon className="w-4 h-4 text-primary" />
-            <p className="text-xs font-bold text-muted-foreground">{section.title}</p>
+            <p className="text-xs font-bold text-muted-foreground">{t(section.titleKey)}</p>
           </div>
           {section.items.map((item, ii) => (
             <div key={item.key} className={`flex items-center justify-between px-4 py-3 ${ii < section.items.length - 1 ? 'border-b border-border' : ''}`}>
@@ -77,7 +79,7 @@ export default function Settings() {
         className="w-full py-3 rounded-2xl border border-destructive/40 text-destructive font-semibold text-sm flex items-center justify-center gap-2 hover:bg-destructive/10 transition-colors"
       >
         <LogOut className="w-4 h-4" />
-        התנתק
+        {t('logout')}
       </button>
     </div>
   );

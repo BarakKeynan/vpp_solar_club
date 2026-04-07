@@ -1,13 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store, TrendingUp, Shield, Users } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 export default function More() {
   const { t } = useLang();
 
   const items = [
+    {
+      path: '/vpp-club-dashboard',
+      icon: LayoutDashboard,
+      emoji: '⚡',
+      title: t('lang') === 'en' ? 'VPP Club Dashboard' : 'לוח מחוונים VPP Club',
+      subtitle: t('lang') === 'en' ? 'Energy as an Asset — Pro Dashboard' : 'אנרגיה כנכס — לוח מחוונים מקצועי',
+      color: 'border-primary/30 bg-primary/5',
+      accent: 'text-primary',
+    },
     {
       path: '/referral',
       icon: Users,

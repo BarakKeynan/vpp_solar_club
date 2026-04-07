@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
 import WhatsAppButton from '../WhatsAppButton';
 import LangToggle from '../LangToggle';
+import AIAssistant from '../AIAssistant';
 import { useLang } from '@/lib/i18n';
 
 export default function AppLayout() {
@@ -17,6 +18,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
       <BottomNav />
+      <AIAssistant />
       <WhatsAppButton />
     </div>
   );

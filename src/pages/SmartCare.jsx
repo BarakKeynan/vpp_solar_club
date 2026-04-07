@@ -9,6 +9,7 @@ import BookingModal from '@/components/smartcare/BookingModal';
 import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 import { Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLang } from '@/lib/i18n';
 
 const overallEfficiency = Math.round(PANELS.reduce((s, p) => s + p.efficiency, 0) / PANELS.length);
 const effData = [{ name: 'יעילות', value: overallEfficiency, fill: overallEfficiency >= 85 ? '#10B981' : overallEfficiency >= 70 ? '#F59E0B' : '#EF4444' }];

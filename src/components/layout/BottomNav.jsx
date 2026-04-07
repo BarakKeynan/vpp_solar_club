@@ -1,17 +1,19 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, TrendingUp, User, Clock, LayoutGrid } from 'lucide-react';
-
-const navItems = [
-  { path: '/Dashboard', label: 'בית', icon: Home },
-  { path: '/Schedule', label: 'תזמון', icon: Clock },
-  { path: '/Savings', label: 'חיסכון', icon: TrendingUp },
-  { path: '/Profile', label: 'פרופיל', icon: User },
-  { path: '/more', label: 'עוד', icon: LayoutGrid },
-];
+import { useLang } from '@/lib/i18n';
 
 export default function BottomNav() {
   const location = useLocation();
+  const { t } = useLang();
+
+  const navItems = [
+    { path: '/Dashboard', label: t('nav_home'), icon: Home },
+    { path: '/Schedule', label: t('nav_schedule'), icon: Clock },
+    { path: '/Savings', label: t('nav_savings'), icon: TrendingUp },
+    { path: '/Profile', label: t('nav_profile'), icon: User },
+    { path: '/more', label: t('nav_more'), icon: LayoutGrid },
+  ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border">

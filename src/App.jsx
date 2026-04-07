@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import SplashScreen from './components/SplashScreen';
+import { LangProvider } from './lib/i18n';
 
 // Pages
 import AppLayout from './components/layout/AppLayout';
@@ -85,6 +86,7 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   return (
+    <LangProvider>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <AnimatePresence>
@@ -98,6 +100,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
+    </LangProvider>
   );
 }
 

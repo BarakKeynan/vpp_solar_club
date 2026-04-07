@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import VPPHome from './VPPHome.jsx';
 import SolarClub from './SolarClub.jsx';
+import { useLang } from '@/lib/i18n';
 
 export default function Dashboard() {
   const [mode, setMode] = useState('home'); // 'home' | 'club'
+  const { t } = useLang();
 
   return (
     <div className="min-h-screen bg-background">
@@ -19,7 +21,7 @@ export default function Dashboard() {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            🏠 VPP Home
+            {t('vpp_mode_home')}
           </button>
           <button
             onClick={() => setMode('club')}
@@ -29,7 +31,7 @@ export default function Dashboard() {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            ☀️ Solar Club
+            {t('vpp_mode_club')}
           </button>
         </div>
       </div>

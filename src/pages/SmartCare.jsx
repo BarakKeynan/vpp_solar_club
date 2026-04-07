@@ -15,6 +15,7 @@ const overallEfficiency = Math.round(PANELS.reduce((s, p) => s + p.efficiency, 0
 const effData = [{ name: 'יעילות', value: overallEfficiency, fill: overallEfficiency >= 85 ? '#10B981' : overallEfficiency >= 70 ? '#F59E0B' : '#EF4444' }];
 
 export default function SmartCare() {
+  const { t } = useLang();
   const [bookingService, setBookingService] = useState(null);
   const [showPanels, setShowPanels] = useState(false);
   const [showInverters, setShowInverters] = useState(true);
@@ -52,8 +53,8 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
       {/* Header */}
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-black text-white">Smart Care AI</h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>ניטור ממירים ופאנלים בזמן אמת</p>
+          <h1 className="text-xl font-black text-white">{t('smartcare_title')}</h1>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('smartcare_subtitle')}</p>
         </div>
         <button
           onClick={runAIScan}
@@ -62,7 +63,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
           style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#93C5FD' }}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${scanning ? 'animate-spin' : ''}`} />
-          {scanning ? 'סורק...' : 'סריקת AI'}
+          {scanning ? t('scanning') : t('scan_ai')}
         </button>
       </motion.div>
 
@@ -74,7 +75,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
           className="rounded-2xl p-4 flex flex-col items-center"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs font-bold mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>יעילות כוללת</p>
+          <p className="text-xs font-bold mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('overall_efficiency')}</p>
           <div className="h-20 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="100%" innerRadius="60%" outerRadius="100%" startAngle={180} endAngle={0} data={effData}>
@@ -83,7 +84,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
             </ResponsiveContainer>
           </div>
           <p className="text-2xl font-black text-white -mt-4">{overallEfficiency}%</p>
-          <p className="text-[9px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>ממוצע {PANELS.length} פאנלים</p>
+          <p className="text-[9px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('avg_panels', { n: PANELS.length })}</p>
         </div>
 
         {/* Weather */}
@@ -91,11 +92,11 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
           className="rounded-2xl p-4 space-y-2"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>תנאי סביבה</p>
+          <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('env_conditions')}</p>
           {[
             { Icon: Sun, label: `טמפ׳ ${WEATHER.temp}°C`, color: '#F59E0B' },
-            { Icon: Droplets, label: `לחות ${WEATHER.humidity}%`, color: '#3B82F6' },
-            { Icon: Wind, label: `רוח ${WEATHER.wind} קמ"ש`, color: '#8B5CF6' },
+            { Icon: Droplets, label: `${t('humidity')} ${WEATHER.humidity}%`, color: '#3B82F6' },
+            { Icon: Wind, label: t('wind_speed', { v: WEATHER.wind }), color: '#8B5CF6' },
             { Icon: Sun, label: `UV ${WEATHER.uv}`, color: '#F87171' },
           ].map(({ Icon, label, color }) => (
             <div key={label} className="flex items-center gap-2">
@@ -117,9 +118,9 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm">🤖</span>
-            <p className="text-xs font-black" style={{ color: '#C4B5FD' }}>אבחון AI</p>
+            <p className="text-xs font-black" style={{ color: '#C4B5FD' }}>{t('ai_diagnosis')}</p>
           </div>
-          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>עדכון {lastScan}</span>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('updated')} {lastScan}</span>
         </div>
         {scanning ? (
           <div className="flex items-center gap-2 py-1">
@@ -129,13 +130,13 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
         ) : aiSummary ? (
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>{aiSummary}</p>
         ) : (
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>לחץ "סריקת AI" לאבחון מלא של המערכת</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('scan_prompt')}</p>
         )}
       </motion.div>
 
       {/* Predictive Alerts */}
       <div className="space-y-2">
-        <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>התראות חזויות – {AI_ALERTS.length} פעילות</p>
+        <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('predictive_alerts')} – {AI_ALERTS.length} {t('active')}</p>
         {AI_ALERTS.map((alert, i) => (
           <AlertCard key={alert.id} alert={alert} delay={0.1 + i * 0.06} onBook={setBookingService} />
         ))}
@@ -153,12 +154,12 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
         >
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4" style={{ color: '#3B82F6' }} />
-            <span className="text-xs font-black text-white">בריאות ממירים</span>
+            <span className="text-xs font-black text-white">{t('inverter_health')}</span>
             <span
               className="text-[10px] px-2 py-0.5 rounded-full font-bold"
               style={{ background: 'rgba(239,68,68,0.2)', color: '#F87171' }}
             >
-              1 תקלה
+              {t('fault')}
             </span>
           </div>
           {showInverters ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
@@ -191,7 +192,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
         >
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-4 h-4" style={{ color: '#F59E0B' }} />
-            <span className="text-xs font-black text-white">מצב פאנלים ({PANELS.length})</span>
+            <span className="text-xs font-black text-white">{t('panel_status')} ({PANELS.length})</span>
           </div>
           {showPanels ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
         </button>
@@ -207,7 +208,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
             >
               {PANELS.map(panel => {
                 const issueColor = panel.issueType === 'microcrack' ? '#EF4444' : panel.issueType === 'dust' ? '#F59E0B' : '#10B981';
-                const issueLbl = panel.issueType === 'microcrack' ? 'מיקרו-סדקים' : panel.issueType === 'dust' ? 'אבק' : 'תקין';
+                const issueLbl = panel.issueType === 'microcrack' ? t('microcrack') : panel.issueType === 'dust' ? t('dust') : t('ok_status');
                 return (
                   <div key={panel.id} className="flex items-center gap-3">
                     <span className="text-xs font-bold text-white/60 w-14">{panel.name}</span>
@@ -232,7 +233,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
 
       {/* Services */}
       <div className="space-y-2">
-        <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>הזמנת שירות מקצועי</p>
+        <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('professional_service')}</p>
         {SERVICES.map((s, i) => (
           <motion.div
             key={s.id}
@@ -261,7 +262,7 @@ Write a SHORT Hebrew diagnostic summary (2-3 sentences). Be precise and professi
                 className="mt-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all active:scale-95 text-white"
                 style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)' }}
               >
-                הזמן ←
+                {t('book_service')}
               </button>
             </div>
           </motion.div>

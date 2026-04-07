@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Info, Zap } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 const SEVERITY_STYLES = {
   critical: {
     bg: 'rgba(239,68,68,0.08)',
     border: 'rgba(239,68,68,0.35)',
     badge: { bg: 'rgba(239,68,68,0.2)', color: '#F87171' },
-    label: 'קריטי',
+    labelKey: 'critical',
     Icon: Zap,
     iconColor: '#F87171',
   },
@@ -15,7 +16,7 @@ const SEVERITY_STYLES = {
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.35)',
     badge: { bg: 'rgba(245,158,11,0.2)', color: '#FCD34D' },
-    label: 'אזהרה',
+    labelKey: 'warning',
     Icon: AlertTriangle,
     iconColor: '#FCD34D',
   },
@@ -23,15 +24,17 @@ const SEVERITY_STYLES = {
     bg: 'rgba(59,130,246,0.07)',
     border: 'rgba(59,130,246,0.3)',
     badge: { bg: 'rgba(59,130,246,0.18)', color: '#93C5FD' },
-    label: 'מידע',
+    labelKey: 'info',
     Icon: Info,
     iconColor: '#93C5FD',
   },
 };
 
 export default function AlertCard({ alert, onBook, delay = 0 }) {
+  const { t } = useLang();
   const s = SEVERITY_STYLES[alert.severity];
   const Icon = s.Icon;
+  const label = t(s.labelKey);
 
   return (
     <motion.div
@@ -51,7 +54,7 @@ export default function AlertCard({ alert, onBook, delay = 0 }) {
               className="text-[10px] font-black px-2 py-0.5 rounded-full"
               style={{ background: s.badge.bg, color: s.badge.color }}
             >
-              {s.label}
+              {label}
             </span>
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{alert.panel}</span>
           </div>
@@ -62,7 +65,7 @@ export default function AlertCard({ alert, onBook, delay = 0 }) {
 
       <div className="flex items-center justify-between pt-1">
         <div>
-          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>הפסד מוערך</p>
+          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('estimated_loss')}</p>
           <p className="text-xs font-black" style={{ color: s.iconColor }}>{alert.estimatedLoss}</p>
         </div>
         <button
@@ -70,7 +73,7 @@ export default function AlertCard({ alert, onBook, delay = 0 }) {
           className="px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 text-white"
           style={{ background: s.iconColor + '22', border: `1px solid ${s.iconColor}50` }}
         >
-          הזמן תיקון ←
+          {t('book_repair')}
         </button>
       </div>
     </motion.div>

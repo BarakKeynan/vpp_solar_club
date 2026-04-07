@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Thermometer, Zap, Activity } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 export default function InverterCard({ inv }) {
+  const { t } = useLang();
   const isOk = inv.status === 'ok';
   const tempHigh = inv.tempC > 55;
 
@@ -24,7 +26,7 @@ export default function InverterCard({ inv }) {
           }}
         >
           <div className={`w-1.5 h-1.5 rounded-full ${isOk ? 'bg-emerald-400' : 'bg-red-400'} ${!isOk && 'animate-pulse'}`} />
-          {isOk ? 'תקין' : 'תקלה'}
+          {isOk ? t('ok_status') : t('fault_status')}
         </div>
       </div>
 
@@ -32,19 +34,19 @@ export default function InverterCard({ inv }) {
         <div className="text-center">
           <div className="flex justify-center mb-0.5"><Zap className="w-3 h-3 text-amber-400" /></div>
           <p className="text-sm font-black text-white">{inv.outputKw} kW</p>
-          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>תפוקה</p>
+          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('output')}</p>
         </div>
         <div className="text-center">
           <div className="flex justify-center mb-0.5">
             <Thermometer className={`w-3 h-3 ${tempHigh ? 'text-red-400' : 'text-blue-400'}`} />
           </div>
           <p className={`text-sm font-black ${tempHigh ? 'text-red-400' : 'text-white'}`}>{inv.tempC}°C</p>
-          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>טמפרטורה</p>
+          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('temperature')}</p>
         </div>
         <div className="text-center">
           <div className="flex justify-center mb-0.5"><Activity className="w-3 h-3 text-violet-400" /></div>
           <p className="text-sm font-black text-white">{inv.efficiency}%</p>
-          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>יעילות</p>
+          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('efficiency')}</p>
         </div>
       </div>
 

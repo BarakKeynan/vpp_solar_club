@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, Calendar, Clock, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { SERVICES } from './SensorData';
+import { useLang } from '@/lib/i18n';
 
 const SLOTS = ['08:00–10:00', '10:00–12:00', '13:00–15:00', '15:00–17:00'];
 const DATES = ['מחר, ד׳ 6 באפריל', 'חמישי, 7 באפריל', 'ראשון, 10 באפריל'];
 
 export default function BookingModal({ serviceId, onClose }) {
+  const { t } = useLang();
   const [step, setStep] = useState(1); // 1=choose, 2=schedule, 3=confirm
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -54,7 +56,7 @@ export default function BookingModal({ serviceId, onClose }) {
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className="flex items-center gap-1">
                       <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                      <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{service.rating} ({service.reviews} דירוגים)</span>
+                      <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{service.rating} ({service.reviews} {t('ratings')})</span>
                     </div>
                     <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>· {service.time}</span>
                   </div>
@@ -83,16 +85,16 @@ export default function BookingModal({ serviceId, onClose }) {
                 <div className="p-4 rounded-full" style={{ background: 'rgba(16,185,129,0.15)' }}>
                   <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                 </div>
-                <p className="text-base font-black text-white">ההזמנה אושרה!</p>
+                <p className="text-base font-black text-white">{t('booking_confirmed')}</p>
                 <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {selectedDate} · {selectedSlot}<br />טכנאי יצור איתך קשר 30 דקות לפני ההגעה
+                  {selectedDate} · {selectedSlot}<br />{t('booking_followup')}
                 </p>
                 <button
                   onClick={onClose}
                   className="mt-2 px-6 py-3 rounded-2xl font-black text-sm text-white"
                   style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)' }}
                 >
-                  סגור
+                  {t('close')}
                 </button>
               </motion.div>
             ) : (
@@ -101,7 +103,7 @@ export default function BookingModal({ serviceId, onClose }) {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="w-4 h-4" style={{ color: '#3B82F6' }} />
-                    <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>בחר תאריך</p>
+                    <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('booking_date')}</p>
                   </div>
                   <div className="space-y-2">
                     {DATES.map(d => (
@@ -125,7 +127,7 @@ export default function BookingModal({ serviceId, onClose }) {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-4 h-4" style={{ color: '#F59E0B' }} />
-                    <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>בחר שעה</p>
+                    <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('booking_time')}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {SLOTS.map(slot => (
@@ -150,7 +152,7 @@ export default function BookingModal({ serviceId, onClose }) {
                   <textarea
                     value={note}
                     onChange={e => setNote(e.target.value)}
-                    placeholder="הערה לטכנאי (אופציונלי)..."
+                    placeholder={t('booking_note')}
                     rows={2}
                     className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none resize-none"
                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -163,7 +165,7 @@ export default function BookingModal({ serviceId, onClose }) {
                   className="w-full py-4 rounded-2xl font-black text-sm text-white transition-all active:scale-95 disabled:opacity-40"
                   style={{ background: 'linear-gradient(135deg,#1D4ED8,#3B82F6)', boxShadow: '0 0 20px rgba(59,130,246,0.3)' }}
                 >
-                  אשר הזמנה ←
+                  {t('booking_confirm')}
                 </button>
               </>
             )}

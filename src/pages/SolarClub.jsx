@@ -292,11 +292,63 @@ function MemberDashboard() {
         ))}
       </div>
 
+      {/* Savings Summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="rounded-xl px-4 py-4 flex items-center justify-between"
+        style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05))', border: '1px solid rgba(168,85,247,0.3)' }}
+      >
+        <div>
+          <p className="text-[10px] text-white/60 mb-1">{isHe ? 'חיסכון החודש' : 'Monthly Savings'}</p>
+          <p className="text-2xl font-black text-purple-400">₪140</p>
+        </div>
+        <span className="text-3xl">💜</span>
+      </motion.div>
+
+      {/* Provider Insight / Yield Audit */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        onClick={() => navigate('/providers')}
+        className="w-full flex items-center justify-between rounded-xl border border-secondary/40 p-4 active:scale-[0.98] transition-transform"
+        style={{ background: 'rgba(59,130,246,0.05)' }}
+      >
+        <div className="text-left flex-1">
+          <p className="text-sm font-black text-white">{isHe ? 'Unlock My Personalized Yield Audit' : 'Unlock My Personalized Yield Audit'}</p>
+          <p className="text-[10px] text-blue-400 mt-1">
+            {isHe ? '90 יומי נתוני ייצור · Noga Data Hub · תוצאה מיידית' : '90 days data · Noga Data Hub · Instant'}
+          </p>
+        </div>
+        <span className="text-2xl">⚡</span>
+      </motion.button>
+
+      {/* Smart Care / Panel Monitoring */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        onClick={() => navigate('/smart-care')}
+        className="w-full flex items-center justify-between rounded-xl border border-accent/40 p-4 active:scale-[0.98] transition-transform"
+        style={{ background: 'rgba(245,158,11,0.05)' }}
+      >
+        <div className="text-left flex-1">
+          <p className="text-xs font-bold text-accent mb-2">{isHe ? 'ניטור פאנלים' : 'PANEL MONITORING'}</p>
+          <p className="text-sm font-bold text-foreground">{isHe ? 'Smart Care AI' : 'Smart Care AI'}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            {isHe ? 'ניטור מזג אוויר והזמנת תחזוקה' : 'Weather monitoring & maintenance booking'}
+          </p>
+        </div>
+        <span className="text-2xl">🔧</span>
+      </motion.button>
+
       {/* My Solar Farm */}
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.45 }}
         onClick={() => navigate('/farm-detail')}
         className="w-full flex items-center justify-between bg-card border border-border rounded-xl p-4 active:scale-[0.98] transition-transform"
       >
@@ -309,6 +361,69 @@ function MemberDashboard() {
         </div>
         <ChevronLeft className="w-5 h-5 text-white/40" />
       </motion.button>
+
+      {/* Additional Services Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Financial Performance */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          onClick={() => navigate('/financial')}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">📊</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'ביצועים פיננסיים' : 'Financial Performance'}</p>
+        </motion.button>
+
+        {/* Referral */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          onClick={() => navigate('/referral')}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">👥</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'חבר מביא חבר' : 'Refer a Friend'}</p>
+        </motion.button>
+
+        {/* Compliance */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          onClick={() => navigate('/compliance')}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">🔐</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'שקיפות ואמינות' : 'Trust & Security'}</p>
+        </motion.button>
+
+        {/* Providers */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65 }}
+          onClick={() => navigate('/providers')}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">⚡</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'ניהול ספקים' : 'Providers'}</p>
+        </motion.button>
+
+        {/* Monthly Report */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          onClick={() => navigate('/monthly-report')}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">📈</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'דו״ח חודשי' : 'Monthly Report'}</p>
+        </motion.button>
+      </div>
 
       {/* Panel Booking Modal */}
       {showPanelBooking && (

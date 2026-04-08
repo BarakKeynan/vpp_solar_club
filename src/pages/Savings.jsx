@@ -46,7 +46,7 @@ export default function Savings() {
       { label: t('savings_week_savings'), value: '+1,210 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
       { label: t('savings_week_production'), value: '74 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
       { label: 'Solar Club', value: '+37 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('savings_peak_day'), value: "ה׳", color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+      { label: t('savings_peak_day'), value: t('savings_peak_day_val'), color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
     ],
     month: [
       { label: t('savings_this_month'), value: '+4,230 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },

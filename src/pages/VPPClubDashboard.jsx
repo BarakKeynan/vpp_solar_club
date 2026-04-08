@@ -6,43 +6,52 @@ import { useLang } from '@/lib/i18n';
 
 const virtualBatteryLevel = 73; // %
 
-const financialData = [
-  { month: 'ינו', savings: 320, revenue: 180 },
-  { month: 'פבר', savings: 410, revenue: 220 },
-  { month: 'מרץ', savings: 380, revenue: 260 },
-  { month: 'אפר', savings: 520, revenue: 310 },
-  { month: 'מאי', savings: 610, revenue: 390 },
-  { month: 'יונ', savings: 580, revenue: 420 },
+const financialDataHe = [
+  { month: 'ינו', savings: 320, revenue: 180 }, { month: 'פבר', savings: 410, revenue: 220 },
+  { month: 'מרץ', savings: 380, revenue: 260 }, { month: 'אפר', savings: 520, revenue: 310 },
+  { month: 'מאי', savings: 610, revenue: 390 }, { month: 'יונ', savings: 580, revenue: 420 },
+];
+const financialDataEn = [
+  { month: 'Jan', savings: 320, revenue: 180 }, { month: 'Feb', savings: 410, revenue: 220 },
+  { month: 'Mar', savings: 380, revenue: 260 }, { month: 'Apr', savings: 520, revenue: 310 },
+  { month: 'May', savings: 610, revenue: 390 }, { month: 'Jun', savings: 580, revenue: 420 },
 ];
 
-const assets = [
-  { id: 'negev1', name: 'נגב סולאר A', icon: '☀️', shares: 3, income: '₪427/חודש', yield: '9.8%', status: 'active' },
-  { id: 'carmel1', name: 'כרמל גרין', icon: '🌿', shares: 1, income: '₪77/חודש', yield: '7.6%', status: 'active' },
-  { id: 'galilee1', name: 'גליל אנרגיה', icon: '🌊', shares: 2, income: '₪197/חודש', yield: '8.4%', status: 'active' },
+const getAssets = (isHe) => [
+  { id: 'negev1', name: isHe ? 'נגב סולאר A' : 'Negev Solar A', icon: '☀️', shares: 3, income: isHe ? '₪427/חודש' : '₪427/mo', yield: '9.8%', status: 'active' },
+  { id: 'carmel1', name: isHe ? 'כרמל גרין' : 'Carmel Green', icon: '🌿', shares: 1, income: isHe ? '₪77/חודש' : '₪77/mo', yield: '7.6%', status: 'active' },
+  { id: 'galilee1', name: isHe ? 'גליל אנרגיה' : 'Galilee Energy', icon: '🌊', shares: 2, income: isHe ? '₪197/חודש' : '₪197/mo', yield: '8.4%', status: 'active' },
 ];
 
-const smartTrades = [
-  { label: 'מכירה לרשת', active: true, color: '#10B981' },
-  { label: 'טעינת סוללה', active: false, color: '#3B82F6' },
-  { label: 'איזון עומסים', active: true, color: '#F59E0B' },
+const getSmartTrades = (isHe) => [
+  { label: isHe ? 'מכירה לרשת' : 'Grid Sales', active: true, color: '#10B981' },
+  { label: isHe ? 'טעינת סוללה' : 'Battery Charge', active: false, color: '#3B82F6' },
+  { label: isHe ? 'איזון עומסים' : 'Load Balancing', active: true, color: '#F59E0B' },
 ];
 
-const regulations = [
-  { label: 'רישוי רשות החשמל', status: 'תקין', ok: true },
-  { label: 'תקן IEC 62109', status: 'מאושר', ok: true },
-  { label: 'חוזה VPP פעיל', status: 'פעיל', ok: true },
-  { label: 'ביטוח מערכת', status: 'בתוקף', ok: true },
+const getRegulations = (isHe) => [
+  { label: isHe ? 'רישוי רשות החשמל' : 'Electricity Authority License', status: isHe ? 'תקין' : 'Valid', ok: true },
+  { label: 'IEC 62109', status: isHe ? 'מאושר' : 'Approved', ok: true },
+  { label: isHe ? 'חוזה VPP פעיל' : 'Active VPP Contract', status: isHe ? 'פעיל' : 'Active', ok: true },
+  { label: isHe ? 'ביטוח מערכת' : 'System Insurance', status: isHe ? 'בתוקף' : 'Valid', ok: true },
 ];
 
-const NAV_ITEMS = [
-  { key: 'assets', icon: BarChart2, label: 'נכסים' },
-  { key: 'marketplace', icon: Store, label: 'מרקט' },
-  { key: 'settings', icon: Settings, label: 'הגדרות' },
+const getNavItems = (isHe) => [
+  { key: 'assets', icon: BarChart2, label: isHe ? 'נכסים' : 'Assets' },
+  { key: 'marketplace', icon: Store, label: isHe ? 'מרקט' : 'Market' },
+  { key: 'settings', icon: Settings, label: isHe ? 'הגדרות' : 'Settings' },
 ];
 
 export default function VPPClubDashboard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const isHe = lang === 'he';
   const [activeNav, setActiveNav] = useState('assets');
+
+  const assets = getAssets(isHe);
+  const smartTrades = getSmartTrades(isHe);
+  const regulations = getRegulations(isHe);
+  const NAV_ITEMS = getNavItems(isHe);
+  const financialData = isHe ? financialDataHe : financialDataEn;
 
   const totalIncome = assets.reduce((sum, a) => {
     const val = parseInt(a.income.replace(/[^0-9]/g, ''));
@@ -55,7 +64,7 @@ export default function VPPClubDashboard() {
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between pt-2">
         <div>
           <h1 className="text-xl font-black text-white">VPP Solar Club</h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>אנרגיה כנכס — לוח מחוונים מקצועי</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{isHe ? 'אנרגיה כנכס — לוח מחוונים מקצועי' : 'Energy as an Asset — Pro Dashboard'}</p>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
           style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#10B981' }}>
@@ -71,7 +80,7 @@ export default function VPPClubDashboard() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Battery className="w-5 h-5 text-emerald-400" />
-            <span className="text-sm font-black text-white">סוללה וירטואלית</span>
+            <span className="text-sm font-black text-white">{isHe ? 'סוללה וירטואלית' : 'Virtual Battery'}</span>
           </div>
           <span className="text-2xl font-black text-emerald-400">{virtualBatteryLevel}%</span>
         </div>
@@ -134,8 +143,8 @@ export default function VPPClubDashboard() {
       {activeNav === 'assets' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black" style={{ color: 'rgba(255,255,255,0.5)' }}>נכסי אנרגיה קהילתיים</span>
-            <span className="text-xs font-black text-emerald-400">סה״כ: ₪{totalIncome}/חודש</span>
+            <span className="text-xs font-black" style={{ color: 'rgba(255,255,255,0.5)' }}>{isHe ? 'נכסי אנרגיה קהילתיים' : 'Community Energy Assets'}</span>
+            <span className="text-xs font-black text-emerald-400">{isHe ? 'סה״כ' : 'Total'}: ₪{totalIncome}/{isHe ? 'חודש' : 'mo'}</span>
           </div>
           {assets.map((asset, i) => (
             <motion.div key={asset.id} initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: i * 0.07 }}
@@ -144,11 +153,11 @@ export default function VPPClubDashboard() {
               <span className="text-2xl">{asset.icon}</span>
               <div className="flex-1">
                 <p className="text-sm font-bold text-white">{asset.name}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{asset.shares} מניות · תשואה {asset.yield}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{asset.shares} {isHe ? 'מניות' : 'shares'} · {isHe ? 'תשואה' : 'yield'} {asset.yield}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-black text-emerald-400">{asset.income}</p>
-                <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>פעיל</p>
+                <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{isHe ? 'פעיל' : 'Active'}</p>
               </div>
             </motion.div>
           ))}
@@ -160,8 +169,8 @@ export default function VPPClubDashboard() {
           className="rounded-2xl p-5 text-center"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <Store className="w-8 h-8 mx-auto mb-2" style={{ color: 'rgba(255,255,255,0.2)' }} />
-          <p className="text-sm font-bold text-white mb-1">מרקטפלייס אנרגיה</p>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>עבור לדף המרקטפלייס לרכישת מניות</p>
+          <p className="text-sm font-bold text-white mb-1">{isHe ? 'מרקטפלייס אנרגיה' : 'Energy Marketplace'}</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{isHe ? 'עבור לדף המרקטפלייס לרכישת מניות' : 'Go to the Marketplace to buy shares'}</p>
         </motion.div>
       )}
 
@@ -170,8 +179,8 @@ export default function VPPClubDashboard() {
           className="rounded-2xl p-5 text-center"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <Settings className="w-8 h-8 mx-auto mb-2" style={{ color: 'rgba(255,255,255,0.2)' }} />
-          <p className="text-sm font-bold text-white mb-1">הגדרות VPP</p>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>עבור להגדרות לניהול העדפות המערכת</p>
+          <p className="text-sm font-bold text-white mb-1">{isHe ? 'הגדרות VPP' : 'VPP Settings'}</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{isHe ? 'עבור להגדרות לניהול העדפות המערכת' : 'Go to settings to manage system preferences'}</p>
         </motion.div>
       )}
 
@@ -181,11 +190,11 @@ export default function VPPClubDashboard() {
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-blue-400" />
-          <span className="text-xs font-black text-white">ניתוח פיננסי — חיסכון vs הכנסת רשת</span>
+          <span className="text-xs font-black text-white">{isHe ? 'ניתוח פיננסי — חיסכון vs הכנסת רשת' : 'Financial Analytics — Savings vs Grid Revenue'}</span>
         </div>
         <div className="flex gap-4 text-xs">
-          <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /><span style={{ color: 'rgba(255,255,255,0.5)' }}>חיסכון</span></div>
-          <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-blue-500" /><span style={{ color: 'rgba(255,255,255,0.5)' }}>הכנסת רשת</span></div>
+          <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /><span style={{ color: 'rgba(255,255,255,0.5)' }}>{isHe ? 'חיסכון' : 'Savings'}</span></div>
+          <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-blue-500" /><span style={{ color: 'rgba(255,255,255,0.5)' }}>{isHe ? 'הכנסת רשת' : 'Grid Revenue'}</span></div>
         </div>
         <ResponsiveContainer width="100%" height={160}>
           <BarChart data={financialData} barGap={4}>
@@ -208,7 +217,7 @@ export default function VPPClubDashboard() {
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-violet-400" />
-          <span className="text-xs font-black text-white">סטטוס רגולטורי</span>
+          <span className="text-xs font-black text-white">{isHe ? 'סטטוס רגולטורי' : 'Regulatory Status'}</span>
         </div>
         {regulations.map(reg => (
           <div key={reg.label} className="flex items-center justify-between">

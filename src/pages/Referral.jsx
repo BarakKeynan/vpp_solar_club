@@ -5,21 +5,22 @@ import { toast } from 'sonner';
 import {
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer
 } from 'recharts';
+import { useLang } from '@/lib/i18n';
 
 // --- Mock user state ---
 const REFERRAL_CODE = 'VPP-YONI42';
 const REFERRAL_COUNT = 2; // change to 0,1,2,3,4,5 to test tiers
 
-const tiers = [
+const getTiers = (isHe) => [
   {
     level: 1,
     threshold: 1,
     icon: Gift,
     color: 'text-primary',
     bg: 'bg-primary/10 border-primary/30',
-    title: 'Level 1 — חודש חינם',
-    reward: 'חודש ללא עמלות ניהול (0% Success Fee)',
-    tag: '1 חבר',
+    title: isHe ? 'Level 1 — חודש חינם' : 'Level 1 — Free Month',
+    reward: isHe ? 'חודש ללא עמלות ניהול (0% Success Fee)' : 'One month with 0% Success Fee',
+    tag: isHe ? '1 חבר' : '1 friend',
   },
   {
     level: 2,
@@ -27,9 +28,9 @@ const tiers = [
     icon: Sun,
     color: 'text-accent',
     bg: 'bg-accent/10 border-accent/30',
-    title: 'Level 2 — ניקוי + 3 חודשים',
-    reward: '3 חודשים ללא עמלות + ניקוי פאנלים מקצועי במתנה',
-    tag: '3 חברים',
+    title: isHe ? 'Level 2 — ניקוי + 3 חודשים' : 'Level 2 — Cleaning + 3 Months',
+    reward: isHe ? '3 חודשים ללא עמלות + ניקוי פאנלים מקצועי במתנה' : '3 fee-free months + free professional panel cleaning',
+    tag: isHe ? '3 חברים' : '3 friends',
   },
   {
     level: 3,
@@ -38,8 +39,8 @@ const tiers = [
     color: 'text-yellow-400',
     bg: 'bg-yellow-400/10 border-yellow-400/30',
     title: 'Founder Circle 👑',
-    reward: 'פאנל וירטואלי קבוע בארנק הדיגיטלי + ייעוץ אסטרטגי + תמיכה VIP ישירה',
-    tag: '5 חברים',
+    reward: isHe ? 'פאנל וירטואלי קבוע בארנק הדיגיטלי + ייעוץ אסטרטגי + תמיכה VIP ישירה' : 'Permanent virtual panel in digital wallet + strategic consulting + direct VIP support',
+    tag: isHe ? '5 חברים' : '5 friends',
   },
 ];
 
@@ -50,19 +51,21 @@ function getTierInfo(count) {
   return { current: 0, next: tiers[0], progress: 0 };
 }
 
-const comparisonData = [
-  { month: 'ינו', vpp: 1800, passive: 400 },
-  { month: 'פבר', vpp: 2100, passive: 400 },
-  { month: 'מרץ', vpp: 2400, passive: 400 },
-  { month: 'אפר', vpp: 2700, passive: 400 },
-  { month: 'מאי', vpp: 3100, passive: 400 },
-  { month: 'יונ', vpp: 3400, passive: 400 },
+const comparisonDataHe = [
+  { month: 'ינו', vpp: 1800, passive: 400 }, { month: 'פבר', vpp: 2100, passive: 400 },
+  { month: 'מרץ', vpp: 2400, passive: 400 }, { month: 'אפר', vpp: 2700, passive: 400 },
+  { month: 'מאי', vpp: 3100, passive: 400 }, { month: 'יונ', vpp: 3400, passive: 400 },
+];
+const comparisonDataEn = [
+  { month: 'Jan', vpp: 1800, passive: 400 }, { month: 'Feb', vpp: 2100, passive: 400 },
+  { month: 'Mar', vpp: 2400, passive: 400 }, { month: 'Apr', vpp: 2700, passive: 400 },
+  { month: 'May', vpp: 3100, passive: 400 }, { month: 'Jun', vpp: 3400, passive: 400 },
 ];
 
-const earningsSplit = [
-  { label: 'הכנסה מהמערכת הגגית', value: '9,800 ₪', color: 'text-primary', bar: 'bg-primary', pct: 57 },
-  { label: 'פאנלים וירטואליים (מתנה)', value: '2,100 ₪', color: 'text-accent', bar: 'bg-accent', pct: 12 },
-  { label: 'חיסכון מחודשי עמלות חינם', value: '680 ₪', color: 'text-secondary', bar: 'bg-secondary', pct: 4 },
+const getEarningsSplit = (isHe) => [
+  { label: isHe ? 'הכנסה מהמערכת הגגית' : 'Rooftop system income', value: '9,800 ₪', color: 'text-primary', bar: 'bg-primary', pct: 57 },
+  { label: isHe ? 'פאנלים וירטואליים (מתנה)' : 'Virtual panels (gift)', value: '2,100 ₪', color: 'text-accent', bar: 'bg-accent', pct: 12 },
+  { label: isHe ? 'חיסכון מחודשי עמלות חינם' : 'Savings from free fee months', value: '680 ₪', color: 'text-secondary', bar: 'bg-secondary', pct: 4 },
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -79,13 +82,18 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function Referral() {
   const [copied, setCopied] = useState(false);
+  const { lang } = useLang();
+  const isHe = lang === 'he';
   const { current, next, progress } = getTierInfo(REFERRAL_COUNT);
   const isVIP = REFERRAL_COUNT >= 5;
+  const tiers = getTiers(isHe);
+  const earningsSplit = getEarningsSplit(isHe);
+  const comparisonData = isHe ? comparisonDataHe : comparisonDataEn;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(REFERRAL_CODE).catch(() => {});
     setCopied(true);
-    toast.success('קוד הפניה הועתק!');
+    toast.success(isHe ? 'קוד הפניה הועתק!' : 'Referral code copied!');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -93,10 +101,10 @@ export default function Referral() {
     <div className="p-4 space-y-5 pb-28">
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
         <h1 className="text-xl font-black text-foreground flex items-center gap-2">
-          חבר מביא חבר
+          {isHe ? 'חבר מביא חבר' : 'Refer a Friend'}
           {isVIP && <Crown className="w-5 h-5 text-yellow-400" />}
         </h1>
-        <p className="text-xs text-muted-foreground mt-1">הפנה חברים וצבור הטבות בלעדיות</p>
+        <p className="text-xs text-muted-foreground mt-1">{isHe ? 'הפנה חברים וצבור הטבות בלעדיות' : 'Refer friends and earn exclusive rewards'}</p>
       </motion.div>
 
       {/* VIP Banner */}
@@ -106,7 +114,7 @@ export default function Referral() {
           <Crown className="w-8 h-8 text-yellow-400 flex-shrink-0" />
           <div>
             <p className="text-base font-black text-yellow-400">Founder Circle VIP 👑</p>
-            <p className="text-xs text-foreground/70 mt-0.5">הודעות WhatsApp שלך מועברות ישירות לייעוץ אנרגטי אישי — ללא תור בוט</p>
+            <p className="text-xs text-foreground/70 mt-0.5">{isHe ? 'הודעות WhatsApp שלך מועברות ישירות לייעוץ אנרגטי אישי — ללא תור בוט' : 'Your WhatsApp messages go directly to personal energy consulting — no bot queue'}</p>
           </div>
         </motion.div>
       )}
@@ -114,7 +122,7 @@ export default function Referral() {
       {/* Referral Code */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
         className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-xs text-muted-foreground mb-2">קוד ההפניה שלך</p>
+        <p className="text-xs text-muted-foreground mb-2">{isHe ? 'קוד ההפניה שלך' : 'Your Referral Code'}</p>
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-muted rounded-xl px-4 py-3 font-mono text-lg font-black text-primary tracking-widest text-center">
             {REFERRAL_CODE}
@@ -130,10 +138,10 @@ export default function Referral() {
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
         className="bg-card border border-border rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-bold text-muted-foreground">מסלול ההטבות שלך</p>
+          <p className="text-xs font-bold text-muted-foreground">{isHe ? 'מסלול ההטבות שלך' : 'Your Rewards Track'}</p>
           <div className="flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm font-black text-primary">{REFERRAL_COUNT} / 5 חברים</span>
+            <span className="text-sm font-black text-primary">{REFERRAL_COUNT} / 5 {isHe ? 'חברים' : 'friends'}</span>
           </div>
         </div>
 
@@ -148,8 +156,9 @@ export default function Referral() {
             />
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground">
-            <span>0</span><span className={REFERRAL_COUNT >= 1 ? 'text-primary font-bold' : ''}>1 חבר</span>
-            <span className={REFERRAL_COUNT >= 3 ? 'text-accent font-bold' : ''}>3 חברים</span>
+            <span>0</span>
+            <span className={REFERRAL_COUNT >= 1 ? 'text-primary font-bold' : ''}>{isHe ? '1 חבר' : '1 friend'}</span>
+            <span className={REFERRAL_COUNT >= 3 ? 'text-accent font-bold' : ''}>{isHe ? '3 חברים' : '3 friends'}</span>
             <span className={REFERRAL_COUNT >= 5 ? 'text-yellow-400 font-bold' : ''}>5 👑</span>
           </div>
         </div>
@@ -166,7 +175,7 @@ export default function Referral() {
                   <p className="text-[10px] text-foreground/60 mt-0.5">{tier.reward}</p>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${unlocked ? `${tier.bg} ${tier.color}` : 'bg-muted text-muted-foreground'}`}>
-                  {unlocked ? '✓ פעיל' : tier.tag}
+                  {unlocked ? (isHe ? '✓ פעיל' : '✓ Active') : tier.tag}
                 </span>
               </div>
             );
@@ -177,7 +186,7 @@ export default function Referral() {
       {/* Earnings Split */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
         className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-xs font-bold text-muted-foreground mb-3">פירוט הכנסות</p>
+        <p className="text-xs font-bold text-muted-foreground mb-3">{isHe ? 'פירוט הכנסות' : 'Earnings Breakdown'}</p>
         <div className="space-y-3">
           {earningsSplit.map(item => (
             <div key={item.label}>
@@ -201,8 +210,8 @@ export default function Referral() {
       {/* Comparison Graph */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
         className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-xs font-bold text-muted-foreground mb-1">VPP vs. מסלול פסיבי סטטי</p>
-        <p className="text-[10px] text-muted-foreground mb-3">הכנסה חודשית (₪)</p>
+        <p className="text-xs font-bold text-muted-foreground mb-1">VPP vs. {isHe ? 'מסלול פסיבי סטטי' : 'Static Passive Plan'}</p>
+        <p className="text-[10px] text-muted-foreground mb-3">{isHe ? 'הכנסה חודשית (₪)' : 'Monthly Income (₪)'}</p>
         <ResponsiveContainer width="100%" height={150}>
           <AreaChart data={comparisonData}>
             <defs>
@@ -217,13 +226,13 @@ export default function Referral() {
             </defs>
             <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} />
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="passive" name="מסלול פסיבי" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} fill="url(#passiveGrad)" strokeDasharray="4 4" />
+            <Area type="monotone" dataKey="passive" name={isHe ? 'מסלול פסיבי' : 'Passive Plan'} stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} fill="url(#passiveGrad)" strokeDasharray="4 4" />
             <Area type="monotone" dataKey="vpp" name="VPP Home" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#vppGrad)" />
           </AreaChart>
         </ResponsiveContainer>
         <div className="flex gap-4 justify-center mt-2">
           <div className="flex items-center gap-1.5"><div className="w-4 h-0.5 bg-primary rounded" /><span className="text-[10px] text-muted-foreground">VPP Home</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-4 h-0.5 bg-muted-foreground rounded border-dashed" /><span className="text-[10px] text-muted-foreground">פסיבי</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-4 h-0.5 bg-muted-foreground rounded border-dashed" /><span className="text-[10px] text-muted-foreground">{isHe ? 'פסיבי' : 'Passive'}</span></div>
         </div>
       </motion.div>
     </div>

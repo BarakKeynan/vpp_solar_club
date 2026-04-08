@@ -11,25 +11,33 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mode Toggle */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 pt-4 pb-3">
-        <div className="flex bg-muted rounded-2xl p-1 gap-1">
+      <div className="sticky top-0 z-10 px-4 pt-4 pb-3" style={{ background: 'hsl(222 47% 6% / 0.97)', backdropFilter: 'blur(16px)', borderBottom: '1px solid hsl(222 30% 18% / 0.6)' }}>
+        <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'hsl(222 30% 10%)' }}>
           <button
             onClick={() => setMode('home')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
               mode === 'home'
-                ? 'bg-primary text-primary-foreground shadow-lg'
+                ? 'text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
+            style={mode === 'home' ? {
+              background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 30%))',
+              boxShadow: '0 2px 12px hsl(160 84% 44% / 0.35)'
+            } : {}}
           >
             {t('vpp_mode_home')}
           </button>
           <button
             onClick={() => setMode('club')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
               mode === 'club'
-                ? 'bg-secondary text-secondary-foreground shadow-lg'
+                ? 'text-secondary-foreground'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
+            style={mode === 'club' ? {
+              background: 'linear-gradient(135deg, hsl(215 60% 44%), hsl(215 60% 36%))',
+              boxShadow: '0 2px 12px hsl(215 60% 50% / 0.35)'
+            } : {}}
           >
             {t('vpp_mode_club')}
           </button>

@@ -47,22 +47,32 @@ export default function BatteryHealthCard() {
       </div>
 
       {/* Default Battery Radio */}
-      <div className="rounded-xl p-2.5 flex items-center gap-2 mb-2" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}>
-        <span className="text-xs font-bold text-blue-300" style={{ flex: 1 }}>
-          {isHe ? 'ברירת מחדל' : 'Default Battery'}:
-        </span>
-        <select
-          value={defaultBattery}
-          onChange={(e) => setDefaultBattery(e.target.value)}
-          className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-200 cursor-pointer focus:outline-none"
-        >
+      <div className="mb-3">
+        <p className="text-[10px] font-bold text-muted-foreground mb-2">{isHe ? 'ברירת מחדל למכירה' : 'Default for Sale'}</p>
+        <div className="flex gap-2">
           {BATTERIES.map(bat => (
-            <option key={bat.id} value={bat.id} className="bg-slate-800 text-white">
-              {bat.brand} {bat.type}
-            </option>
+            <button
+              key={bat.id}
+              onClick={() => setDefaultBattery(bat.id)}
+              className="flex-1 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all"
+              style={{
+                background: defaultBattery === bat.id ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.03)',
+                border: defaultBattery === bat.id ? '1.5px solid #3B82F6' : '1px solid rgba(255,255,255,0.1)',
+                color: defaultBattery === bat.id ? '#93C5FD' : 'rgba(255,255,255,0.6)'
+              }}
+            >
+              <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center" style={{
+                borderColor: defaultBattery === bat.id ? '#3B82F6' : 'rgba(255,255,255,0.2)',
+                background: defaultBattery === bat.id ? 'rgba(59,130,246,0.3)' : 'transparent'
+              }}>
+                {defaultBattery === bat.id && (
+                  <div className="w-2 h-2 rounded-full bg-blue-400" />
+                )}
+              </div>
+              <span className="text-right flex-1">{bat.brand}</span>
+            </button>
           ))}
-        </select>
-        <Radio className="w-4 h-4 text-blue-400" style={{ opacity: 0.6 }} />
+        </div>
       </div>
 
       <div className="space-y-3">

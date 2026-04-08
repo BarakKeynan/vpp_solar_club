@@ -522,7 +522,7 @@ function MemberDashboard() {
               style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
               onClick={e => e.stopPropagation()}
             >
-            <div className="flex items-center justify-between mb-4 sticky top-0">
+              <div className="flex items-center justify-between mb-4 sticky top-0">
               <h2 className="text-lg font-black text-white">
                 {isHe ? 'בריאות הפאנלים' : 'Panel Health Analysis'}
               </h2>
@@ -534,7 +534,7 @@ function MemberDashboard() {
               </button>
             </div>
 
-            <div className="space-y-4">
+              <div className="space-y-4">
               {/* Current Efficiency */}
               <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <div className="flex items-center justify-between mb-3">
@@ -626,12 +626,13 @@ function MemberDashboard() {
                   {isHe ? '🔧 Smart Care' : '🔧 Smart Care'}
                 </button>
               </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
+              </div>
+              </motion.div>
+              </motion.div>
+              )}
+              </AnimatePresence>
 
-      {/* Segment Modal */}
+              {/* Segment Modal */}
       <AnimatePresence>
         {showSegment && (
           <motion.div
@@ -649,19 +650,19 @@ function MemberDashboard() {
               style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
               onClick={e => e.stopPropagation()}
             >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-black text-white">
-                {isHe ? 'בחר את הקהל שלך' : 'Choose Your Segment'}
-              </h2>
-              <button
-                onClick={() => setShowSegment(false)}
-                className="text-white/60 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-black text-white">
+                  {isHe ? 'בחר את הקהל שלך' : 'Choose Your Segment'}
+                </h2>
+                <button
+                  onClick={() => setShowSegment(false)}
+                  className="text-white/60 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
 
-            <div className="space-y-2">
+              <div className="space-y-2">
               {[
                 { emoji: '🏠', label: isHe ? 'שוכרים בלי גג' : 'Renters', desc: isHe ? 'ללא גג משלו' : 'No roof' },
                 { emoji: '🏢', label: isHe ? 'דירות' : 'Apartments', desc: isHe ? 'ביבניין' : 'In building' },
@@ -680,12 +681,13 @@ function MemberDashboard() {
                     <p className="text-[10px] text-muted-foreground">{seg.desc}</p>
                   </div>
                 </button>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
-    </motion.div>
+                ))}
+                </div>
+                </motion.div>
+                </motion.div>
+                )}
+                </AnimatePresence>
+                </motion.div>
   );
 }
 

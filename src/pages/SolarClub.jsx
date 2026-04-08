@@ -593,6 +593,30 @@ function MemberDashboard() {
                 </div>
               </div>
 
+              {/* Compliance & Standards */}
+              <div className="rounded-lg p-4" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                <p className="text-xs font-bold text-emerald-400 mb-2">🔐 {isHe ? 'תקנים ותקיפות' : 'Standards & Compliance'}</p>
+                <div className="space-y-1.5 mb-3">
+                  {[
+                    { tag: 'ISO 27001', desc: isHe ? 'אבטחת מידע' : 'Data Security' },
+                    { tag: 'ISO 50001', desc: isHe ? 'ניהול אנרגיה' : 'Energy Management' },
+                    { tag: 'AES-256', desc: isHe ? 'הצפנה' : 'Encryption' },
+                    { tag: 'Privacy by Design', desc: isHe ? 'עיצוב פרטי' : 'Privacy First' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-emerald-400" style={{ background: 'rgba(16,185,129,0.2)' }}>✓ {item.tag}</span>
+                      <span className="text-[9px] text-muted-foreground">{item.desc}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => navigate('/compliance')}
+                  className="w-full px-3 py-2 rounded-lg text-xs font-bold text-emerald-400 border border-emerald-400/40 hover:border-emerald-400/60 transition-colors"
+                >
+                  {isHe ? 'לפרטים נוספים ←' : 'Learn More →'}
+                </button>
+              </div>
+
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
                 <button

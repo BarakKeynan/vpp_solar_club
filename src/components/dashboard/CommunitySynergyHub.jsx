@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import SyndicateDetailModal from './SyndicateDetailModal';
+import { useLang } from '@/lib/i18n';
 
 const SYNERGY = 84;
 const RADIUS = 52;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function CommunitySynergyHub() {
+  const { t } = useLang();
   const [progress, setProgress] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setProgress(SYNERGY), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setProgress(SYNERGY), 300);
+    return () => clearTimeout(timer);
   }, []);
 
   const dashOffset = CIRCUMFERENCE - (progress / 100) * CIRCUMFERENCE;
@@ -35,7 +37,6 @@ export default function CommunitySynergyHub() {
           onClick={() => setModalOpen(true)}
           className="relative shrink-0 active:scale-95 transition-transform"
           style={{ width: 120, height: 120 }}
-          title="לחץ לפירוט הישגי השכונה"
         >
           <div
             className="absolute inset-0 rounded-full"
@@ -75,15 +76,15 @@ export default function CommunitySynergyHub() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-black" style={{ color: '#F59E0B', lineHeight: 1 }}>{SYNERGY}%</span>
-            <span className="text-[9px] text-blue-300 font-bold mt-0.5">לחץ לפירוט</span>
+            <span className="text-[9px] text-blue-300 font-bold mt-0.5">{t('synergy_click_detail')}</span>
           </div>
         </button>
 
         {/* Text */}
         <div className="flex-1">
-          <p className="text-sm font-black text-white leading-tight">Community Synergy</p>
+          <p className="text-sm font-black text-white leading-tight">{t('synergy_title')}</p>
           <p className="text-[11px] text-blue-200 mt-1 leading-relaxed">
-            עוד <span className="text-amber-400 font-black">16%</span> מהפעלת תעריף הקבוצה של שכונת חיפה.
+            {t('synergy_waiting', { pct: 100 - SYNERGY })}
           </p>
           <div className="mt-3 flex items-center gap-2">
             <div className="h-1.5 flex-1 rounded-full" style={{ background: 'rgba(59,130,246,0.15)' }}>
@@ -95,9 +96,9 @@ export default function CommunitySynergyHub() {
                 transition={{ duration: 1.4, ease: 'easeOut', delay: 0.4 }}
               />
             </div>
-            <span className="text-[10px] text-blue-300 font-bold shrink-0">84/100</span>
+            <span className="text-[10px] text-blue-300 font-bold shrink-0">{SYNERGY}/100</span>
           </div>
-          <p className="text-[9px] text-blue-400/70 mt-1.5">Neighborhood Bulk-Rate מחכה</p>
+          <p className="text-[9px] text-blue-400/70 mt-1.5">{t('synergy_bulk_rate')}</p>
         </div>
       </motion.div>
 

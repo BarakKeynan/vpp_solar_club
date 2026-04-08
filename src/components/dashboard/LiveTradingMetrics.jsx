@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Package } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 export default function LiveTradingMetrics() {
+  const { t } = useLang();
   const [profit, setProfit] = useState(187);
   const [inventory, setInventory] = useState(9.8);
 
@@ -33,7 +35,7 @@ export default function LiveTradingMetrics() {
       >
         <div className="flex items-center gap-2">
           <Package className="w-4 h-4" style={{ color: '#3B82F6' }} />
-          <p className="text-[10px] font-bold" style={{ color: 'rgba(147,197,253,0.7)' }}>מלאי למכירה</p>
+          <p className="text-[10px] font-bold" style={{ color: 'rgba(147,197,253,0.7)' }}>{t('trading_inventory')}</p>
         </div>
         <p className="text-2xl font-black text-white">{inventory} <span className="text-sm font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>kWh</span></p>
         <p className="text-xs font-bold" style={{ color: '#93C5FD' }}>≈ ₪{inventoryValue}</p>
@@ -49,7 +51,7 @@ export default function LiveTradingMetrics() {
       >
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4" style={{ color: '#F59E0B' }} />
-          <p className="text-[10px] font-bold" style={{ color: 'rgba(253,211,77,0.7)' }}>רווח מהזרמה היום</p>
+          <p className="text-[10px] font-bold" style={{ color: 'rgba(253,211,77,0.7)' }}>{t('trading_profit_today')}</p>
         </div>
         <motion.p
           key={profit}
@@ -61,7 +63,7 @@ export default function LiveTradingMetrics() {
         </motion.p>
         <div className="flex items-center gap-1">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <p className="text-[10px]" style={{ color: 'rgba(52,211,153,0.8)' }}>עדכון בזמן אמת</p>
+          <p className="text-[10px]" style={{ color: 'rgba(52,211,153,0.8)' }}>{t('trading_realtime')}</p>
         </div>
       </div>
 
@@ -70,21 +72,21 @@ export default function LiveTradingMetrics() {
         className="col-span-2 rounded-2xl p-4"
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
       >
-        <p className="text-xs font-bold mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>Profit Gap – יתרון השוק</p>
+        <p className="text-xs font-bold mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('trading_profit_gap')}</p>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>תעריף נוכחי (IEC)</span>
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('trading_current_tariff')}</span>
             <span className="text-xs font-bold" style={{ color: '#6B7280' }}>0.48 ₪/kWh</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>תעריף סינדיקט (Cellcom)</span>
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('trading_syndicate_tariff')}</span>
             <span className="text-xs font-bold" style={{ color: '#8B5CF6' }}>0.61 ₪/kWh</span>
           </div>
           <div
             className="flex items-center justify-between rounded-xl px-3 py-2 mt-1"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)' }}
           >
-            <span className="text-xs font-black" style={{ color: '#C4B5FD' }}>חסכת החודש</span>
+            <span className="text-xs font-black" style={{ color: '#C4B5FD' }}>{t('trading_saved_month')}</span>
             <span className="text-sm font-black" style={{ color: '#A78BFA' }}>₪140 💜</span>
           </div>
         </div>

@@ -105,7 +105,7 @@ export default function VPPHome() {
   const handleAlertAction = (alert) => {
     if (alert.type === 'maintenance') navigate('/smart-care');
     else if (alert.type === 'investment') navigate('/farm-detail');
-    else toast.success('פנייתך נשלחה – טכנאי יחזור אליך תוך 24 שעות');
+    else toast.success(t('alert_technician_sent'));
     setDismissedAlerts(d => [...d, alert.id]);
   };
 

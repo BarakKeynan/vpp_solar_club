@@ -79,6 +79,7 @@ export default function VPPHome() {
   const { t, lang } = useLang();
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
+  const [selectedBattery, setSelectedBattery] = useState(null);
   const [tradeCount, setTradeCount] = useState(0);
   const [surplusProfit, setSurplusProfit] = useState(0);
   const [dismissedAlerts, setDismissedAlerts] = useState([]);
@@ -247,12 +248,71 @@ export default function VPPHome() {
         </motion.div>
       )}
 
+      {/* Selected Battery Card */}
+      <motion.button
+        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }}
+        onClick={() => setShowBatterySelect(true)}
+        className="w-full bg-card border border-border rounded-2xl p-4 text-right active:scale-[0.98] transition-transform hover:border-primary/40"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            {lang === 'he' ? 'לחץ לשינוי' : 'Tap to change'}
+          </div>
+          <p className="text-xs font-bold text-muted-foreground">
+            {lang === 'he' ? 'סוללה למכירה לרשת' : 'Battery for Grid Sale'}
+          </p>
+        </div>
+        {selectedBattery ? (
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-primary/15 border border-primary/30">
+              <Battery className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-black text-foreground">{selectedBattery.name}</p>
+              <p className="text-[10px] text-muted-foreground">{selectedBattery.model} · {selectedBattery.capacity} kWh</p>
+            </div>
+            <div className="text-left">
+              <p className="text-xl font-black text-primary">{selectedBattery.level}%</p>
+              <p className="text-[10px] text-muted-foreground">
+                {((selectedBattery.level / 100) * selectedBattery.capacity).toFixed(1)} kWh {lang === 'he' ? 'זמין' : 'available'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-muted border border-dashed border-border">
+              <Battery className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-muted-foreground">
+                {lang === 'he' ? 'לא נבחרה סוללה' : 'No battery selected'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {lang === 'he' ? 'לחץ לבחירה ממשק הסוללות' : 'Tap to discover batteries'}
+              </p>
+            </div>
+            <span className="text-xs font-bold text-primary border border-primary/40 rounded-xl px-3 py-1.5">
+              {lang === 'he' ? '+ בחר' : '+ Select'}
+            </span>
+          </div>
+        )}
+        {selectedBattery && (
+          <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${selectedBattery.level > 60 ? 'bg-primary' : selectedBattery.level > 30 ? 'bg-accent' : 'bg-destructive'}`}
+              style={{ width: `${selectedBattery.level}%` }}
+            />
+          </div>
+        )}
+      </motion.button>
+
       {/* Action Buttons */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
         className="grid grid-cols-3 gap-3">
         {[
           { label: t('charge_battery'), icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
-          { label: t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid', batterySelect: true },
+          { label: selectedBattery ? `${t('sell_grid')}\n${selectedBattery.name}` : t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid', batterySelect: true },
           { label: t('charge_ev'), icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
         ].map(({ label, icon: Icon, color, path, batterySelect }) => (
           <motion.button key={path} whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.04 }}
@@ -267,7 +327,7 @@ export default function VPPHome() {
       <BatterySelectModal
         open={showBatterySelect}
         onClose={() => setShowBatterySelect(false)}
-        onSelect={() => navigate('/sell-to-grid')}
+        onSelect={(bat) => { setSelectedBattery(bat); navigate('/sell-to-grid'); }}
       />
 
       {/* Farm Detail Link */}

@@ -25,13 +25,12 @@ export default function SplashScreen({ onDone }) {
         }} />
       </div>
 
-      {/* Logo image — contained, never cropped */}
+      {/* Logo image — full width, never cropped */}
       <motion.div
-        initial={{ scale: 0.88, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.9, ease: 'easeOut' }}
-        className="relative z-10 w-full px-6 flex items-center justify-center"
-        style={{ maxWidth: '480px' }}
+        className="relative z-10 w-full flex items-center justify-center"
       >
         <img
           src="https://media.base44.com/images/public/69badf95d1c3200592bebb1e/1fa311c7c_.png"
@@ -39,7 +38,6 @@ export default function SplashScreen({ onDone }) {
           style={{
             width: '100%',
             height: 'auto',
-            maxHeight: '60vh',
             objectFit: 'contain',
             display: 'block',
           }}

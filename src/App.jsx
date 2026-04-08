@@ -34,6 +34,7 @@ import Referral from './pages/Referral';
 import FarmDetail from './pages/FarmDetail';
 import VPPClubDashboard from './pages/VPPClubDashboard.jsx';
 import MonthlyReport from './pages/MonthlyReport.jsx';
+import ProDashboard from './pages/ProDashboard.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -80,6 +81,7 @@ const AuthenticatedApp = () => {
         <Route path="/farm-detail" element={<FarmDetail />} />
         <Route path="/vpp-club-dashboard" element={<VPPClubDashboard />} />
         <Route path="/monthly-report" element={<MonthlyReport />} />
+        <Route path="/pro-dashboard" element={<ProDashboard />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

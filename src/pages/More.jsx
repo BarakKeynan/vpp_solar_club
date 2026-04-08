@@ -9,6 +9,15 @@ export default function More() {
 
   const items = [
     {
+      path: '/pro-dashboard',
+      icon: LayoutDashboard,
+      emoji: '🖥️',
+      title: t('more_pro_dashboard_title'),
+      subtitle: t('more_pro_dashboard_sub'),
+      color: 'border-violet-400/30 bg-violet-400/5',
+      accent: 'text-violet-400',
+    },
+    {
       path: '/monthly-report',
       icon: FileText,
       emoji: '📊',

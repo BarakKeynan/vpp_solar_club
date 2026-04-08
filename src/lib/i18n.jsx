@@ -144,6 +144,8 @@ export const translations = {
     more_monthly_report_sub: 'ייצור, מכירות, ייצוא PDF/Excel',
     more_vpp_club_title: 'לוח מחוונים VPP Club',
     more_vpp_club_sub: 'אנרגיה כנכס — לוח מחוונים מקצועי',
+    more_pro_dashboard_title: 'Pro Dashboard',
+    more_pro_dashboard_sub: 'לוח מחוונים פינטק — סוללה, ארביטראז׳ AI, נכסים',
 
     // Marketplace
     marketplace_title: 'Solar Farm Marketplace',
@@ -656,6 +658,8 @@ export const translations = {
     more_monthly_report_sub: 'Production, sales & financial export PDF/Excel',
     more_vpp_club_title: 'VPP Club Dashboard',
     more_vpp_club_sub: 'Energy as an Asset — Pro Dashboard',
+    more_pro_dashboard_title: 'Pro Dashboard',
+    more_pro_dashboard_sub: 'Fintech dashboard — battery, AI arbitrage, assets',
 
     // Marketplace
     marketplace_title: 'Solar Farm Marketplace',

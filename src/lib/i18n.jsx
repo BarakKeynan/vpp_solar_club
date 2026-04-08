@@ -1043,13 +1043,19 @@ export function LangProvider({ children }) {
   const switchLang = (l) => {
     setLang(l);
     localStorage.setItem('lang', l);
+    document.documentElement.dir = l === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = l;
   };
+
+  // Set on mount
+  React.useEffect(() => {
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
     <LangContext.Provider value={{ lang, setLang: switchLang, t }}>
-      <div dir={lang === 'he' ? 'rtl' : 'ltr'}>
-        {children}
-      </div>
+      {children}
     </LangContext.Provider>
   );
 }

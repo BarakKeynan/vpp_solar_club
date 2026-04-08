@@ -4,9 +4,12 @@ export const translations = {
   he: {
     // Bottom Nav
     nav_home: 'בית',
+    nav_my_assets: 'הנכסים שלי',
+    nav_marketplace: 'מרקטפלייס',
     nav_schedule: 'תזמון',
     nav_savings: 'חיסכון',
     nav_profile: 'פרופיל',
+    nav_settings: 'הגדרות',
     nav_more: 'עוד',
 
     // Dashboard
@@ -518,9 +521,12 @@ export const translations = {
   en: {
     // Bottom Nav
     nav_home: 'Home',
+    nav_my_assets: 'My Assets',
+    nav_marketplace: 'Marketplace',
     nav_schedule: 'Schedule',
     nav_savings: 'Savings',
     nav_profile: 'Profile',
+    nav_settings: 'Settings',
     nav_more: 'More',
 
     // Dashboard

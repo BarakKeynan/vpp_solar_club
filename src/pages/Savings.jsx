@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Zap, Home, Car } from 'lucide-react';
+import { Zap, Home, Car } from 'lucide-react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLang } from '@/lib/i18n';
 
@@ -40,19 +40,19 @@ export default function Savings() {
       { label: t('savings_today'), value: '+187 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
       { label: t('production_today'), value: '28 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
       { label: 'Solar Club', value: '+9 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('lang') === 'en' ? 'Peak Hour' : 'שיא שעות', value: '12:00', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+      { label: t('savings_peak_hour'), value: '12:00', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
     ],
     week: [
-      { label: t('lang') === 'en' ? 'This Week Savings' : 'חיסכון השבוע', value: '+1,210 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('lang') === 'en' ? 'This Week Production' : 'ייצור השבוע', value: '74 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
+      { label: t('savings_week_savings'), value: '+1,210 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('savings_week_production'), value: '74 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
       { label: 'Solar Club', value: '+37 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('lang') === 'en' ? 'Peak Day' : 'יום שיא', value: "ה׳", color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+      { label: t('savings_peak_day'), value: "ה׳", color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
     ],
     month: [
-      { label: t('savings_this_month') || 'חיסכון החודש', value: '+4,230 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('lang') === 'en' ? 'This Month Production' : 'ייצור החודש', value: '310 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
+      { label: t('savings_this_month'), value: '+4,230 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
+      { label: t('savings_month_production'), value: '310 kWh', color: 'text-accent', bg: 'border-accent/30 bg-accent/10' },
       { label: 'Solar Club', value: '+74 ₪', color: 'text-primary', bg: 'border-primary/30 bg-primary/10' },
-      { label: t('lang') === 'en' ? 'Annual Savings' : 'חיסכון השנה', value: '+18,400 ₪', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
+      { label: t('savings_annual'), value: '+18,400 ₪', color: 'text-secondary', bg: 'border-secondary/30 bg-secondary/10' },
     ],
   };
 
@@ -63,9 +63,9 @@ export default function Savings() {
   };
 
   const devices = [
-    { icon: Home, label: t('lang') === 'en' ? 'AC' : 'מזגן', saving: 42, action: t('lang') === 'en' ? 'Shifted to off-peak hours' : 'הוזז לשעות זול' },
-    { icon: Car, label: t('lang') === 'en' ? 'Electric Vehicle' : 'רכב חשמלי', saving: 85, action: t('lang') === 'en' ? 'Night charging' : 'טעינה בלילה' },
-    { icon: Zap, label: t('lang') === 'en' ? 'Dishwasher' : 'מדיח כלים', saving: 18, action: t('lang') === 'en' ? 'Shifted to morning' : 'הוזז לבוקר' },
+    { icon: Home, label: t('device_ac'), saving: 42, action: t('device_ac_action') },
+    { icon: Car, label: t('ev'), saving: 85, action: t('device_ev_action') },
+    { icon: Zap, label: t('device_dishwasher'), saving: 18, action: t('device_dishwasher_action') },
   ];
 
   return (

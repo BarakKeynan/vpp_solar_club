@@ -8,21 +8,26 @@ import { getPortfolio } from '@/lib/portfolio';
 import { useLang } from '@/lib/i18n';
 
 const farmsMeta = {
-  negev1:  { name: 'נגב סולאר A',  icon: '☀️', location: 'באר שבע',  yield: 9.8,  sharePrice: 142.5, monthlyPerShare: 1.16 },
-  galilee1:{ name: 'גליל אנרגיה',  icon: '🌊', location: 'כנרת',      yield: 8.4,  sharePrice: 98.3,  monthlyPerShare: 0.69 },
-  arava1:  { name: 'ערבה פאוור',   icon: '🏜️', location: 'ערד',       yield: 11.2, sharePrice: 211.0, monthlyPerShare: 1.97 },
-  carmel1: { name: 'כרמל גרין',    icon: '🌿', location: 'חיפה',       yield: 7.6,  sharePrice: 76.8,  monthlyPerShare: 0.49 },
+  negev1:  { name: { he: 'נגב סולאר A', en: 'Negev Solar A' },  icon: '☀️', location: { he: 'באר שבע', en: 'Beer Sheva' },  yield: 9.8,  sharePrice: 142.5, monthlyPerShare: 1.16 },
+  galilee1:{ name: { he: 'גליל אנרגיה', en: 'Galilee Energy' }, icon: '🌊', location: { he: 'כנרת', en: 'Kinneret' },         yield: 8.4,  sharePrice: 98.3,  monthlyPerShare: 0.69 },
+  arava1:  { name: { he: 'ערבה פאוור',  en: 'Arava Power' },    icon: '🏜️', location: { he: 'ערד', en: 'Arad' },             yield: 11.2, sharePrice: 211.0, monthlyPerShare: 1.97 },
+  carmel1: { name: { he: 'כרמל גרין',   en: 'Carmel Green' },   icon: '🌿', location: { he: 'חיפה', en: 'Haifa' },            yield: 7.6,  sharePrice: 76.8,  monthlyPerShare: 0.49 },
 };
 
-const smpHistory = [
+const smpHistoryHe = [
   { month: 'ינו', smp: 0.42 }, { month: 'פבר', smp: 0.45 }, { month: 'מרץ', smp: 0.48 },
   { month: 'אפר', smp: 0.51 }, { month: 'מאי', smp: 0.54 }, { month: 'יוני', smp: 0.57 },
   { month: 'יולי', smp: 0.59 }, { month: 'אוג', smp: 0.53 },
 ];
+const smpHistoryEn = [
+  { month: 'Jan', smp: 0.42 }, { month: 'Feb', smp: 0.45 }, { month: 'Mar', smp: 0.48 },
+  { month: 'Apr', smp: 0.51 }, { month: 'May', smp: 0.54 }, { month: 'Jun', smp: 0.57 },
+  { month: 'Jul', smp: 0.59 }, { month: 'Aug', smp: 0.53 },
+];
 
 export default function FarmDetail() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [portfolio, setPortfolio] = useState({});
   const [alertActive, setAlertActive] = useState(false);
   const [alertPrice, setAlertPrice] = useState(0.60);
@@ -36,7 +41,12 @@ export default function FarmDetail() {
   }, []);
 
   const holdings = Object.entries(portfolio).map(([id, data]) => {
-    const meta = farmsMeta[id] || data.farmMeta;
+    const rawMeta = farmsMeta[id] || data.farmMeta;
+    const meta = {
+      ...rawMeta,
+      name: rawMeta.name?.[lang] ?? rawMeta.name ?? id,
+      location: rawMeta.location?.[lang] ?? rawMeta.location ?? '',
+    };
     const monthlyIncome = (meta.monthlyPerShare || (meta.sharePrice * meta.yield / 100 / 12)) * data.qty;
     const payback = Math.ceil(data.totalInvested / monthlyIncome);
     const roiPct = ((monthlyIncome * 8 / data.totalInvested) * 100).toFixed(1);
@@ -152,7 +162,7 @@ export default function FarmDetail() {
           )}
         </div>
         <ResponsiveContainer width="100%" height={100}>
-          <AreaChart data={smpHistory}>
+          <AreaChart data={lang === 'en' ? smpHistoryEn : smpHistoryHe}>
             <defs>
               <linearGradient id="smpGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.4} />

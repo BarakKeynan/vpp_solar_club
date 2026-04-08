@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink } from 'lucide-react';
+import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 
 export default function Profile() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
@@ -137,6 +137,7 @@ export default function Profile() {
           { icon: Mail, label: t('email_label'), value: user?.email || '—' },
           { icon: Home, label: t('system_type'), value: 'VPP Home + Solar Club' },
           { icon: Zap, label: t('tariff'), value: '0.61 ₪/kWh' },
+          { icon: Battery, label: lang === 'he' ? 'סוג סוללה' : 'Battery Type', value: 'LFP 10 kWh · SolarEdge' },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-muted">

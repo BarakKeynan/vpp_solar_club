@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Battery, Thermometer, Activity, CheckCircle2, AlertTriangle, Radio } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
+import BatteryDetailModal from './BatteryDetailModal';
 
 const BATTERIES = [
   { id: 1, type: 'LFP', brand: 'BYD', model: 'Battery-Box Premium', capacity: '10 kWh', soh: 96, temp: 28, cycles: 312, status: 'optimal', voltage: '51.2V' },
@@ -30,6 +31,8 @@ export default function BatteryHealthCard() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [defaultBattery, setDefaultBattery] = useState(BATTERIES[0].id);
+  const [selectedBattery, setSelectedBattery] = useState(null);
+  const [onBookService, setOnBookService] = useState(null);
 
   return (
     <motion.div
@@ -77,7 +80,10 @@ export default function BatteryHealthCard() {
 
       <div className="space-y-3">
         {BATTERIES.map((bat) => (
-          <div key={bat.id} className="rounded-xl p-3 space-y-2"
+          <button 
+            key={bat.id}
+            onClick={() => setSelectedBattery(bat)}
+            className="w-full rounded-xl p-3 space-y-2 text-right transition-all hover:border-blue-400/40 active:scale-[0.98]"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
             {/* Header row */}
             <div className="flex items-center justify-between">
@@ -118,9 +124,16 @@ export default function BatteryHealthCard() {
               </div>
               <div className="text-[10px] font-bold text-muted-foreground">{bat.voltage}</div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
+
+      <BatteryDetailModal 
+        battery={selectedBattery}
+        open={!!selectedBattery}
+        onClose={() => setSelectedBattery(null)}
+        onBookService={setOnBookService}
+      />
     </motion.div>
   );
 }

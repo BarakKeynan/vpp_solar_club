@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Zap, Battery } from 'lucide-react';
+import { TrendingUp, Zap, Battery, Zap as ZapIcon, Car, ChevronLeft } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
+import { useNavigate } from 'react-router-dom';
 
 // Sparkline component
 function Sparkline({ data }) {
@@ -23,11 +24,13 @@ function Sparkline({ data }) {
 }
 
 export default function SimplifiedBatteryDashboard({ isHe }) {
+  const navigate = useNavigate();
   const [storageKwh, setStorageKwh] = useState(18.4);
   const [storagePercent, setStoragePercent] = useState(72);
   const [roiTrend, setRoiTrend] = useState([12, 14, 16, 18, 22, 24, 26, 28]);
   const [monthlySavings, setMonthlySavings] = useState(1240);
   const [assetValue, setAssetValue] = useState(12400);
+  const [panelHealth, setPanelHealth] = useState(92);
   const [lastActivity, setLastActivity] = useState([
     { icon: '📉', label: isHe ? 'קניה בתעריף נמוך' : 'Buying Low', value: '₪0.54/kWh', time: '2 דק' },
     { icon: '📈', label: isHe ? 'מכירה בשיא' : 'Selling Peak', value: '₪0.89/kWh', time: 'עכשיו' }
@@ -207,21 +210,73 @@ export default function SimplifiedBatteryDashboard({ isHe }) {
         </motion.div>
       </div>
 
-      {/* Quick Action */}
-      <motion.button
+      {/* Battery & Panels Status Row */}
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
-        className="w-full rounded-xl px-4 py-3 font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
-        style={{
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1))',
-          border: '1px solid rgba(16,185,129,0.3)',
-          color: '#10b981'
-        }}
+        className="grid grid-cols-2 gap-3"
       >
-        <Battery className="w-4 h-4" />
-        {isHe ? 'צפה בהיסטוריית סחר' : 'View Trade History'}
+        <div className="rounded-lg px-3 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-[10px] text-white/60 mb-1">{isHe ? 'סטטוס סוללה' : 'Battery Status'}</p>
+          <p className="text-sm font-bold text-emerald-400">{storagePercent}% - {isHe ? 'תקין' : 'Optimal'}</p>
+        </div>
+        <div className="rounded-lg px-3 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-[10px] text-white/60 mb-1">{isHe ? 'בריאות פאנלים' : 'Panel Health'}</p>
+          <p className="text-sm font-bold text-blue-400">{panelHealth}%</p>
+        </div>
+      </motion.div>
+
+      {/* Solar Farm Card */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        onClick={() => navigate('/farm-detail')}
+        className="w-full flex items-center justify-between bg-card border border-border rounded-xl p-4 active:scale-[0.98] transition-transform"
+      >
+        <div className="flex items-center gap-3 text-left">
+          <span className="text-2xl">☀️</span>
+          <div>
+            <p className="text-sm font-bold text-white">{isHe ? 'החווה הסולארית שלי' : 'My Solar Farm'}</p>
+            <p className="text-xs text-white/40">{isHe ? 'גלבוע פאוור · 3 יחידות · ROI 10.4%' : 'Gilboa Power · 3 units · ROI 10.4%'}</p>
+          </div>
+        </div>
+        <ChevronLeft className="w-5 h-5 text-white/40" />
       </motion.button>
+
+      {/* Action Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+        className="grid grid-cols-3 gap-3"
+      >
+        <button
+          onClick={() => navigate('/charge-battery')}
+          className="flex flex-col items-center gap-2 py-4 rounded-lg font-bold text-xs text-white active:scale-95 transition-transform"
+          style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1))', border: '1px solid rgba(16,185,129,0.3)' }}
+        >
+          <Battery className="w-5 h-5 text-emerald-400" />
+          <span>{isHe ? 'טען' : 'Charge'}</span>
+        </button>
+        <button
+          onClick={() => navigate('/sell-to-grid')}
+          className="flex flex-col items-center gap-2 py-4 rounded-lg font-bold text-xs text-white active:scale-95 transition-transform"
+          style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.1))', border: '1px solid rgba(59,130,246,0.3)' }}
+        >
+          <Zap className="w-5 h-5 text-blue-400" />
+          <span>{isHe ? 'מכור' : 'Sell'}</span>
+        </button>
+        <button
+          onClick={() => navigate('/charge-ev')}
+          className="flex flex-col items-center gap-2 py-4 rounded-lg font-bold text-xs text-white active:scale-95 transition-transform"
+          style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1))', border: '1px solid rgba(245,158,11,0.3)' }}
+        >
+          <Car className="w-5 h-5 text-amber-400" />
+          <span>{isHe ? 'רכב' : 'EV'}</span>
+        </button>
+      </motion.div>
     </div>
   );
 }

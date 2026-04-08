@@ -504,20 +504,24 @@ function MemberDashboard() {
       )}
 
       {/* Panel Details Modal */}
-      {showPanelDetails && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-end z-50"
-        >
+      <AnimatePresence>
+        {showPanelDetails && (
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            className="w-full rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
-            style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-end z-50"
+            onClick={() => setShowPanelDetails(false)}
           >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="w-full rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+              style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+              onClick={e => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between mb-4 sticky top-0">
               <h2 className="text-lg font-black text-white">
                 {isHe ? 'בריאות הפאנלים' : 'Panel Health Analysis'}
@@ -625,23 +629,26 @@ function MemberDashboard() {
             </div>
           </motion.div>
         </motion.div>
-      )}
+      </AnimatePresence>
 
       {/* Segment Modal */}
-      {showSegment && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        >
+      <AnimatePresence>
+        {showSegment && (
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="w-[90%] max-w-sm rounded-2xl p-6 space-y-4"
-            style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={() => setShowSegment(false)}
           >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-[90%] max-w-sm rounded-2xl p-6 space-y-4"
+              style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+              onClick={e => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-black text-white">
                 {isHe ? 'בחר את הקהל שלך' : 'Choose Your Segment'}
@@ -677,7 +684,7 @@ function MemberDashboard() {
             </div>
           </motion.div>
         </motion.div>
-      )}
+      </AnimatePresence>
     </motion.div>
   );
 }

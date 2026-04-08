@@ -1,13 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 export default function More() {
   const { t } = useLang();
 
   const items = [
+    {
+      path: '/monthly-report',
+      icon: FileText,
+      emoji: '📊',
+      title: t('lang') === 'en' ? 'Monthly Report' : 'דו"ח ביצועים חודשי',
+      subtitle: t('lang') === 'en' ? 'Production, sales & financial export' : 'ייצור, מכירות, ייצוא PDF/Excel',
+      color: 'border-emerald-400/30 bg-emerald-400/5',
+      accent: 'text-emerald-400',
+    },
     {
       path: '/vpp-club-dashboard',
       icon: LayoutDashboard,

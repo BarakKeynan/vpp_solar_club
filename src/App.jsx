@@ -33,6 +33,7 @@ import ComplianceHub from './pages/ComplianceHub';
 import Referral from './pages/Referral';
 import FarmDetail from './pages/FarmDetail';
 import VPPClubDashboard from './pages/VPPClubDashboard.jsx';
+import MonthlyReport from './pages/MonthlyReport.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
         <Route path="/referral" element={<Referral />} />
         <Route path="/farm-detail" element={<FarmDetail />} />
         <Route path="/vpp-club-dashboard" element={<VPPClubDashboard />} />
+        <Route path="/monthly-report" element={<MonthlyReport />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

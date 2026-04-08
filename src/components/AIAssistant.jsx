@@ -20,24 +20,37 @@ const SUGGESTED = {
   ],
 };
 
+const WELCOME = {
+  he: 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?',
+  en: "Hello! I'm your smart energy AI assistant 🌞\nI can answer questions about solar energy, your system performance, market trends and more.\nHow can I help?",
+};
+
 export default function AIAssistant() {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const [open, setOpen] = useState(false);
+  const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
 
+  // Initialize with welcome message when opened
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([{
-        role: 'assistant',
-        content: lang === 'he'
-          ? 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?'
-          : 'Hello! I\'m your smart energy AI assistant 🌞\nI can answer questions about solar energy, your system performance, market trends and more.\nHow can I help?',
-      }]);
+      setMessages([{ role: 'assistant', content: WELCOME[lang] || WELCOME.he }]);
     }
-  }, [open, lang]);
+  }, [open]);
+
+  // Subscribe to conversation updates
+  useEffect(() => {
+    if (!conversation?.id) return;
+    const unsub = base44.agents.subscribeToConversation(conversation.id, (data) => {
+      setMessages(data.messages || []);
+      const last = data.messages?.[data.messages.length - 1];
+      if (last?.role === 'assistant') setLoading(false);
+    });
+    return unsub;
+  }, [conversation?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,37 +58,31 @@ export default function AIAssistant() {
 
   const sendMessage = async (text) => {
     const userMsg = text || input.trim();
-    if (!userMsg) return;
+    if (!userMsg || loading) return;
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setLoading(true);
 
-    const history = messages.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n');
+    // Optimistically show user message
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert AI solar energy assistant embedded in a home energy management app called VPP Home. 
-You help users with questions about:
-- Solar energy and panel performance
-- Battery storage optimization
-- Grid selling strategies
-- Market price trends (SMP)
-- ROI calculations and financial performance
-- Maintenance recommendations
-- General energy saving tips
+    try {
+      let conv = conversation;
+      if (!conv) {
+        conv = await base44.agents.createConversation({
+          agent_name: 'energy_assistant',
+          metadata: { name: 'Energy Chat' },
+        });
+        setConversation(conv);
+      }
 
-Conversation so far:
-${history}
-
-User: ${userMsg}
-
-Respond in ${lang === 'he' ? 'Hebrew' : 'English'}. Be concise, helpful, and use relevant numbers when appropriate. Use markdown for formatting.`,
-    });
-
-    setMessages(prev => [...prev, { role: 'assistant', content: result }]);
-    setLoading(false);
+      await base44.agents.addMessage(conv, { role: 'user', content: userMsg });
+    } catch (e) {
+      setLoading(false);
+    }
   };
 
   const suggested = SUGGESTED[lang] || SUGGESTED.he;
+  const displayMessages = messages.length > 0 ? messages : [];
 
   return (
     <>
@@ -97,14 +104,12 @@ Respond in ${lang === 'he' ? 'Hebrew' : 'English'}. Be concise, helpful, and use
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 bg-black/40"
               onClick={() => setOpen(false)}
             />
 
-            {/* Chat Window */}
             <motion.div
               initial={{ y: '100%', opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -137,7 +142,7 @@ Respond in ${lang === 'he' ? 'Hebrew' : 'English'}. Be concise, helpful, and use
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-                {messages.map((msg, i) => (
+                {displayMessages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
                       msg.role === 'user'
@@ -173,9 +178,9 @@ Respond in ${lang === 'he' ? 'Hebrew' : 'English'}. Be concise, helpful, and use
                 <div ref={bottomRef} />
               </div>
 
-              {/* Suggested (only when empty) */}
-              {messages.length <= 1 && (
-                <div className="px-4 py-2 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+              {/* Suggested (only at start) */}
+              {displayMessages.length <= 1 && (
+                <div className="px-4 py-2 flex gap-2 overflow-x-auto shrink-0">
                   {suggested.map((s) => (
                     <button key={s} onClick={() => sendMessage(s)}
                       className="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary whitespace-nowrap active:scale-95 transition-transform">

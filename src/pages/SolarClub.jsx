@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, Battery, Zap, Car } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
@@ -72,8 +72,97 @@ function JoinForm() {
   );
 }
 
+function VirtualBattery({ isHe }) {
+  const [percent, setPercent] = useState(72);
+  const [kWh, setKwh] = useState(18.4);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPercent(prev => Math.min(100, Math.max(0, prev + (Math.random() - 0.5) * 2)));
+      setKwh(prev => Math.max(0, prev + (Math.random() - 0.5) * 0.5));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const circumference = 2 * Math.PI * 54;
+  const strokeDashoffset = circumference - (percent / 100) * circumference;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+      className="rounded-xl border border-primary/30 p-4 space-y-4"
+      style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05))' }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-black text-foreground">{isHe ? 'שלי VPP סוללה וירטואלית' : 'My VPP Virtual Battery'}</h3>
+        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>
+          {isHe ? 'משדרת' : 'Streaming'}
+        </span>
+      </div>
+
+      <div className="flex justify-center">
+        <div className="relative w-40 h-40">
+          <svg className="w-full h-full" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+            <motion.circle
+              cx="60"
+              cy="60"
+              r="54"
+              fill="none"
+              stroke="#10b981"
+              strokeWidth="8"
+              strokeDasharray={circumference}
+              animate={{ strokeDashoffset }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
+              strokeLinecap="round"
+              style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <p className="text-3xl font-black text-primary">{Math.round(percent)}%</p>
+            <p className="text-xs text-muted-foreground mt-1">{kWh.toFixed(1)} kWh</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-lg px-3 py-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <p className="text-[9px] text-white/60 mb-0.5">{isHe ? 'ייצור היום' : 'Production'}</p>
+          <p className="text-xs font-bold text-accent">18.4 kWh</p>
+        </div>
+        <div className="rounded-lg px-3 py-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <p className="text-[9px] text-white/60 mb-0.5">{isHe ? 'צריכה' : 'Usage'}</p>
+          <p className="text-xs font-bold text-blue-400">9.8 kWh</p>
+        </div>
+        <div className="rounded-lg px-3 py-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <p className="text-[9px] text-white/60 mb-0.5">{isHe ? 'חיסכון' : 'Saved'}</p>
+          <p className="text-xs font-bold text-primary">+₪187</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
+          <Battery className="w-4 h-4 text-emerald-400" />
+          <span className="text-[10px] font-bold text-emerald-400">{isHe ? 'טען' : 'Charge'}</span>
+        </button>
+        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}>
+          <Zap className="w-4 h-4 text-blue-400" />
+          <span className="text-[10px] font-bold text-blue-400">{isHe ? 'מכור' : 'Sell'}</span>
+        </button>
+        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
+          <Car className="w-4 h-4 text-amber-400" />
+          <span className="text-[10px] font-bold text-amber-400">{isHe ? 'רכב' : 'EV'}</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 function MemberDashboard() {
   const { t, lang } = useLang();
+  const isHe = lang === 'he';
   const savingsData = lang === 'en' ? savingsDataEn : savingsDataHe;
 
   return (
@@ -88,6 +177,8 @@ function MemberDashboard() {
           <span className="text-xs font-bold text-primary">{t('solar_club_active_member')}</span>
         </div>
       </div>
+
+      <VirtualBattery isHe={isHe} />
 
       <div className="bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 p-5">
         <div className="flex items-center justify-between">

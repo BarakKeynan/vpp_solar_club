@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useLang } from '@/lib/i18n';
 import BatteryHealthCard from '@/components/dashboard/BatteryHealthCard';
+import BatterySelectModal from '@/components/dashboard/BatterySelectModal';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -77,6 +78,7 @@ export default function VPPHome() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
   const [autoPilot, setAutoPilot] = useState(false);
+  const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [tradeCount, setTradeCount] = useState(0);
   const [surplusProfit, setSurplusProfit] = useState(0);
   const [dismissedAlerts, setDismissedAlerts] = useState([]);
@@ -250,17 +252,23 @@ export default function VPPHome() {
         className="grid grid-cols-3 gap-3">
         {[
           { label: t('charge_battery'), icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
-          { label: t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid' },
+          { label: t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid', batterySelect: true },
           { label: t('charge_ev'), icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
-        ].map(({ label, icon: Icon, color, path }) => (
+        ].map(({ label, icon: Icon, color, path, batterySelect }) => (
           <motion.button key={path} whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.04 }}
-            onClick={() => navigate(path)}
+            onClick={() => batterySelect ? setShowBatterySelect(true) : navigate(path)}
             className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}>
             <Icon className="w-6 h-6" />
             <span className="leading-tight text-center">{label}</span>
           </motion.button>
         ))}
       </motion.div>
+
+      <BatterySelectModal
+        open={showBatterySelect}
+        onClose={() => setShowBatterySelect(false)}
+        onSelect={() => navigate('/sell-to-grid')}
+      />
 
       {/* Farm Detail Link */}
       <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45 }}

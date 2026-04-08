@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export default function SplashScreen({ onDone }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 2800);
+    const timer = setTimeout(onDone, 4800);
     return () => clearTimeout(timer);
   }, [onDone]);
 
@@ -80,7 +80,7 @@ export default function SplashScreen({ onDone }) {
         className="absolute inset-0 bg-[#030d1a] pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.1, duration: 0.65 }}
+        transition={{ delay: 4.1, duration: 0.65 }}
       />
     </motion.div>
   );

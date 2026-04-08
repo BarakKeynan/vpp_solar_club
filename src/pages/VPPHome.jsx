@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useLang } from '@/lib/i18n';
+import BatteryHealthCard from '@/components/dashboard/BatteryHealthCard';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -200,6 +201,9 @@ export default function VPPHome() {
           <PowerNode icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" />
         </div>
       </motion.div>
+
+      {/* Battery Health */}
+      <BatteryHealthCard />
 
       {/* Community Synergy Hub */}
       <CommunitySynergyHub />

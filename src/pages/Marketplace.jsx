@@ -6,12 +6,20 @@ import { toast } from 'sonner';
 import { addShares, getPortfolio } from '@/lib/portfolio';
 import { useLang } from '@/lib/i18n';
 
-const farms = [
-  { id: 'negev1', name: 'נגב סולאר A', location: 'באר שבע', capacity: '4.2 MW', sharePrice: 142.5, change: +3.2, available: 320, yield: '9.8%', icon: '☀️', history: [130, 134, 136, 138, 135, 139, 142, 142.5] },
-  { id: 'galilee1', name: 'גליל אנרגיה', location: 'כנרת', capacity: '2.8 MW', sharePrice: 98.3, change: +1.1, available: 540, yield: '8.4%', icon: '🌊', history: [92, 94, 93, 95, 96, 97, 98, 98.3] },
-  { id: 'arava1', name: 'ערבה פאוור', location: 'ערד', capacity: '6.5 MW', sharePrice: 211.0, change: -0.8, available: 890, yield: '11.2%', icon: '🏜️', history: [215, 214, 213, 212, 214, 213, 211, 211] },
-  { id: 'carmel1', name: 'כרמל גרין', location: 'חיפה', capacity: '1.9 MW', sharePrice: 76.8, change: +5.4, available: 120, yield: '7.6%', icon: '🌿', history: [66, 68, 70, 71, 72, 74, 76, 76.8] },
-];
+const farmsData = {
+  he: [
+    { id: 'negev1', name: 'נגב סולאר A', location: 'באר שבע', capacity: '4.2 MW', sharePrice: 142.5, change: +3.2, available: 320, yield: '9.8%', icon: '☀️', history: [130, 134, 136, 138, 135, 139, 142, 142.5] },
+    { id: 'galilee1', name: 'גליל אנרגיה', location: 'כנרת', capacity: '2.8 MW', sharePrice: 98.3, change: +1.1, available: 540, yield: '8.4%', icon: '🌊', history: [92, 94, 93, 95, 96, 97, 98, 98.3] },
+    { id: 'arava1', name: 'ערבה פאוור', location: 'ערד', capacity: '6.5 MW', sharePrice: 211.0, change: -0.8, available: 890, yield: '11.2%', icon: '🏜️', history: [215, 214, 213, 212, 214, 213, 211, 211] },
+    { id: 'carmel1', name: 'כרמל גרין', location: 'חיפה', capacity: '1.9 MW', sharePrice: 76.8, change: +5.4, available: 120, yield: '7.6%', icon: '🌿', history: [66, 68, 70, 71, 72, 74, 76, 76.8] },
+  ],
+  en: [
+    { id: 'negev1', name: 'Negev Solar A', location: 'Beer Sheva', capacity: '4.2 MW', sharePrice: 142.5, change: +3.2, available: 320, yield: '9.8%', icon: '☀️', history: [130, 134, 136, 138, 135, 139, 142, 142.5] },
+    { id: 'galilee1', name: 'Galilee Energy', location: 'Kinneret', capacity: '2.8 MW', sharePrice: 98.3, change: +1.1, available: 540, yield: '8.4%', icon: '🌊', history: [92, 94, 93, 95, 96, 97, 98, 98.3] },
+    { id: 'arava1', name: 'Arava Power', location: 'Arad', capacity: '6.5 MW', sharePrice: 211.0, change: -0.8, available: 890, yield: '11.2%', icon: '🏜️', history: [215, 214, 213, 212, 214, 213, 211, 211] },
+    { id: 'carmel1', name: 'Carmel Green', location: 'Haifa', capacity: '1.9 MW', sharePrice: 76.8, change: +5.4, available: 120, yield: '7.6%', icon: '🌿', history: [66, 68, 70, 71, 72, 74, 76, 76.8] },
+  ],
+};
 
 function BuyModal({ farm, onClose, onBought }) {
   const { t } = useLang();
@@ -20,7 +28,7 @@ function BuyModal({ farm, onClose, onBought }) {
 
   const handleBuy = () => {
     addShares(farm.id, qty, farm);
-    toast.success(`${t('lang') === 'en' ? 'Bought' : 'רכשת'} ${qty} ${t('lang') === 'en' ? 'shares in' : 'מניות ב-'}${farm.name}`);
+    toast.success(t('buy_success', { qty, name: farm.name }));
     onBought();
     onClose();
   };
@@ -88,7 +96,8 @@ function BuyModal({ farm, onClose, onBought }) {
 }
 
 export default function Marketplace() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const farms = farmsData[lang] || farmsData.he;
   const [selected, setSelected] = useState(null);
   const [sort, setSort] = useState('yield');
   const [portfolio, setPortfolio] = useState({});

@@ -7,13 +7,15 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import SegmentModal from '@/components/dashboard/SegmentModal';
 import { useLang } from '@/lib/i18n';
 
-const savingsData = [
-  { month: 'אוק', savings: 38 },
-  { month: 'נוב', savings: 42 },
-  { month: 'דצ', savings: 35 },
-  { month: 'ינו', savings: 55 },
-  { month: 'פבר', savings: 61 },
-  { month: 'מרץ', savings: 74 },
+const savingsDataHe = [
+  { month: 'אוק', savings: 38 }, { month: 'נוב', savings: 42 },
+  { month: 'דצ', savings: 35 }, { month: 'ינו', savings: 55 },
+  { month: 'פבר', savings: 61 }, { month: 'מרץ', savings: 74 },
+];
+const savingsDataEn = [
+  { month: 'Oct', savings: 38 }, { month: 'Nov', savings: 42 },
+  { month: 'Dec', savings: 35 }, { month: 'Jan', savings: 55 },
+  { month: 'Feb', savings: 61 }, { month: 'Mar', savings: 74 },
 ];
 
 function JoinForm({ onJoin }) {
@@ -117,7 +119,8 @@ function JoinForm({ onJoin }) {
 }
 
 function MemberDashboard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const savingsData = lang === 'en' ? savingsDataEn : savingsDataHe;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -174,7 +177,7 @@ function MemberDashboard() {
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <p className="text-xs text-muted-foreground font-medium">{t('solar_club_farm_status')}</p>
         {[
-          { label: t('solar_club_farm_name'), value: t('solar_club_farm_active'), color: 'text-primary' },
+          { label: t('solar_club_farm_name'), value: `${lang === 'en' ? 'Negev Solar 3' : 'נגב סולאר 3'} · ${t('solar_club_farm_active')}`, color: 'text-primary' },
           { label: t('solar_club_farm_production'), value: '2,840 kWh', color: 'text-accent' },
           { label: t('solar_club_farm_members'), value: '247', color: 'text-secondary' },
         ].map(item => (

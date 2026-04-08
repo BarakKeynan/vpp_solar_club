@@ -1,34 +1,56 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-// REFERRAL_COUNT >= 5 → VIP → direct human support
-// Otherwise → AI bot triage
-const REFERRAL_COUNT = 2; // synced with Referral.jsx mock
-
-const VIP_PHONE = '972501234567'; // direct consultant
-const BOT_PHONE = '972509876543'; // AI triage line
-
+const REFERRAL_COUNT = 2;
+const VIP_PHONE = '972501234567';
+const BOT_PHONE = '972509876543';
 const isVIP = REFERRAL_COUNT >= 5;
 const phone = isVIP ? VIP_PHONE : BOT_PHONE;
 const message = isVIP
   ? encodeURIComponent('שלום, אני לקוח Founder Circle VIP — מבקש ייעוץ אסטרטגי אישי.')
   : encodeURIComponent('שלום! אני משתמש VPP Home ואשמח לעזרה.');
-
 const waURL = `https://wa.me/${phone}?text=${message}`;
 
 export default function WhatsAppButton() {
+  const [pos, setPos] = useState({ x: 16, y: 96 }); // bottom-right-ish, above nav
+  const dragging = useRef(false);
+  const startTouch = useRef(null);
+  const startPos = useRef(null);
+
+  const handleTouchStart = (e) => {
+    dragging.current = false;
+    startTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    startPos.current = { ...pos };
+  };
+
+  const handleTouchMove = (e) => {
+    const dx = e.touches[0].clientX - startTouch.current.x;
+    const dy = e.touches[0].clientY - startTouch.current.y;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragging.current = true;
+    const newX = Math.max(8, Math.min(window.innerWidth - 60, startPos.current.x + dx));
+    const newY = Math.max(8, Math.min(window.innerHeight - 140, startPos.current.y - dy));
+    setPos({ x: newX, y: newY });
+  };
+
+  const handleClick = (e) => {
+    if (dragging.current) { e.preventDefault(); }
+  };
+
   return (
     <motion.a
       href={waURL}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 20 }}
-      whileTap={{ scale: 0.92 }}
-      className="fixed bottom-24 left-4 z-50 w-13 h-13 rounded-full shadow-2xl flex items-center justify-center"
-      style={{ width: 52, height: 52 }}
-      title={isVIP ? 'VIP Support — ישירות לייעוץ' : 'תמיכה ב-WhatsApp'}
+      whileTap={{ scale: dragging.current ? 1 : 0.92 }}
+      className="fixed z-50 shadow-2xl rounded-full"
+      style={{ left: pos.x, bottom: pos.y, width: 52, height: 52, touchAction: 'none', cursor: 'grab' }}
+      title={isVIP ? 'VIP Support' : 'WhatsApp Support'}
     >
       <div className={`w-full h-full rounded-full flex items-center justify-center ${isVIP ? 'bg-yellow-400' : 'bg-[#25D366]'}`}>
         {isVIP ? (

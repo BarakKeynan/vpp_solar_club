@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
 import LiveTradingMetrics from '@/components/dashboard/LiveTradingMetrics';
@@ -45,7 +45,7 @@ const getAlerts = (t) => [
     desc: t('alert_cleaning_desc'),
     action: t('alert_cleaning_action'),
     color: 'border-accent/40 bg-accent/5',
-    tag: t('lang') === 'en' ? 'Maintenance' : 'תחזוקה',
+    tag: t('tag_maintenance'),
     tagColor: 'bg-accent/20 text-accent',
   },
   {
@@ -56,7 +56,7 @@ const getAlerts = (t) => [
     desc: t('alert_farm_desc'),
     action: t('alert_farm_action'),
     color: 'border-secondary/40 bg-secondary/5',
-    tag: t('lang') === 'en' ? 'Investment' : 'השקעה',
+    tag: t('tag_investment'),
     tagColor: 'bg-secondary/20 text-secondary',
   },
   {
@@ -67,7 +67,7 @@ const getAlerts = (t) => [
     desc: t('alert_inverter_desc'),
     action: t('alert_inverter_action'),
     color: 'border-destructive/40 bg-destructive/5',
-    tag: t('lang') === 'en' ? 'Hardware' : 'חומרה',
+    tag: t('tag_hardware'),
     tagColor: 'bg-destructive/20 text-destructive',
   },
 ];
@@ -79,6 +79,7 @@ export default function VPPHome() {
   const [tradeCount, setTradeCount] = useState(0);
   const [surplusProfit, setSurplusProfit] = useState(0);
   const [dismissedAlerts, setDismissedAlerts] = useState([]);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const alerts = getAlerts(t);
 
   // Simulate autonomous trades when auto-pilot is ON
@@ -110,6 +111,14 @@ export default function VPPHome() {
   };
 
   const activeAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id));
+
+  const handleAutoOptimize = async () => {
+    setIsOptimizing(true);
+    await new Promise(r => setTimeout(r, 1800));
+    setAutoPilot(true);
+    setIsOptimizing(false);
+    toast.success(t('auto_optimized_msg'));
+  };
 
   return (
     <div className="p-4 space-y-4 pb-28">
@@ -217,8 +226,31 @@ export default function VPPHome() {
       {/* Live Trading Metrics */}
       <LiveTradingMetrics />
 
-      {/* Provider Insight – Profit Gap Analysis */}
-      <ProviderInsightCard />
+      {/* Provider Insight – Profit Gap Analysis + Auto Optimization */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }} className="space-y-3">
+        <ProviderInsightCard />
+        {!autoPilot && (
+          <motion.button
+            onClick={handleAutoOptimize}
+            disabled={isOptimizing}
+            whileTap={{ scale: 0.96 }}
+            className="w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+            style={{
+              background: isOptimizing
+                ? 'linear-gradient(135deg,rgba(139,92,246,0.4),rgba(139,92,246,0.2))'
+                : 'linear-gradient(135deg,#7C3AED,#8B5CF6)',
+              color: '#fff',
+              boxShadow: isOptimizing ? 'none' : '0 0 20px rgba(139,92,246,0.4)',
+            }}
+          >
+            {isOptimizing ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> {t('auto_optimizing')}</>
+            ) : (
+              <><Sparkles className="w-4 h-4" /> {t('auto_optimize_btn')}</>
+            )}
+          </motion.button>
+        )}
+      </motion.div>
 
       {/* Manual Approvals – Alerts */}
       {activeAlerts.length > 0 && (

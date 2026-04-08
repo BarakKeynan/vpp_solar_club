@@ -23,14 +23,14 @@ export default function Profile() {
   const stats = [
     { label: t('savings_this_month'), value: '+4,230 ₪', color: 'text-primary' },
     { label: t('production_year'), value: '2,840 kWh', color: 'text-accent' },
-    { label: t('carbon_saved'), value: '1.4 טון', color: 'text-secondary' },
-    { label: t('club_shares'), value: '2 מניות', color: 'text-primary' },
+    { label: t('carbon_saved'), value: t('profile_carbon_val'), color: 'text-secondary' },
+    { label: t('club_shares'), value: t('profile_shares_val'), color: 'text-primary' },
   ];
 
   const INTEGRATIONS = [
-    { label: t('lang') === 'en' ? 'Energy Provider' : 'ספק אנרגיה', value: 'Cellcom Energy', status: t('lang') === 'en' ? 'Connected' : 'מחובר', color: '#8B5CF6' },
-    { label: t('lang') === 'en' ? 'Smart Meter' : 'מונה חכם', value: 'Noga Data Hub', status: t('lang') === 'en' ? 'Active Sync' : 'סנכרון פעיל', color: '#10B981' },
-    { label: t('lang') === 'en' ? 'Solar System' : 'מערכת סולארית', value: 'SolarEdge API', status: t('lang') === 'en' ? 'Connected' : 'מחובר', color: '#3B82F6' },
+    { label: t('profile_provider'), value: 'Cellcom Energy', status: t('profile_connected'), color: '#8B5CF6' },
+    { label: t('profile_smart_meter'), value: 'Noga Data Hub', status: t('profile_active_sync'), color: '#10B981' },
+    { label: t('profile_solar_system'), value: 'SolarEdge API', status: t('profile_connected'), color: '#3B82F6' },
   ];
 
   return (
@@ -103,7 +103,7 @@ export default function Profile() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{t('neighborhood')}</span>
-            <span className="text-xs font-bold text-white">מרכז הכרמל, חיפה</span>
+            <span className="text-xs font-bold text-white">{t('profile_neighborhood_val')}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{t('syndicate_status')}</span>

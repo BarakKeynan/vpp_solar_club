@@ -62,10 +62,10 @@ export default function FinancialPerformance() {
   const [projectionScenario, setProjectionScenario] = useState('realistic');
 
   const breakdownItems = [
-    { label: t('lang') === 'en' ? 'Electricity Bill Savings' : 'חיסכון על חשבון חשמל', value: 9800, color: 'bg-primary', textColor: 'text-primary' },
-    { label: t('lang') === 'en' ? 'Grid Energy Sales' : 'מכירת חשמל לרשת', value: 4200, color: 'bg-secondary', textColor: 'text-secondary' },
-    { label: t('lang') === 'en' ? 'Solar Club Dividends' : 'Solar Club דיבידנדים', value: 2100, color: 'bg-accent', textColor: 'text-accent' },
-    { label: t('lang') === 'en' ? 'Tax Benefits' : 'הטבות מס', value: 1100, color: 'bg-chart-4', textColor: 'text-purple-400' },
+    { label: t('fp_electricity_saving'), value: 9800, color: 'bg-primary', textColor: 'text-primary' },
+    { label: t('fp_grid_sales'), value: 4200, color: 'bg-secondary', textColor: 'text-secondary' },
+    { label: t('fp_solar_club_div'), value: 2100, color: 'bg-accent', textColor: 'text-accent' },
+    { label: t('fp_tax_benefits'), value: 1100, color: 'bg-chart-4', textColor: 'text-purple-400' },
   ];
 
   const totalEarned = breakdownItems.reduce((s, i) => s + i.value, 0);
@@ -192,7 +192,7 @@ export default function FinancialPerformance() {
           {[
             { label: t('initial_investment'), value: `-${investmentCost.toLocaleString()} ₪`, color: 'text-destructive' },
             { label: t('cumulative_income'), value: `+${totalEarned.toLocaleString()} ₪`, color: 'text-primary' },
-            { label: t('monthly_avg', { n: MONTHS_ACTIVE }), value: `+${Math.round(totalEarned / MONTHS_ACTIVE).toLocaleString()} ₪/חודש`, color: 'text-secondary' },
+            { label: t('monthly_avg', { n: MONTHS_ACTIVE }), value: `+${Math.round(totalEarned / MONTHS_ACTIVE).toLocaleString()} ${t('fp_monthly_per_month')}`, color: 'text-secondary' },
             { label: t('home_electricity_saving'), value: '+9,800 ₪', color: 'text-primary' },
             { label: t('grid_club_income'), value: '+6,300 ₪', color: 'text-accent' },
           ].map(row => (

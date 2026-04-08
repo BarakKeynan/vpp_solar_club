@@ -5,28 +5,10 @@ import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 import ReactMarkdown from 'react-markdown';
 
-const SUGGESTED = {
-  he: [
-    'מה מצב הסוללה שלי?',
-    'מתי הכי כדאי למכור לרשת?',
-    'מה ה-ROI הצפוי השנה?',
-    'איך לשפר את יעילות הפאנלים?',
-  ],
-  en: [
-    'What is my battery status?',
-    'When is best to sell to the grid?',
-    'What is my expected ROI this year?',
-    'How to improve panel efficiency?',
-  ],
-};
-
-const WELCOME = {
-  he: 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?',
-  en: "Hello! I'm your smart energy AI assistant 🌞\nI can answer questions about solar energy, your system performance, market trends and more.\nHow can I help?",
-};
+// Translation keys will be used instead
 
 export default function AIAssistant() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [open, setOpen] = useState(false);
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -37,9 +19,9 @@ export default function AIAssistant() {
   // Initialize with welcome message when opened
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([{ role: 'assistant', content: WELCOME[lang] || WELCOME.he }]);
+      setMessages([{ role: 'assistant', content: t('ai_welcome') }]);
     }
-  }, [open]);
+  }, [open, t]);
 
   // Subscribe to conversation updates
   useEffect(() => {
@@ -81,22 +63,34 @@ export default function AIAssistant() {
     }
   };
 
-  const suggested = SUGGESTED[lang] || SUGGESTED.he;
+  const suggested = [t('ai_suggested_1'), t('ai_suggested_2'), t('ai_suggested_3'), t('ai_suggested_4')];
   const displayMessages = messages.length > 0 ? messages : [];
 
   return (
     <>
-      {/* FAB Button */}
+      {/* FAB Button – Upgraded AI Assistant icon */}
       <motion.button
         onClick={() => setOpen(true)}
         whileTap={{ scale: 0.92 }}
         whileHover={{ scale: 1.08 }}
-        className="fixed bottom-24 left-4 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary shadow-xl flex items-center justify-center"
-        style={{ boxShadow: '0 0 20px rgba(16,185,129,0.4)' }}
+        className="fixed bottom-24 z-40 flex items-center gap-2 rounded-full shadow-xl px-4 py-3"
+        style={{
+          left: lang === 'he' ? '16px' : undefined,
+          right: lang === 'en' ? '16px' : undefined,
+          background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #10B981 100%)',
+          boxShadow: '0 4px 24px rgba(59,130,246,0.45), 0 0 12px rgba(16,185,129,0.3)',
+        }}
       >
-        <Bot className="w-6 h-6 text-white" />
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-background flex items-center justify-center">
-          <Sparkles className="w-2.5 h-2.5 text-white" />
+        <div className="relative">
+          <Sparkles className="w-5 h-5 text-white" />
+          <motion.div
+            animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute inset-0 rounded-full bg-white/30"
+          />
+        </div>
+        <span className="text-white text-xs font-bold whitespace-nowrap">
+          {t('ai_assistant_title')}
         </span>
       </motion.button>
 
@@ -126,13 +120,13 @@ export default function AIAssistant() {
                     <Bot className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-white">
-                      {lang === 'he' ? 'עוזר אנרגיה AI' : 'Energy AI Assistant'}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      <p className="text-[10px] text-primary">{lang === 'he' ? 'מחובר' : 'Online'}</p>
-                    </div>
+                   <p className="text-sm font-black text-white">
+                     {t('ai_assistant_title')}
+                   </p>
+                   <div className="flex items-center gap-1">
+                     <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                     <p className="text-[10px] text-primary">{t('ai_online')}</p>
+                   </div>
                   </div>
                 </div>
                 <button onClick={() => setOpen(false)} className="p-2 rounded-xl bg-muted">
@@ -168,13 +162,13 @@ export default function AIAssistant() {
                   </div>
                 ))}
                 {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-3 py-2 flex items-center gap-2">
-                      <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                      <span className="text-xs text-muted-foreground">{lang === 'he' ? 'חושב...' : 'Thinking...'}</span>
-                    </div>
-                  </div>
-                )}
+                   <div className="flex justify-start">
+                     <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-3 py-2 flex items-center gap-2">
+                       <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                       <span className="text-xs text-muted-foreground">{t('ai_thinking')}</span>
+                     </div>
+                   </div>
+                 )}
                 <div ref={bottomRef} />
               </div>
 
@@ -197,7 +191,7 @@ export default function AIAssistant() {
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                    placeholder={lang === 'he' ? 'שאל שאלה על האנרגיה שלך...' : 'Ask about your energy system...'}
+                    placeholder={t('ai_input_placeholder')}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     disabled={loading}
                   />

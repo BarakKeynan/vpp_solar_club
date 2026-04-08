@@ -117,6 +117,14 @@ export const translations = {
     user_default: 'משתמש',
     doc_terms: 'סיכום תנאי שירות',
     doc_revenue: 'הסכם חלוקת הכנסות',
+    profile_provider: 'ספק אנרגיה',
+    profile_smart_meter: 'מונה חכם',
+    profile_solar_system: 'מערכת סולארית',
+    profile_connected: 'מחובר',
+    profile_active_sync: 'סנכרון פעיל',
+    profile_carbon_val: '1.4 טון',
+    profile_shares_val: '2 מניות',
+    profile_neighborhood_val: 'מרכז הכרמל, חיפה',
 
     // More
     more_title: 'שירותים נוספים',
@@ -132,6 +140,10 @@ export const translations = {
     more_smartcare_sub: 'ניטור פאנלים, מזג אוויר והזמנת תחזוקה',
     more_marketplace_title: 'Solar Farm Marketplace',
     more_marketplace_sub: 'רכישת מניות בחוות סולאריות ברחבי ישראל',
+    more_monthly_report_title: 'דו"ח ביצועים חודשי',
+    more_monthly_report_sub: 'ייצור, מכירות, ייצוא PDF/Excel',
+    more_vpp_club_title: 'לוח מחוונים VPP Club',
+    more_vpp_club_sub: 'אנרגיה כנכס — לוח מחוונים מקצועי',
 
     // Marketplace
     marketplace_title: 'Solar Farm Marketplace',
@@ -394,6 +406,34 @@ export const translations = {
     // VPPHome alert technician toast
     alert_technician_sent: 'פנייתך נשלחה – טכנאי יחזור אליך תוך 24 שעות',
 
+    // Alert tags
+    tag_maintenance: 'תחזוקה',
+    tag_investment: 'השקעה',
+    tag_hardware: 'חומרה',
+
+    // AI Assistant
+    ai_assistant_title: 'עוזר אנרגיה AI',
+    ai_online: 'מחובר',
+    ai_thinking: 'חושב...',
+    ai_input_placeholder: 'שאל שאלה על האנרגיה שלך...',
+    ai_suggested_1: 'מה מצב הסוללה שלי?',
+    ai_suggested_2: 'מתי הכי כדאי למכור לרשת?',
+    ai_suggested_3: 'מה ה-ROI הצפוי השנה?',
+    ai_suggested_4: 'איך לשפר את יעילות הפאנלים?',
+    ai_welcome: 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?',
+
+    // Auto Optimization
+    auto_optimize_btn: 'הפעל אופטימיזציה אוטומטית',
+    auto_optimizing: 'מיישם...',
+    auto_optimized_msg: 'האופטימיזציה הופעלה! המערכת תחל לפעול באופן אוטומטי',
+
+    // FinancialPerformance
+    fp_electricity_saving: 'חיסכון על חשבון חשמל',
+    fp_grid_sales: 'מכירת חשמל לרשת',
+    fp_solar_club_div: 'Solar Club דיבידנדים',
+    fp_tax_benefits: 'הטבות מס',
+    fp_monthly_per_month: '₪/חודש',
+
     // SavingsInfo
     savings_info_title: 'חיסכון במועדון הסולארי',
     savings_info_hero_value: 'עד 80 ₪',
@@ -576,6 +616,14 @@ export const translations = {
     user_default: 'User',
     doc_terms: 'Terms of Service Summary',
     doc_revenue: 'Revenue Sharing Agreement',
+    profile_provider: 'Energy Provider',
+    profile_smart_meter: 'Smart Meter',
+    profile_solar_system: 'Solar System',
+    profile_connected: 'Connected',
+    profile_active_sync: 'Active Sync',
+    profile_carbon_val: '1.4 Tons',
+    profile_shares_val: '2 Shares',
+    profile_neighborhood_val: 'Carmel Center, Haifa',
 
     // More
     more_title: 'More Services',
@@ -591,6 +639,10 @@ export const translations = {
     more_smartcare_sub: 'Panel monitoring, weather & maintenance booking',
     more_marketplace_title: 'Solar Farm Marketplace',
     more_marketplace_sub: 'Buy shares in solar farms across Israel',
+    more_monthly_report_title: 'Monthly Performance Report',
+    more_monthly_report_sub: 'Production, sales & financial export PDF/Excel',
+    more_vpp_club_title: 'VPP Club Dashboard',
+    more_vpp_club_sub: 'Energy as an Asset — Pro Dashboard',
 
     // Marketplace
     marketplace_title: 'Solar Farm Marketplace',
@@ -852,6 +904,34 @@ export const translations = {
 
     // VPPHome alert technician toast
     alert_technician_sent: 'Your request was sent – a technician will contact you within 24 hours',
+
+    // Alert tags
+    tag_maintenance: 'Maintenance',
+    tag_investment: 'Investment',
+    tag_hardware: 'Hardware',
+
+    // AI Assistant
+    ai_assistant_title: 'Energy AI Assistant',
+    ai_online: 'Online',
+    ai_thinking: 'Thinking...',
+    ai_input_placeholder: 'Ask about your energy system...',
+    ai_suggested_1: 'What is my battery status?',
+    ai_suggested_2: 'When is best to sell to the grid?',
+    ai_suggested_3: 'What is my expected ROI this year?',
+    ai_suggested_4: 'How to improve panel efficiency?',
+    ai_welcome: "Hello! I'm your smart energy AI assistant 🌞\nI can answer questions about solar energy, your system performance, market trends and more.\nHow can I help?",
+
+    // Auto Optimization
+    auto_optimize_btn: 'Apply Auto Optimization',
+    auto_optimizing: 'Applying...',
+    auto_optimized_msg: 'Auto optimization enabled! The system will now operate automatically',
+
+    // FinancialPerformance
+    fp_electricity_saving: 'Electricity Bill Savings',
+    fp_grid_sales: 'Grid Energy Sales',
+    fp_solar_club_div: 'Solar Club Dividends',
+    fp_tax_benefits: 'Tax Benefits',
+    fp_monthly_per_month: '₪/month',
 
     // SavingsInfo
     savings_info_title: 'Solar Club Savings',

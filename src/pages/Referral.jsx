@@ -44,7 +44,7 @@ const getTiers = (isHe) => [
   },
 ];
 
-function getTierInfo(count) {
+function getTierInfo(count, tiers) {
   if (count >= 5) return { current: 3, next: null, progress: 100 };
   if (count >= 3) return { current: 2, next: tiers[2], progress: ((count - 3) / 2) * 100 };
   if (count >= 1) return { current: 1, next: tiers[1], progress: ((count - 1) / 2) * 100 };
@@ -84,9 +84,9 @@ export default function Referral() {
   const [copied, setCopied] = useState(false);
   const { lang } = useLang();
   const isHe = lang === 'he';
-  const { current, next, progress } = getTierInfo(REFERRAL_COUNT);
   const isVIP = REFERRAL_COUNT >= 5;
   const tiers = getTiers(isHe);
+  const { current, next, progress } = getTierInfo(REFERRAL_COUNT, tiers);
   const earningsSplit = getEarningsSplit(isHe);
   const comparisonData = isHe ? comparisonDataHe : comparisonDataEn;
 

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Sun, TrendingUp, Star, CheckCircle, ChevronRight, Plus, Minus } from 'lucide-react';
-import { toast } from 'sonner';
+import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
 import { useLang } from '@/lib/i18n';
 
@@ -18,18 +17,9 @@ const savingsDataEn = [
   { month: 'Feb', savings: 61 }, { month: 'Mar', savings: 74 },
 ];
 
-function JoinForm({ onJoin }) {
-  const navigate = useNavigate();
+function JoinForm() {
   const { t } = useLang();
-  const [form, setForm] = useState({ name: '', address: '', apartment: '', shares: 1 });
   const [activeSegment, setActiveSegment] = useState(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.name || !form.address) { toast.error(t('solar_club_join_error')); return; }
-    onJoin();
-    toast.success(t('solar_club_join_success'));
-  };
 
   const segments = [
     { key: 'renters', emoji: '🏠', label: t('solar_club_segment_renters'), desc: t('solar_club_seg_desc_renters') },
@@ -49,71 +39,35 @@ function JoinForm({ onJoin }) {
         </p>
       </div>
 
-      {/* Segments */}
+      {/* Pricing strip */}
+      <div className="flex gap-2">
+        <div className="flex-1 bg-card border border-border rounded-xl p-3 text-center">
+          <p className="text-primary font-black text-lg">29–49 ₪</p>
+          <p className="text-[10px] text-muted-foreground">{t('solar_club_monthly_fee')}</p>
+        </div>
+        <div className="flex-1 bg-card border border-border rounded-xl p-3 text-center">
+          <p className="text-accent font-black text-lg">15%</p>
+          <p className="text-[10px] text-muted-foreground">{t('solar_club_commission')}</p>
+        </div>
+      </div>
+
+      {/* Segments — tap to open specific registration */}
+      <p className="text-xs font-bold text-muted-foreground px-1">{t('solar_club_membership')}</p>
       <div className="grid grid-cols-2 gap-2">
         {segments.map(s => (
           <motion.button key={s.key} whileTap={{ scale: 0.96 }}
             onClick={() => setActiveSegment(s.key)}
-            className="bg-card border border-border rounded-xl p-3 text-center hover:border-primary/50 transition-colors active:scale-95">
-            <div className="text-2xl mb-1">{s.emoji}</div>
-            <p className="text-xs font-bold text-foreground">{s.label}</p>
-            <p className="text-[10px] text-muted-foreground">{s.desc}</p>
+            className="bg-card border border-border rounded-xl p-3 text-right hover:border-primary/50 transition-colors active:scale-95 flex items-center gap-3">
+            <div className="text-2xl">{s.emoji}</div>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-foreground">{s.label}</p>
+              <p className="text-[10px] text-primary mt-0.5">{t('solar_club_join_cta')} ←</p>
+            </div>
           </motion.button>
         ))}
       </div>
+
       <SegmentModal segmentKey={activeSegment} onClose={() => setActiveSegment(null)} />
-
-      {/* Pricing */}
-      <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
-        <p className="text-xs font-bold text-muted-foreground">{t('solar_club_membership')}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-foreground font-semibold">{t('solar_club_monthly_fee')}</span>
-          <span className="text-primary font-black text-lg">29–49 ₪</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-foreground font-semibold">{t('solar_club_commission')}</span>
-          <span className="text-accent font-black text-lg">15%</span>
-        </div>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <p className="text-sm font-bold text-foreground">{t('solar_club_join_form')}</p>
-        <input
-          type="text" placeholder={t('solar_club_placeholder_name')}
-          value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-          className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-        />
-        <input
-          type="text" placeholder={t('solar_club_placeholder_address')}
-          value={form.address} onChange={e => setForm({ ...form, address: e.target.value })}
-          className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-        />
-        <input
-          type="text" placeholder={t('solar_club_placeholder_apartment')}
-          value={form.apartment} onChange={e => setForm({ ...form, apartment: e.target.value })}
-          className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-        />
-        <div>
-          <p className="text-xs text-muted-foreground mb-2">
-            {t('solar_club_shares_info', { n: form.shares, total: form.shares * 29 })}
-          </p>
-          <div className="flex items-center justify-between bg-muted rounded-2xl px-4 py-3">
-            <button type="button" onClick={() => setForm({ ...form, shares: Math.max(1, form.shares - 1) })}
-              className="p-1.5 rounded-xl bg-card border border-border">
-              <Minus className="w-4 h-4 text-foreground" />
-            </button>
-            <span className="text-2xl font-black text-foreground">{form.shares}</span>
-            <button type="button" onClick={() => setForm({ ...form, shares: form.shares + 1 })}
-              className="p-1.5 rounded-xl bg-card border border-border">
-              <Plus className="w-4 h-4 text-foreground" />
-            </button>
-          </div>
-        </div>
-        <button type="submit" className="w-full py-4 bg-primary text-primary-foreground font-black text-base rounded-2xl hover:bg-primary/90 active:scale-95 transition-all">
-          {t('solar_club_join_cta')}
-        </button>
-      </form>
     </motion.div>
   );
 }
@@ -199,7 +153,7 @@ export default function SolarClub() {
       <AnimatePresence mode="wait">
         {!isMember ? (
           <motion.div key="join" exit={{ opacity: 0, y: -20 }}>
-            <JoinForm onJoin={() => setIsMember(true)} />
+            <JoinForm />
           </motion.div>
         ) : (
           <motion.div key="member" exit={{ opacity: 0, y: -20 }}>

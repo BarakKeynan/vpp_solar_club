@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, TrendingUp, Wifi, Bot, Bell, Wrench, Store, ChevronLeft, CheckCircle2, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
+import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
 import LiveTradingMetrics from '@/components/dashboard/LiveTradingMetrics';
@@ -82,7 +82,6 @@ export default function VPPHome() {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const alerts = getAlerts(t);
 
-  // Simulate autonomous trades when auto-pilot is ON
   useEffect(() => {
     if (!autoPilot) return;
     const interval = setInterval(() => {
@@ -94,13 +93,8 @@ export default function VPPHome() {
 
   const handleAutoPilot = (v) => {
     setAutoPilot(v);
-    if (v) {
-      toast.success(t('autopilot_on_msg'));
-    } else {
-      toast(t('autopilot_off_msg'));
-      setTradeCount(0);
-      setSurplusProfit(0);
-    }
+    if (v) toast.success(t('autopilot_on_msg'));
+    else { toast(t('autopilot_off_msg')); setTradeCount(0); setSurplusProfit(0); }
   };
 
   const handleAlertAction = (alert) => {
@@ -121,76 +115,63 @@ export default function VPPHome() {
   };
 
   return (
-    <div className="p-4 space-y-4 pb-28">
-      {/* Header */}
-      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between">
+    <div className="p-3 space-y-3 pb-28">
+      {/* Header + Auto-Pilot inline */}
+      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        className={`rounded-2xl border px-4 py-3 flex items-center justify-between transition-all ${autoPilot ? 'border-primary/50 bg-primary/8' : 'border-border bg-card'}`}>
         <div>
-          <h1 className="text-xl font-black text-foreground">{t('vpp_home_title')}</h1>
-          <p className="text-xs text-muted-foreground">{t('vpp_home_subtitle')}</p>
+          <h1 className="text-base font-black text-foreground">{t('vpp_home_title')}</h1>
+          <p className="text-[10px] text-muted-foreground">{t('vpp_home_subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${autoPilot ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
-          <span className={`text-xs font-medium ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`}>
-            {autoPilot ? t('autopilot_active') : t('autopilot_manual')}
-          </span>
-          <Wifi className={`w-4 h-4 ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`} />
-        </div>
-      </motion.div>
-
-      {/* Auto-Pilot Toggle */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
-        className={`rounded-2xl border p-4 transition-all ${autoPilot ? 'border-primary/60 bg-primary/10' : 'border-border bg-card'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl ${autoPilot ? 'bg-primary/20' : 'bg-muted'}`}>
-              <Bot className={`w-5 h-5 ${autoPilot ? 'text-primary' : 'text-muted-foreground'}`} />
+        <div className="flex items-center gap-3">
+          {autoPilot && (
+            <div className="flex gap-2 text-center">
+              <div className="bg-primary/10 rounded-lg px-2 py-1">
+                <p className="text-xs font-black text-primary">{tradeCount}</p>
+                <p className="text-[9px] text-muted-foreground">{t('autopilot_auto_trades')}</p>
+              </div>
+              <div className="bg-primary/10 rounded-lg px-2 py-1">
+                <p className="text-xs font-black text-primary">+{surplusProfit.toFixed(0)}₪</p>
+                <p className="text-[9px] text-muted-foreground">{t('autopilot_surplus')}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-black text-foreground">{t('autopilot_label')}</p>
-              <p className="text-xs text-muted-foreground">{t('autopilot_subtitle')}</p>
+          )}
+          {!autoPilot && !isOptimizing && (
+            <button onClick={handleAutoOptimize}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white"
+              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+              <Sparkles className="w-3 h-3" />{t('auto_optimize_btn')}
+            </button>
+          )}
+          {isOptimizing && (
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white opacity-60"
+              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+              <Loader2 className="w-3 h-3 animate-spin" />{t('auto_optimizing')}
             </div>
-          </div>
+          )}
           <Switch checked={autoPilot} onCheckedChange={handleAutoPilot} />
         </div>
-
-        <AnimatePresence>
-          {autoPilot && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden mt-4 pt-4 border-t border-primary/20 space-y-2">
-              <p className="text-xs text-primary font-bold">{t('autopilot_active_msg')}</p>
-              <p className="text-xs text-muted-foreground">{t('autopilot_managing')}</p>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="bg-primary/10 rounded-xl p-3 text-center">
-                  <p className="text-lg font-black text-primary">{tradeCount}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('autopilot_auto_trades')}</p>
-                </div>
-                <div className="bg-primary/10 rounded-xl p-3 text-center">
-                  <p className="text-lg font-black text-primary">+{surplusProfit.toFixed(0)} ₪</p>
-                  <p className="text-[10px] text-muted-foreground">{t('autopilot_surplus')}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
 
-      {/* Savings Counter */}
+      {/* Savings + Stats compact row */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-primary/20">
-              <TrendingUp className="w-7 h-7 text-primary" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">{t('savings_today')}</p>
-              <p className="text-3xl font-black text-primary">+187 ₪</p>
-            </div>
+        className="grid grid-cols-3 gap-2">
+        <div className="col-span-2 bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 px-4 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-muted-foreground">{t('savings_today')}</p>
+            <p className="text-2xl font-black text-primary">+187 ₪</p>
           </div>
           <div className="text-left">
-            <p className="text-xs text-muted-foreground">{t('savings_month')}</p>
-            <p className="text-lg font-bold text-foreground">+4,230 ₪</p>
+            <p className="text-[10px] text-muted-foreground">{t('savings_month')}</p>
+            <p className="text-sm font-bold text-foreground">+4,230 ₪</p>
           </div>
+        </div>
+        <div className="bg-card rounded-2xl border border-border px-3 py-3 flex flex-col justify-center text-center">
+          <p className="text-sm font-black text-accent">18.4</p>
+          <p className="text-[9px] text-muted-foreground">kWh {t('production_today')}</p>
+          <div className="my-1 border-t border-border" />
+          <p className="text-sm font-black text-primary">9.8</p>
+          <p className="text-[9px] text-muted-foreground">kWh {t('sold_to_grid')}</p>
         </div>
       </motion.div>
 
@@ -226,30 +207,9 @@ export default function VPPHome() {
       {/* Live Trading Metrics */}
       <LiveTradingMetrics />
 
-      {/* Provider Insight – Profit Gap Analysis + Auto Optimization */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }} className="space-y-3">
+      {/* Provider Insight */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }}>
         <ProviderInsightCard />
-        {!autoPilot && (
-          <motion.button
-            onClick={handleAutoOptimize}
-            disabled={isOptimizing}
-            whileTap={{ scale: 0.96 }}
-            className="w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-            style={{
-              background: isOptimizing
-                ? 'linear-gradient(135deg,rgba(139,92,246,0.4),rgba(139,92,246,0.2))'
-                : 'linear-gradient(135deg,#7C3AED,#8B5CF6)',
-              color: '#fff',
-              boxShadow: isOptimizing ? 'none' : '0 0 20px rgba(139,92,246,0.4)',
-            }}
-          >
-            {isOptimizing ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> {t('auto_optimizing')}</>
-            ) : (
-              <><Sparkles className="w-4 h-4" /> {t('auto_optimize_btn')}</>
-            )}
-          </motion.button>
-        )}
       </motion.div>
 
       {/* Manual Approvals – Alerts */}
@@ -295,21 +255,6 @@ export default function VPPHome() {
             <Icon className="w-6 h-6" />
             <span className="leading-tight text-center">{label}</span>
           </motion.button>
-        ))}
-      </motion.div>
-
-      {/* Stats Row */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}
-        className="grid grid-cols-3 gap-3">
-        {[
-          { label: t('production_today'), value: '18.4 kWh', color: 'text-accent' },
-          { label: t('consumption'), value: '6.2 kWh', color: 'text-secondary' },
-          { label: t('sold_to_grid'), value: '9.8 kWh', color: 'text-primary' },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-card rounded-xl border border-border p-3 text-center">
-            <p className={`text-lg font-black ${stat.color}`}>{stat.value}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{stat.label}</p>
-          </div>
         ))}
       </motion.div>
 

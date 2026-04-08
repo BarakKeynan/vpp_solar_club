@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Battery, Zap, Car } from 'lucide-react';
+import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
@@ -162,8 +162,11 @@ function VirtualBattery({ isHe }) {
 
 function MemberDashboard() {
   const { t, lang } = useLang();
+  const navigate = useNavigate();
   const isHe = lang === 'he';
   const savingsData = lang === 'en' ? savingsDataEn : savingsDataHe;
+  const [showPanelBooking, setShowPanelBooking] = useState(false);
+  const [showSynergy, setShowSynergy] = useState(false);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -219,6 +222,62 @@ function MemberDashboard() {
         </ResponsiveContainer>
       </div>
 
+      {/* Panel Maintenance */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        onClick={() => setShowPanelBooking(true)}
+        className="rounded-xl border border-accent/40 p-4 space-y-3 cursor-pointer active:scale-95 transition-transform"
+        style={{ background: 'rgba(245,158,11,0.05)' }}
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-accent mt-0.5" />
+            <div>
+              <p className="text-xs font-bold text-accent mb-1">{isHe ? 'תחזוקה' : 'MAINTENANCE'}</p>
+              <p className="text-sm font-bold text-foreground">{isHe ? 'נצילות הפאנלים ירדה ל-85%' : 'Panel Efficiency Dropped to 85%'}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isHe ? 'זיהינו לכלוך וקשיות מזג אוויר. הניקוי יחזיר ~8% ייצור.' : 'Detected dirt & weather issues. Cleaning restores ~8%.'}
+              </p>
+            </div>
+          </div>
+          <span className="text-lg">⚠️</span>
+        </div>
+        <button className="w-full px-3 py-2 rounded-lg text-xs font-bold text-accent border border-accent/40 hover:border-accent/60 transition-colors">
+          {isHe ? 'הזמן ניקוי (₪280) ←' : 'Book Cleaning (₪280) →'}
+        </button>
+      </motion.div>
+
+      {/* Community Synergy */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        onClick={() => setShowSynergy(true)}
+        className="rounded-xl border border-border p-4 space-y-3 cursor-pointer active:scale-95 transition-transform"
+        style={{ background: 'rgba(255,255,255,0.02)' }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-bold text-foreground">{isHe ? 'Community Synergy' : 'Community Synergy'}</h3>
+          <div className="text-right">
+            <p className="text-2xl font-black text-accent">84%</p>
+            <p className="text-[10px] text-muted-foreground">{isHe ? 'לפעילות' : 'Active'}</p>
+          </div>
+        </div>
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: '84%' }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+            className="h-full rounded-full bg-gradient-to-r from-secondary to-accent"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          {isHe ? 'עוד 16% להשגת תעריף הקבוצה של השכונה' : '16% more to unlock neighborhood rate'}
+        </p>
+      </motion.div>
+
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <p className="text-xs text-muted-foreground font-medium">{t('solar_club_farm_status')}</p>
         {[
@@ -232,6 +291,81 @@ function MemberDashboard() {
           </div>
         ))}
       </div>
+
+      {/* My Solar Farm */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        onClick={() => navigate('/farm-detail')}
+        className="w-full flex items-center justify-between bg-card border border-border rounded-xl p-4 active:scale-[0.98] transition-transform"
+      >
+        <div className="flex items-center gap-3 text-left">
+          <span className="text-2xl">☀️</span>
+          <div>
+            <p className="text-sm font-bold text-white">{isHe ? 'החווה הסולארית שלי' : 'My Solar Farm'}</p>
+            <p className="text-xs text-white/40">{isHe ? 'גלבוע פאוור · 3 יחידות · ROI 10.4%' : 'Gilboa Power · 3 units · ROI 10.4%'}</p>
+          </div>
+        </div>
+        <ChevronLeft className="w-5 h-5 text-white/40" />
+      </motion.button>
+
+      {/* Panel Booking Modal */}
+      {showPanelBooking && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-end z-50"
+        >
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            className="w-full rounded-t-2xl p-6 space-y-4"
+            style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-white">
+                {isHe ? 'הזמנת ניקוי פאנלים' : 'Book Panel Cleaning'}
+              </h2>
+              <button
+                onClick={() => setShowPanelBooking(false)}
+                className="text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              <input
+                type="date"
+                className="w-full rounded-lg px-4 py-3 text-white"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              />
+              <input
+                type="time"
+                className="w-full rounded-lg px-4 py-3 text-white"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              />
+              <textarea
+                placeholder={isHe ? 'הערה אופציונלית...' : 'Optional note...'}
+                className="w-full rounded-lg px-4 py-3 text-white"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                rows="3"
+              />
+            </div>
+
+            <button
+              onClick={() => { setShowPanelBooking(false); }}
+              className="w-full px-4 py-3 rounded-lg font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.1))', border: '1px solid rgba(245,158,11,0.3)' }}
+            >
+              {isHe ? 'אשר הזמנה' : 'Confirm Booking'}
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

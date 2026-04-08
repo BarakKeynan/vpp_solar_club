@@ -167,6 +167,7 @@ function MemberDashboard() {
   const savingsData = lang === 'en' ? savingsDataEn : savingsDataHe;
   const [showPanelBooking, setShowPanelBooking] = useState(false);
   const [showSynergy, setShowSynergy] = useState(false);
+  const [showPanelDetails, setShowPanelDetails] = useState(false);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -291,6 +292,36 @@ function MemberDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Panel Health Detailed Card */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.28 }}
+        onClick={() => setShowPanelDetails(true)}
+        className="w-full rounded-xl border border-border p-4 space-y-3 text-right cursor-pointer active:scale-95 transition-transform"
+        style={{ background: 'rgba(255,255,255,0.02)' }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📊</span>
+          </div>
+          <h3 className="text-sm font-bold text-foreground">{isHe ? 'בריאות פאנלים מפורטת' : 'Panel Health Details'}</h3>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground">{isHe ? 'ניצולת קיימת' : 'Current Efficiency'}</span>
+            <span className="text-sm font-bold text-primary">85%</span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <div className="h-full rounded-full bg-accent" style={{ width: '85%' }} />
+          </div>
+          <p className="text-[9px] text-amber-400">{isHe ? '⚠️ לכלוך וקשיות מזג אוויר' : '⚠️ Dust & weather impact'}</p>
+        </div>
+        <p className="text-[10px] text-blue-400 mt-2 hover:text-blue-300">
+          {isHe ? 'לחץ לפרטים נוספים →' : 'Tap for details →'}
+        </p>
+      </motion.button>
 
       {/* Savings Summary */}
       <motion.div
@@ -478,6 +509,106 @@ function MemberDashboard() {
             >
               {isHe ? 'אשר הזמנה' : 'Confirm Booking'}
             </button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Panel Details Modal */}
+      {showPanelDetails && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-end z-50"
+        >
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            className="w-full rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+            style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+          >
+            <div className="flex items-center justify-between mb-4 sticky top-0">
+              <h2 className="text-lg font-black text-white">
+                {isHe ? 'בריאות הפאנלים' : 'Panel Health Analysis'}
+              </h2>
+              <button
+                onClick={() => setShowPanelDetails(false)}
+                className="text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Current Efficiency */}
+              <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-foreground">{isHe ? 'ניצולת קיימת' : 'Current Efficiency'}</h3>
+                  <span className="text-2xl font-black text-primary">85%</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <div className="h-full bg-primary" style={{ width: '85%' }} />
+                </div>
+                <p className="text-[10px] text-muted-foreground">{isHe ? 'ניצולת אפשרית: 93%' : 'Potential: 93%'}</p>
+              </div>
+
+              {/* Weather Impact */}
+              <div className="rounded-lg p-4" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <p className="text-xs font-bold text-accent mb-2">☀️ {isHe ? 'השפעת מזג אוויר' : 'Weather Impact'}</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  {isHe ? 'עננות חלקית (40%), טמפרטורה גבוהה (+32°C) משפיעה על הפאנלים. הנתונים מתעדכנים מ-Noga Data Hub כל 15 דקות.' : 'Partial cloud cover (40%), high temp (+32°C) impacting output. Real-time data from Noga Hub.'}
+                </p>
+              </div>
+
+              {/* Maintenance Status */}
+              <div className="rounded-lg p-4" style={{ background: 'rgba(200,100,150,0.08)', border: '1px solid rgba(200,100,150,0.3)' }}>
+                <p className="text-xs font-bold text-amber-400 mb-2">🔧 {isHe ? 'מצב תחזוקה' : 'Maintenance Status'}</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">
+                  {isHe ? 'זוהתה הצטברות אבק (8%) וביצועי הפאנלים ירדו. ניקיון אחרון: 47 ימים לפני כן. מומלץ ניקיון תוך 7 ימים.' : 'Dust accumulation detected (8%). Last cleaning: 47 days ago. Recommended within 7 days.'}
+                </p>
+                <button
+                  onClick={() => { setShowPanelDetails(false); setShowPanelBooking(true); }}
+                  className="w-full px-3 py-2 rounded-lg text-xs font-bold text-accent border border-accent/40 hover:border-accent/60 transition-colors"
+                >
+                  {isHe ? 'הזמן ניקוי (₪280) ←' : 'Book Cleaning (₪280) →'}
+                </button>
+              </div>
+
+              {/* Performance Metrics */}
+              <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-xs font-bold text-foreground mb-3">{isHe ? 'מדדי ביצוע' : 'Performance Metrics'}</p>
+                <div className="space-y-2">
+                  {[
+                    { label: isHe ? 'SOH (מצב בריאות)' : 'Health (SOH)', value: '92%', color: 'text-emerald-400' },
+                    { label: isHe ? 'טמפרטורה' : 'Temperature', value: '58°C', color: 'text-orange-400' },
+                    { label: isHe ? 'מחזורי עבודה' : 'Operating Cycles', value: '687', color: 'text-blue-400' },
+                    { label: isHe ? 'דירוג' : 'Rating', value: '4.8/5 ⭐', color: 'text-yellow-400' },
+                  ].map((metric, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">{metric.label}</span>
+                      <span className={`text-[10px] font-bold ${metric.color}`}>{metric.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
+                <button
+                  onClick={() => { setShowPanelDetails(false); setShowPanelBooking(true); }}
+                  className="px-4 py-3 rounded-lg font-bold text-sm text-accent border border-accent/40 hover:border-accent/60 transition-colors"
+                >
+                  {isHe ? '🧹 ניקוי' : '🧹 Cleaning'}
+                </button>
+                <button
+                  onClick={() => navigate('/smart-care')}
+                  className="px-4 py-3 rounded-lg font-bold text-sm text-blue-400 border border-blue-400/40 hover:border-blue-400/60 transition-colors"
+                >
+                  {isHe ? '🔧 Smart Care' : '🔧 Smart Care'}
+                </button>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       )}

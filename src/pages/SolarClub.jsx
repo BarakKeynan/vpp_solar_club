@@ -168,6 +168,7 @@ function MemberDashboard() {
   const [showPanelBooking, setShowPanelBooking] = useState(false);
   const [showSynergy, setShowSynergy] = useState(false);
   const [showPanelDetails, setShowPanelDetails] = useState(false);
+  const [showSegment, setShowSegment] = useState(false);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -393,66 +394,55 @@ function MemberDashboard() {
         <ChevronLeft className="w-5 h-5 text-white/40" />
       </motion.button>
 
-      {/* Additional Services Grid */}
+      {/* Quick Services Grid - 4 Buttons */}
       <div className="grid grid-cols-2 gap-3">
-        {/* Financial Performance */}
+        {/* Segment Modal (בחירת קהל) */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
+          onClick={() => setShowSegment(true)}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
+        >
+          <span className="text-2xl">🏠</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'שוכרים בלי גג' : 'Renters'}</p>
+          <p className="text-[10px] text-muted-foreground">{isHe ? 'בחר קהל יעד' : 'Choose segment'}</p>
+        </motion.button>
+
+        {/* Financial Performance */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
           onClick={() => navigate('/financial')}
           className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
         >
           <span className="text-2xl">📊</span>
-          <p className="text-xs font-bold text-white">{isHe ? 'ביצועים פיננסיים' : 'Financial Performance'}</p>
+          <p className="text-xs font-bold text-white">{isHe ? 'ביצועים פיננסיים' : 'Financial'}</p>
         </motion.button>
 
         {/* Referral */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
+          transition={{ delay: 0.6 }}
           onClick={() => navigate('/referral')}
           className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
         >
           <span className="text-2xl">👥</span>
-          <p className="text-xs font-bold text-white">{isHe ? 'חבר מביא חבר' : 'Refer a Friend'}</p>
+          <p className="text-xs font-bold text-white">{isHe ? 'חבר מביא חבר' : 'Refer'}</p>
         </motion.button>
 
-        {/* Compliance */}
-        <motion.button
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          onClick={() => navigate('/compliance')}
-          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
-        >
-          <span className="text-2xl">🔐</span>
-          <p className="text-xs font-bold text-white">{isHe ? 'שקיפות ואמינות' : 'Trust & Security'}</p>
-        </motion.button>
-
-        {/* Providers */}
+        {/* More Button */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65 }}
-          onClick={() => navigate('/providers')}
+          onClick={() => navigate('/more')}
           className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
         >
-          <span className="text-2xl">⚡</span>
-          <p className="text-xs font-bold text-white">{isHe ? 'ניהול ספקים' : 'Providers'}</p>
-        </motion.button>
-
-        {/* Monthly Report */}
-        <motion.button
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          onClick={() => navigate('/monthly-report')}
-          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card active:scale-95 transition-transform"
-        >
-          <span className="text-2xl">📈</span>
-          <p className="text-xs font-bold text-white">{isHe ? 'דו״ח חודשי' : 'Monthly Report'}</p>
+          <span className="text-2xl">⋮</span>
+          <p className="text-xs font-bold text-white">{isHe ? 'עוד' : 'More'}</p>
         </motion.button>
       </div>
 
@@ -632,6 +622,58 @@ function MemberDashboard() {
                   {isHe ? '🔧 Smart Care' : '🔧 Smart Care'}
                 </button>
               </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Segment Modal */}
+      {showSegment && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="w-[90%] max-w-sm rounded-2xl p-6 space-y-4"
+            style={{ background: '#0d1829', border: '1px solid rgba(255,255,255,0.1)' }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-white">
+                {isHe ? 'בחר את הקהל שלך' : 'Choose Your Segment'}
+              </h2>
+              <button
+                onClick={() => setShowSegment(false)}
+                className="text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {[
+                { emoji: '🏠', label: isHe ? 'שוכרים בלי גג' : 'Renters', desc: isHe ? 'ללא גג משלו' : 'No roof' },
+                { emoji: '🏢', label: isHe ? 'דירות' : 'Apartments', desc: isHe ? 'ביבניין' : 'In building' },
+                { emoji: '👨‍👩‍👧‍👦', label: isHe ? 'משפחות' : 'Families', desc: isHe ? 'עם גג משלהם' : 'Own roof' },
+                { emoji: '🏙️', label: isHe ? 'ערים' : 'Cities', desc: isHe ? 'רשויות מקומיות' : 'Municipalities' },
+              ].map((seg, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setShowSegment(false); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/40 transition-colors text-left"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                >
+                  <span className="text-2xl">{seg.emoji}</span>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{seg.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{seg.desc}</p>
+                  </div>
+                </button>
+              ))}
             </div>
           </motion.div>
         </motion.div>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Battery, Thermometer, Activity, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Battery, Thermometer, Activity, CheckCircle2, AlertTriangle, Radio } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 const BATTERIES = [
@@ -29,6 +29,7 @@ function SohBar({ value }) {
 export default function BatteryHealthCard() {
   const { lang } = useLang();
   const isHe = lang === 'he';
+  const [defaultBattery, setDefaultBattery] = useState(BATTERIES[0].id);
 
   return (
     <motion.div
@@ -37,12 +38,31 @@ export default function BatteryHealthCard() {
       transition={{ delay: 0.25 }}
       className="bg-card rounded-2xl border border-border p-4 space-y-3"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <p className="text-xs font-bold text-muted-foreground">{isHe ? 'בריאות סוללות' : 'Battery Health'}</p>
         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
           style={{ background: 'rgba(59,130,246,0.12)', color: '#93c5fd' }}>
           {isHe ? 'אבחון AI' : 'AI Diagnostics'}
         </span>
+      </div>
+
+      {/* Default Battery Radio */}
+      <div className="rounded-xl p-2.5 flex items-center gap-2 mb-2" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}>
+        <span className="text-xs font-bold text-blue-300" style={{ flex: 1 }}>
+          {isHe ? 'ברירת מחדל' : 'Default Battery'}:
+        </span>
+        <select
+          value={defaultBattery}
+          onChange={(e) => setDefaultBattery(e.target.value)}
+          className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-200 cursor-pointer focus:outline-none"
+        >
+          {BATTERIES.map(bat => (
+            <option key={bat.id} value={bat.id} className="bg-slate-800 text-white">
+              {bat.brand} {bat.type}
+            </option>
+          ))}
+        </select>
+        <Radio className="w-4 h-4 text-blue-400" style={{ opacity: 0.6 }} />
       </div>
 
       <div className="space-y-3">

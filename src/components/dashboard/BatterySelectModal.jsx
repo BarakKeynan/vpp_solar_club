@@ -43,7 +43,8 @@ export default function BatterySelectModal({ open, onClose, onSelect }) {
           <motion.div
             initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
             transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-3xl p-5 pb-10 max-w-md mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-3xl p-5 max-h-[88vh] overflow-y-auto max-w-md mx-auto"
+            style={{ paddingBottom: '100px' }}
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-base font-black text-foreground">

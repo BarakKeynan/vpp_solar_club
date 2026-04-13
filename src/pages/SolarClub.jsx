@@ -696,7 +696,7 @@ function MemberDashboard() {
 }
 
 export default function SolarClub() {
-  const [isMember, setIsMember] = useState(false);
+  const [isMember, setIsMember] = useState(true);
 
   return (
     <div className="p-4 pb-28 space-y-4">

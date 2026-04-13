@@ -19,6 +19,7 @@ const savingsDataEn = [
 
 function JoinForm() {
   const { t } = useLang();
+  const navigate = useNavigate();
   const [activeSegment, setActiveSegment] = useState(null);
 
   const segments = [
@@ -31,7 +32,7 @@ function JoinForm() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-secondary/30 to-primary/20 rounded-2xl border border-secondary/30 p-5 text-center space-y-2">
+      <div onClick={() => navigate('/marketplace')} className="cursor-pointer active:scale-95 transition-transform bg-gradient-to-br from-secondary/30 to-primary/20 rounded-2xl border border-secondary/30 p-5 text-center space-y-2">
         <div className="text-4xl">☀️</div>
         <h2 className="text-xl font-black text-foreground">{t('solar_club_title')}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">

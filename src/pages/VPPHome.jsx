@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { useLang } from '@/lib/i18n';
 import BatteryHealthCard from '@/components/dashboard/BatteryHealthCard';
 import BatterySelectModal from '@/components/dashboard/BatterySelectModal';
+import WeatherWidget from '@/components/dashboard/WeatherWidget';
+import PortfolioAudit from '@/components/dashboard/PortfolioAudit';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -205,6 +207,9 @@ export default function VPPHome() {
         </div>
       </motion.div>
 
+      {/* Weather Widget */}
+      <WeatherWidget />
+
       {/* Battery Health */}
       <BatteryHealthCard />
 
@@ -213,6 +218,9 @@ export default function VPPHome() {
 
       {/* Live Trading Metrics */}
       <LiveTradingMetrics />
+
+      {/* Portfolio Audit */}
+      <PortfolioAudit />
 
       {/* Provider Insight */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }}>

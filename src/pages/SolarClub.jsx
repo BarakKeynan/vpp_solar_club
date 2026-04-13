@@ -4,6 +4,7 @@ import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud } from 'luci
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
+import MultiDayAdvisory from '@/components/dashboard/MultiDayAdvisory';
 import { useLang } from '@/lib/i18n';
 
 const savingsDataHe = [
@@ -251,6 +252,8 @@ function MemberDashboard() {
           {isHe ? 'הזמן ניקוי (₪280) ←' : 'Book Cleaning (₪280) →'}
         </button>
       </motion.div>
+
+      <MultiDayAdvisory />
 
       {/* Community Synergy */}
       <motion.div

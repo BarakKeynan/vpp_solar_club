@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ShoppingCart, TrendingUp, Settings } from 'lucide-react';
+import { Home, Clock, TrendingUp, User, MoreHorizontal } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 export default function BottomNav() {
@@ -8,10 +8,11 @@ export default function BottomNav() {
   const { t } = useLang();
 
   const navItems = [
-    { path: '/pro-dashboard', label: t('nav_my_assets') || 'My Assets', icon: Home },
-    { path: '/marketplace', label: t('nav_marketplace') || 'Marketplace', icon: ShoppingCart },
-    { path: '/Savings', label: t('nav_savings'), icon: TrendingUp },
-    { path: '/Settings', label: t('nav_settings'), icon: Settings },
+    { path: '/Dashboard', label: t('nav_home') || 'בית', icon: Home },
+    { path: '/Schedule', label: t('nav_schedule') || 'תזמון', icon: Clock },
+    { path: '/Savings', label: t('nav_savings') || 'חיסכון', icon: TrendingUp },
+    { path: '/Profile', label: t('nav_profile') || 'פרופיל', icon: User },
+    { path: '/more', label: t('nav_more') || 'עוד', icon: MoreHorizontal },
   ];
 
   return (
@@ -23,7 +24,7 @@ export default function BottomNav() {
     }}>
       <div className="flex items-center justify-around px-2 py-2 pb-safe max-w-lg mx-auto">
         {navItems.map(({ path, label, icon: Icon }) => {
-          const active = location.pathname === path || (path === '/pro-dashboard' && location.pathname === '/');
+          const active = location.pathname === path || (path === '/Dashboard' && location.pathname === '/');
           return (
             <Link key={path} to={path} className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all active:scale-90">
               <div className={`p-2 rounded-2xl transition-all duration-200 ${active ? 'bg-primary/15' : ''}`}

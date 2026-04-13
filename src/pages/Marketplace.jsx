@@ -39,7 +39,7 @@ function BuyModal({ farm, onClose, onBought }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center p-4" onClick={onClose}>
       <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
-        className="bg-card border border-border rounded-3xl p-5 w-full max-w-md space-y-4" onClick={e => e.stopPropagation()}>
+        className="bg-card border border-border rounded-3xl p-5 pb-8 w-full max-w-md space-y-4 mb-20" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{farm.icon}</span>

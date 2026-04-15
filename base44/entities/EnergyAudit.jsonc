@@ -1,0 +1,45 @@
+{
+  "name": "EnergyAudit",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who submitted the report"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded electricity bill or ROI report"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "electricity_bill",
+        "roi_report"
+      ],
+      "default": "electricity_bill",
+      "description": "Type of uploaded report"
+    },
+    "extracted_data": {
+      "type": "object",
+      "description": "Raw OCR-extracted fields from the document"
+    },
+    "analysis_result": {
+      "type": "object",
+      "description": "Full AI analysis output: summary, recommendations, revenue_analysis, etc."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "user_email",
+    "file_url"
+  ]
+}

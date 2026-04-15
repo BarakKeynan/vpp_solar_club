@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud } from 'lucide-react';
+import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud, X, ChevronRight, Wifi, Thermometer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
@@ -74,9 +74,163 @@ function JoinForm() {
   );
 }
 
+function BatteryInfoModal({ onClose, navigate, isHe }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 flex items-end z-50"
+      onClick={onClose}>
+      <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+        style={{ background: '#0d1829', border: '1px solid rgba(16,185,129,0.2)' }}
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
+          <h2 className="text-base font-black text-white">🔋 {isHe ? 'מצב הסוללה' : 'Battery Status'}</h2>
+        </div>
+        {[
+          { label: isHe ? 'טסלה Powerwall 2' : 'Tesla Powerwall 2', level: 82, temp: 28, status: isHe ? 'טוען' : 'Charging', statusColor: '#10b981', power: '2.4 kW', cycles: 312 },
+          { label: isHe ? 'BYD HVM 11.0' : 'BYD HVM 11.0',       level: 61, temp: 31, status: isHe ? 'המתנה' : 'Standby',  statusColor: '#f59e0b', power: '—',      cycles: 198 },
+        ].map((bat, i) => (
+          <div key={i} className="rounded-2xl p-4 space-y-3"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black" style={{ color: bat.statusColor }}>{bat.status}</span>
+              <p className="text-sm font-black text-white">{bat.label}</p>
+            </div>
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${bat.level}%` }} />
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div><p className="text-base font-black text-primary">{bat.level}%</p><p className="text-[10px] text-white/40">{isHe ? 'טעינה' : 'Charge'}</p></div>
+              <div><p className="text-base font-black text-orange-400">{bat.temp}°C</p><p className="text-[10px] text-white/40">{isHe ? 'טמפ׳' : 'Temp'}</p></div>
+              <div><p className="text-base font-black text-blue-400">{bat.cycles}</p><p className="text-[10px] text-white/40">{isHe ? 'מחזורים' : 'Cycles'}</p></div>
+            </div>
+            <div className="flex items-center justify-between rounded-xl px-3 py-2"
+              style={{ background: 'rgba(16,185,129,0.07)' }}>
+              <span className="text-xs font-bold text-primary">{bat.power}</span>
+              <span className="text-[10px] text-white/40">{isHe ? 'הספק נוכחי' : 'Current power'}</span>
+            </div>
+          </div>
+        ))}
+        <button onClick={() => { onClose(); navigate('/charge-battery'); }}
+          className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}>
+          <Battery className="w-4 h-4" />{isHe ? 'עבור לטעינה' : 'Go to Charging'}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function SellInfoModal({ onClose, navigate, isHe }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 flex items-end z-50"
+      onClick={onClose}>
+      <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full rounded-t-3xl p-5 space-y-4"
+        style={{ background: '#0d1829', border: '1px solid rgba(59,130,246,0.2)' }}
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
+          <h2 className="text-base font-black text-white">⚡ {isHe ? 'מכירה לרשת' : 'Sell to Grid'}</h2>
+        </div>
+        <div className="rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-white/40">{isHe ? 'מחיר עכשיו' : 'Current price'}</span>
+            <span className="text-2xl font-black text-blue-400">₪0.72/kWh</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            {isHe ? 'שעת שיא — מחיר מקסימלי!' : 'Peak hour — max price!'}
+          </div>
+        </div>
+        {[
+          { label: isHe ? 'נמכר היום' : 'Sold today', value: '9.8 kWh', color: '#60a5fa' },
+          { label: isHe ? 'הכנסה היום' : 'Earned today', value: '₪47', color: '#10b981' },
+          { label: isHe ? 'זמין למכירה' : 'Available', value: '11.1 kWh', color: '#a78bfa' },
+          { label: isHe ? 'הכנסה צפויה' : 'Est. revenue', value: '≈ ₪80', color: '#f59e0b' },
+        ].map((item, i) => (
+          <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+            <span className="text-sm font-black" style={{ color: item.color }}>{item.value}</span>
+            <span className="text-xs text-white/40">{item.label}</span>
+          </div>
+        ))}
+        <button onClick={() => { onClose(); navigate('/sell-to-grid'); }}
+          className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)' }}>
+          <Zap className="w-4 h-4" />{isHe ? 'עבור למכירה' : 'Go to Sell'}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function EVInfoModal({ onClose, navigate, isHe }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 flex items-end z-50"
+      onClick={onClose}>
+      <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full rounded-t-3xl p-5 space-y-4"
+        style={{ background: '#0d1829', border: '1px solid rgba(245,158,11,0.2)' }}
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
+          <h2 className="text-base font-black text-white">🚗 {isHe ? 'רכב חשמלי' : 'Electric Vehicle'}</h2>
+        </div>
+        {/* EV Status Card */}
+        <div className="rounded-2xl p-4 space-y-3"
+          style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-amber-400">{isHe ? 'טוען ·  11 kW' : 'Charging · 11 kW'}</span>
+            <p className="text-sm font-black text-white">Wallbox Pulsar Plus</p>
+          </div>
+          <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
+            <motion.div initial={{ width: 0 }} animate={{ width: '68%' }}
+              transition={{ duration: 1 }}
+              className="h-full rounded-full bg-amber-400" />
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div><p className="text-lg font-black text-amber-400">68%</p><p className="text-[10px] text-white/40">{isHe ? 'טעינה' : 'Charge'}</p></div>
+            <div><p className="text-lg font-black text-blue-400">~58 km</p><p className="text-[10px] text-white/40">{isHe ? 'עד מלא' : 'To full'}</p></div>
+            <div><p className="text-lg font-black text-green-400">340 km</p><p className="text-[10px] text-white/40">{isHe ? 'טווח' : 'Range'}</p></div>
+          </div>
+        </div>
+        {/* Modes */}
+        <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">{isHe ? 'יכולות הרכב' : 'EV Capabilities'}</p>
+        {[
+          { icon: '⚡', title: isHe ? 'V2H — פריקה לבית' : 'V2H — Discharge to Home', desc: isHe ? 'הרכב מספק חשמל לבית בזמן הפסקה או שיא' : 'EV powers your home during outage or peak', color: '#10b981' },
+          { icon: '💰', title: isHe ? 'V2G — מכירה לרשת' : 'V2G — Sell to Grid', desc: isHe ? 'הרכב מוכר אנרגיה לרשת ומרוויח ₪/kWh' : 'EV sells energy back to grid for profit', color: '#3b82f6' },
+          { icon: '☀️', title: isHe ? 'טעינה סולארית' : 'Solar Charging', desc: isHe ? 'טעינה מהפאנלים בחינם בשעות שיא ייצור' : 'Charge free from solar panels during peak production', color: '#f59e0b' },
+        ].map((mode, i) => (
+          <div key={i} className="flex items-start gap-3 rounded-xl p-3"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <span className="text-xl flex-shrink-0">{mode.icon}</span>
+            <div className="text-right flex-1">
+              <p className="text-sm font-black" style={{ color: mode.color }}>{mode.title}</p>
+              <p className="text-[11px] text-white/45 mt-0.5 leading-relaxed">{mode.desc}</p>
+            </div>
+          </div>
+        ))}
+        <button onClick={() => { onClose(); navigate('/charge-ev'); }}
+          className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+          <Car className="w-4 h-4" />{isHe ? 'עבור לניהול רכב' : 'Manage EV'}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function VirtualBattery({ isHe }) {
+  const navigate = useNavigate();
   const [percent, setPercent] = useState(72);
   const [kWh, setKwh] = useState(18.4);
+  const [activeModal, setActiveModal] = useState(null); // 'battery' | 'sell' | 'ev'
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -145,19 +299,25 @@ function VirtualBattery({ isHe }) {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
+        <button onClick={() => setActiveModal('battery')} className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
           <Battery className="w-4 h-4 text-emerald-400" />
           <span className="text-[10px] font-bold text-emerald-400">{isHe ? 'טען' : 'Charge'}</span>
         </button>
-        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}>
+        <button onClick={() => setActiveModal('sell')} className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}>
           <Zap className="w-4 h-4 text-blue-400" />
           <span className="text-[10px] font-bold text-blue-400">{isHe ? 'מכור' : 'Sell'}</span>
         </button>
-        <button className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
+        <button onClick={() => setActiveModal('ev')} className="flex flex-col items-center gap-1.5 py-3 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
           <Car className="w-4 h-4 text-amber-400" />
           <span className="text-[10px] font-bold text-amber-400">{isHe ? 'רכב' : 'EV'}</span>
         </button>
       </div>
+
+      <AnimatePresence>
+        {activeModal === 'battery' && <BatteryInfoModal onClose={() => setActiveModal(null)} navigate={navigate} isHe={isHe} />}
+        {activeModal === 'sell'    && <SellInfoModal    onClose={() => setActiveModal(null)} navigate={navigate} isHe={isHe} />}
+        {activeModal === 'ev'      && <EVInfoModal      onClose={() => setActiveModal(null)} navigate={navigate} isHe={isHe} />}
+      </AnimatePresence>
     </motion.div>
   );
 }

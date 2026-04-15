@@ -310,7 +310,7 @@ export default function ComplianceOnboarding({ onDone }) {
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        className="w-full max-w-lg rounded-t-3xl max-h-[92vh] overflow-y-auto"
+        className="w-full max-w-lg rounded-t-3xl max-h-[92vh] overflow-y-auto pb-24"
         style={{ background: '#0D1420', border: '1px solid rgba(249,115,22,0.25)', borderBottom: 'none' }}>
         <div className="p-6">
           {/* Handle */}

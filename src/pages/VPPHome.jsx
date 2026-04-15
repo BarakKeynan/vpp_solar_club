@@ -16,6 +16,7 @@ import PortfolioAudit from '@/components/dashboard/PortfolioAudit';
 import UnifiedAIAdvisory from '@/components/dashboard/UnifiedAIAdvisory';
 import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding/ComplianceOnboarding';
 import ConnectedDevices from '@/components/dashboard/ConnectedDevices';
+import PeakSheddingSettings from '@/components/dashboard/PeakSheddingSettings';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -230,6 +231,9 @@ export default function VPPHome() {
 
       {/* Connected Devices */}
       <ConnectedDevices />
+
+      {/* Peak Shedding Settings */}
+      <PeakSheddingSettings />
 
       {/* Community Synergy Hub */}
       <CommunitySynergyHub />

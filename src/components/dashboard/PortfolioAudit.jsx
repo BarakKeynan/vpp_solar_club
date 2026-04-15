@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, FileText, Zap, TrendingUp, AlertTriangle,
@@ -549,6 +550,27 @@ export default function PortfolioAudit() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Demo arbitrage chart — shown in idle to give user a preview */}
+                  <div className="rounded-2xl p-4"
+                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[9px] text-white/20 italic">{isHe ? 'דוגמה לניתוח' : 'sample analysis'}</span>
+                      <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">
+                        {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
+                      </p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={90}>
+                      <BarChart data={DEFAULT_HOURLY} barSize={14} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.25)' }} axisLine={false} tickLine={false} />
+                        <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                          contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                          formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']} />
+                        <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} opacity={0.5} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <p className="text-[9px] text-white/20 text-center mt-1">{isHe ? 'שעות 18–20 = שיא פוטנציאל ארביטראז׳' : 'Hours 18–20 = peak arbitrage potential'}</p>
+                  </div>
                 </motion.div>
               )}
 
@@ -889,9 +911,9 @@ export default function PortfolioAudit() {
         )}
       </AnimatePresence>
 
-      {/* Full Report Modal */}
-      <AnimatePresence>
-        {showReport && (
+      {/* Full Report Modal — via portal to escape any parent stacking context */}
+      {showReport && result && createPortal(
+        <AnimatePresence>
           <FullReportModal
             onClose={() => setShowReport(false)}
             analysis={analysis}
@@ -904,8 +926,9 @@ export default function PortfolioAudit() {
             period={period}
             roiSummary={roiSummary}
           />
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

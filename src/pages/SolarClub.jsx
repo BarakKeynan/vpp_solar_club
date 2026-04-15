@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud, X, ChevronRight, Wifi, Thermometer } from 'lucide-react';
+import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud, X, ChevronRight, Wifi, Thermometer, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
 import MultiDayAdvisory from '@/components/dashboard/MultiDayAdvisory';
 import { useLang } from '@/lib/i18n';
+import { toast } from 'sonner';
 
 const savingsDataHe = [
   { month: 'אוק', savings: 38 }, { month: 'נוב', savings: 42 },
@@ -74,6 +75,37 @@ function JoinForm() {
   );
 }
 
+function AIRecommendationBox({ isHe, text, onApply }) {
+  const [applied, setApplied] = useState(false);
+
+  const handleApply = () => {
+    onApply();
+    setApplied(true);
+    toast.success(isHe ? '✅ ההמלצה יושמה בהצלחה!' : '✅ Recommendation applied!');
+  };
+
+  return (
+    <div className="rounded-2xl p-3.5 space-y-2"
+      style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
+      <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
+      <p className="text-xs text-white/70 leading-relaxed">{text}</p>
+      <button
+        onClick={handleApply}
+        disabled={applied}
+        className="w-full py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all active:scale-95"
+        style={{
+          background: applied ? 'rgba(16,185,129,0.15)' : 'linear-gradient(135deg,rgba(124,58,237,0.4),rgba(79,70,229,0.3))',
+          border: applied ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(124,58,237,0.5)',
+          color: applied ? '#10b981' : '#c4b5fd',
+        }}>
+        {applied
+          ? <><CheckCircle2 className="w-3.5 h-3.5" /> {isHe ? 'יושם ✓' : 'Applied ✓'}</>
+          : <>{isHe ? '⚡ יישם המלצה' : '⚡ Apply Recommendation'}</>}
+      </button>
+    </div>
+  );
+}
+
 const INIT_BATTERIES = [
   { id: 1, label: 'Tesla Powerwall 2', level: 82, temp: 28, status: 'charging', statusColor: '#10b981', power: '2.4 kW', cycles: 312, target: 90, source: 'solar' },
   { id: 2, label: 'BYD HVM 11.0',     level: 61, temp: 31, status: 'standby',  statusColor: '#f59e0b', power: '—',      cycles: 198, target: 80, source: 'grid'  },
@@ -101,15 +133,15 @@ function BatteryInfoModal({ onClose, navigate, isHe }) {
         </div>
 
         {/* AI Recommendation */}
-        <div className="rounded-2xl p-3.5 space-y-1"
-          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
-          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
-          <p className="text-xs text-white/70 leading-relaxed">
-            {isHe
-              ? 'טען את Tesla Powerwall עד 95% עכשיו — ייצור סולארי שיאי צפוי בין 11:00–14:00. מחיר הרשת יעלה ב-18:00, כדאי לשמור מלאי למכירה.'
-              : 'Charge Tesla Powerwall to 95% now — peak solar production expected 11:00–14:00. Grid price rises at 18:00, keep reserves for sale.'}
-          </p>
-        </div>
+        <AIRecommendationBox
+          isHe={isHe}
+          text={isHe
+            ? 'טען את Tesla Powerwall עד 95% עכשיו — ייצור סולארי שיאי צפוי בין 11:00–14:00. מחיר הרשת יעלה ב-18:00, כדאי לשמור מלאי למכירה.'
+            : 'Charge Tesla Powerwall to 95% now — peak solar production expected 11:00–14:00. Grid price rises at 18:00, keep reserves for sale.'}
+          onApply={() => {
+            setBatteries(prev => prev.map(b => b.id === 1 ? { ...b, target: 95, source: 'solar' } : b));
+          }}
+        />
 
         {batteries.map((bat) => (
           <div key={bat.id} className="rounded-2xl overflow-hidden"
@@ -232,15 +264,13 @@ function SellInfoModal({ onClose, navigate, isHe }) {
         </div>
 
         {/* AI Recommendation */}
-        <div className="rounded-2xl p-3.5 space-y-1"
-          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
-          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
-          <p className="text-xs text-white/70 leading-relaxed">
-            {isHe
-              ? 'מחיר שיא ₪0.72 עכשיו. מכור 8–10 kWh מיד — צפי לירידה ב-20:30. הרווח הצפוי: ₪58–72.'
-              : 'Peak price ₪0.72 now. Sell 8–10 kWh immediately — price expected to drop at 20:30. Est. profit: ₪58–72.'}
-          </p>
-        </div>
+        <AIRecommendationBox
+          isHe={isHe}
+          text={isHe
+            ? 'מחיר שיא ₪0.72 עכשיו. מכור 8–10 kWh מיד — צפי לירידה ב-20:30. הרווח הצפוי: ₪58–72.'
+            : 'Peak price ₪0.72 now. Sell 8–10 kWh immediately — price expected to drop at 20:30. Est. profit: ₪58–72.'}
+          onApply={() => { setSellKwh(9); setSellMode('now'); }}
+        />
 
         {/* Price banner */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -345,15 +375,13 @@ function EVInfoModal({ onClose, navigate, isHe }) {
         </div>
 
         {/* AI Recommendation */}
-        <div className="rounded-2xl p-3.5 space-y-1"
-          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
-          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
-          <p className="text-xs text-white/70 leading-relaxed">
-            {isHe
-              ? 'עצור טעינה ב-80% — מחיר גריד גבוה עכשיו. טען מסולאר בין 11–14. בשעה 18:00 הפעל V2G ומכור 15 kWh לרשת.'
-              : 'Stop charging at 80% — grid price is high now. Use solar 11–14. At 18:00 activate V2G and sell 15 kWh to grid.'}
-          </p>
-        </div>
+        <AIRecommendationBox
+          isHe={isHe}
+          text={isHe
+            ? 'עצור טעינה ב-80% — מחיר גריד גבוה עכשיו. טען מסולאר בין 11–14. בשעה 18:00 הפעל V2G ומכור 15 kWh לרשת.'
+            : 'Stop charging at 80% — grid price is high now. Use solar 11–14. At 18:00 activate V2G and sell 15 kWh to grid.'}
+          onApply={() => { setTargetCharge(80); setChargeSource('solar'); }}
+        />
 
         {/* EV Status */}
         <div className="rounded-2xl p-4 space-y-3"

@@ -123,7 +123,7 @@ function BatteryInfoModal({ onClose, navigate, isHe }) {
       className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="w-full rounded-t-3xl p-5 pb-28 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(16,185,129,0.2)' }}
         onClick={e => e.stopPropagation()}>
 
@@ -254,7 +254,7 @@ function SellInfoModal({ onClose, navigate, isHe }) {
       className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="w-full rounded-t-3xl p-5 pb-28 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(59,130,246,0.2)' }}
         onClick={e => e.stopPropagation()}>
 
@@ -365,7 +365,7 @@ function EVInfoModal({ onClose, navigate, isHe }) {
       className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="w-full rounded-t-3xl p-5 pb-28 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(245,158,11,0.2)' }}
         onClick={e => e.stopPropagation()}>
 

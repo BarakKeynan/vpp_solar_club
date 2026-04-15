@@ -73,23 +73,21 @@ export default function AIAssistant() {
         onClick={() => setOpen(true)}
         whileTap={{ scale: 0.92 }}
         whileHover={{ scale: 1.08 }}
-        className="fixed bottom-24 z-40 flex items-center gap-2 rounded-full shadow-xl px-4 py-3"
+        className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full shadow-xl px-3 py-2.5"
         style={{
-          left: lang === 'he' ? '16px' : undefined,
-          right: lang === 'en' ? '16px' : undefined,
           background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #10B981 100%)',
           boxShadow: '0 4px 24px rgba(59,130,246,0.45), 0 0 12px rgba(16,185,129,0.3)',
         }}
       >
         <div className="relative">
-          <Sparkles className="w-5 h-5 text-white" />
+          <Sparkles className="w-4 h-4 text-white" />
           <motion.div
             animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
             transition={{ duration: 2, repeat: Infinity }}
             className="absolute inset-0 rounded-full bg-white/30"
           />
         </div>
-        <span className="text-white text-xs font-bold whitespace-nowrap">
+        <span className="text-white text-[11px] font-bold whitespace-nowrap">
           {t('ai_assistant_title')}
         </span>
       </motion.button>

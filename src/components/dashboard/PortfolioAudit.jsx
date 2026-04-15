@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import ExportReportPDF from './ExportReportPDF';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, FileText, Zap, TrendingUp, AlertTriangle,
@@ -141,9 +142,16 @@ function FullReportModal({ onClose, analysis, extracted, rev, recs, risks, isHe,
         <div className="px-5 pb-28 space-y-5">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <button onClick={onClose} className="p-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
-              <X className="w-4 h-4 text-white/50" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={onClose} className="p-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <X className="w-4 h-4 text-white/50" />
+              </button>
+              <ExportReportPDF
+                analysis={analysis} extracted={extracted} rev={rev}
+                recs={recs} risks={risks} roiSummary={roiSummary}
+                period={period} profileLabel={profileLabel} isHe={isHe}
+              />
+            </div>
             <div className="text-right">
               <p className="text-base font-black text-white">📊 {isHe ? 'דוח ארביטראז׳ מלא' : 'Full Arbitrage Report'}</p>
               <p className="text-[10px] text-white/35 mt-0.5">{profileLabel.emoji} {isHe ? profileLabel.he : profileLabel.en} · {period.detected_period || '—'}</p>

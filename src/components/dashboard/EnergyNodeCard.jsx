@@ -59,6 +59,15 @@ const NODE_DATA = {
       { labelHe: 'מזגן',            labelEn: 'A/C',            value: '1.2 kW',   color: '#60a5fa' },
       { labelHe: 'מכשירים אחרים',   labelEn: 'Other devices',  value: '0.6 kW',   color: '#94a3b8' },
     ],
+    devices: [
+      { emoji: '❄️', nameHe: 'מזגן סלון',        nameEn: 'Living Room A/C',  power: '1.2 kW',  status: 'on',  color: '#60a5fa' },
+      { emoji: '💡', nameHe: 'תאורה',             nameEn: 'Lighting',         power: '0.18 kW', status: 'on',  color: '#f59e0b' },
+      { emoji: '📺', nameHe: 'טלוויזיה',          nameEn: 'TV',               power: '0.12 kW', status: 'on',  color: '#a78bfa' },
+      { emoji: '🖥️', nameHe: 'מחשב',             nameEn: 'Computer',         power: '0.22 kW', status: 'on',  color: '#10b981' },
+      { emoji: '🫙', nameHe: 'מקרר',              nameEn: 'Refrigerator',     power: '0.08 kW', status: 'on',  color: '#94a3b8' },
+      { emoji: '🧺', nameHe: 'מכונת כביסה',       nameEn: 'Washing Machine',  power: '0.00 kW', status: 'off', color: '#475569' },
+      { emoji: '🍳', nameHe: 'תנור חשמלי',        nameEn: 'Electric Oven',    power: '0.00 kW', status: 'off', color: '#475569' },
+    ],
     bodyHe: 'הצריכה הביתית נמוכה יחסית. המזגן הוא הצרכן הגדול ביותר. כיסוי סולארי מלא של 100% מהצריכה.',
     bodyEn: 'Home consumption is relatively low. A/C is the largest consumer. 100% solar coverage of demand.',
     trend: '100% solar covered',
@@ -188,6 +197,40 @@ function NodeDrawer({ node, isHe, onClose }) {
               </motion.div>
             ))}
           </div>
+
+          {/* Connected Devices (home only) */}
+          {d.devices && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-black text-white/35 uppercase tracking-widest text-right">
+                {isHe ? 'מכשירים מחוברים' : 'Connected Devices'}
+              </p>
+              {d.devices.map((dev, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center justify-between rounded-xl px-3.5 py-2.5"
+                  style={{
+                    background: dev.status === 'on' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)',
+                    border: `1px solid ${dev.status === 'on' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black" style={{ color: dev.status === 'on' ? dev.color : '#475569' }}>
+                      {dev.power}
+                    </span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${dev.status === 'on' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/5 text-white/25'}`}>
+                      {dev.status === 'on' ? (isHe ? 'פועל' : 'ON') : (isHe ? 'כבוי' : 'OFF')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-white/60">{isHe ? dev.nameHe : dev.nameEn}</span>
+                    <span className="text-base">{dev.emoji}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* Description */}
           <div className="rounded-2xl p-4"

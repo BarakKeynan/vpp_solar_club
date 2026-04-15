@@ -181,10 +181,8 @@ const EDIT_CONFIGS = {
 
 function NodeDrawer({ node, isHe, onClose }) {
   const d = NODE_DATA[node];
-  if (!d) return null;
-  const Icon = d.icon;
   const tip = AI_TIPS[node];
-  const editConfig = EDIT_CONFIGS[node] || [];
+  const editConfig = (EDIT_CONFIGS[node] || []);
 
   const initVals = {};
   editConfig.forEach(f => { initVals[f.key] = f.defaultVal; });
@@ -192,6 +190,9 @@ function NodeDrawer({ node, isHe, onClose }) {
   const [editOpen, setEditOpen] = useState(false);
   const [editVals, setEditVals] = useState(initVals);
   const [applied, setApplied] = useState(false);
+
+  if (!d) return null;
+  const Icon = d.icon;
 
   const handleApply = () => {
     setApplied(true);

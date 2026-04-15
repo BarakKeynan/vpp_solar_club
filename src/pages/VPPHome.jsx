@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
+import { ClickablePowerNode, ClickableBatteryNode } from '@/components/dashboard/EnergyNodeCard';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
 import LiveTradingMetrics from '@/components/dashboard/LiveTradingMetrics';
@@ -209,24 +210,15 @@ export default function VPPHome() {
         className="bg-card rounded-2xl border border-border p-4 space-y-4">
         <p className="text-xs text-muted-foreground font-medium">{t('energy_flow')}</p>
         <div className="flex items-center justify-center gap-1">
-          <PowerNode icon={Sun} label={t('sun')} value="4.2 kW" colorClass="border-accent text-accent" />
+          <ClickablePowerNode nodeKey="solar" icon={Sun} label={t('sun')} value="4.2 kW" colorClass="border-accent text-accent" isHe={lang === 'he'} />
           <FlowDots active />
-          <div className="flex flex-col items-center gap-1">
-            <div className="relative">
-              <div className="absolute -inset-2 bg-primary/20 rounded-2xl blur-md animate-pulse" />
-              <div className="relative p-4 rounded-2xl border-2 border-primary text-primary bg-primary/5">
-                <Battery className="w-8 h-8" />
-              </div>
-            </div>
-            <span className="text-[10px] text-muted-foreground">{t('battery')}</span>
-            <span className="text-2xl font-black text-primary">82%</span>
-          </div>
+          <ClickableBatteryNode label={t('battery')} value="82%" isHe={lang === 'he'} />
           <FlowDots active />
-          <PowerNode icon={Home} label={t('house')} value="1.8 kW" colorClass="border-secondary text-secondary" />
+          <ClickablePowerNode nodeKey="home" icon={Home} label={t('house')} value="1.8 kW" colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
         </div>
         <div className="flex items-center justify-center gap-8">
-          <PowerNode icon={Car} label={t('ev')} value={t('charging')} colorClass="border-accent text-accent" />
-          <PowerNode icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" />
+          <ClickablePowerNode nodeKey="ev" icon={Car} label={t('ev')} value={t('charging')} colorClass="border-accent text-accent" isHe={lang === 'he'} />
+          <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
         </div>
       </motion.div>
 

@@ -2,260 +2,263 @@ import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, FileText, Zap, TrendingUp, AlertTriangle,
-  ChevronDown, ChevronUp, RotateCcw, CheckCircle2,
-  ShieldCheck, ArrowRight, Sparkles,
+  ChevronDown, ChevronUp, RotateCcw, ShieldCheck, Sparkles,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLang } from '@/lib/i18n';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-const fmt = (n) => (n != null && !isNaN(n) ? Number(n).toLocaleString('he-IL') : '—');
-const fmtPct = (n) => (n != null && !isNaN(n) ? `${Number(n).toFixed(0)}%` : '—');
+// ─── Processing steps ───────────────────────────────────────────────────────
+const STEPS = [
+  { icon: '📂', labelHe: 'מעלה קובץ...',    labelEn: 'Uploading file...' },
+  { icon: '🔍', labelHe: 'OCR סורק...',      labelEn: 'Scanning document...' },
+  { icon: '🤖', labelHe: 'AI מנתח נתונים...', labelEn: 'AI analyzing data...' },
+  { icon: '💾', labelHe: 'שומר תוצאות...',   labelEn: 'Saving results...' },
+];
 
-const PRIORITY_STYLE = {
-  high:   { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.3)',   dot: '#ef4444' },
-  medium: { bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.3)',  dot: '#f59e0b' },
-  low:    { bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.3)',  dot: '#10b981' },
-};
-
-// ─── Sub-components ─────────────────────────────────────────────────────────
-
-function ProcessingOverlay({ step, fileName }) {
-  const steps = [
-    { label: 'מעלה קובץ', sub: 'מצפין ומאבטח...', icon: '🔒' },
-    { label: 'OCR סורק', sub: 'מחלץ נתוני מונה ותעריף...', icon: '📄' },
-    { label: 'AI מנתח', sub: 'מחשב ארביטראז׳ ו-ROI...', icon: '🧠' },
-  ];
+function ProcessingView({ step, fileName }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl overflow-hidden"
       style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.18)' }}
     >
-      {/* File row */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
-        <FileText className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
-        <p className="text-xs text-white/50 truncate flex-1">{fileName}</p>
-        <span className="text-[10px] text-emerald-400 font-bold animate-pulse">עיבוד...</span>
+      {/* File name banner */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/5">
+        <FileText className="w-3.5 h-3.5 text-white/30 flex-shrink-0" />
+        <p className="text-[11px] text-white/50 truncate">{fileName}</p>
       </div>
 
-      {/* Steps */}
-      <div className="px-5 py-6 space-y-4">
-        {steps.map((s, i) => {
-          const done = i < step;
-          const active = i === step;
-          return (
+      {/* Pulse orb */}
+      <div className="flex flex-col items-center py-8 gap-5">
+        <div className="relative flex items-center justify-center">
+          {[0, 1, 2].map(i => (
             <motion.div key={i}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: done || active ? 1 : 0.3, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="flex items-center gap-3"
+              className="absolute rounded-full border border-emerald-400/30"
+              animate={{ scale: [1, 2.4 + i * 0.4, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.6, ease: 'easeOut' }}
+              style={{ width: 48, height: 48 }}
+            />
+          ))}
+          <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+            style={{ background: 'linear-gradient(135deg,rgba(16,185,129,0.25),rgba(59,130,246,0.2))' }}>
+            {STEPS[step]?.icon || '⚡'}
+          </div>
+        </div>
+
+        {/* Step labels */}
+        <div className="text-center space-y-1">
+          <p className="text-sm font-bold text-white">
+            {STEPS[step]?.labelHe || 'מעבד...'}
+          </p>
+          <p className="text-[10px] text-white/35">שלב {step + 1} מתוך {STEPS.length}</p>
+        </div>
+
+        {/* Segmented progress */}
+        <div className="flex gap-1.5">
+          {STEPS.map((_, i) => (
+            <motion.div key={i}
+              className="h-1 rounded-full"
+              style={{ width: 28 }}
+              animate={{
+                background: i < step
+                  ? 'rgba(16,185,129,1)'
+                  : i === step
+                    ? undefined
+                    : 'rgba(255,255,255,0.1)',
+              }}
             >
-              <div className="relative flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-base"
-                style={{
-                  background: done ? 'rgba(16,185,129,0.2)' : active ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${done ? 'rgba(16,185,129,0.4)' : active ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.06)'}`,
-                }}>
-                {done ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : s.icon}
-                {active && (
-                  <motion.div
-                    className="absolute inset-0 rounded-xl"
-                    animate={{ opacity: [0, 0.4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    style={{ background: 'rgba(139,92,246,0.4)' }}
-                  />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-bold text-white">{s.label}</p>
-                <p className="text-[10px] text-white/40">{s.sub}</p>
-              </div>
-              {active && (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-violet-500/30 border-t-violet-400 rounded-full"
-                />
+              {i === step && (
+                <motion.div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
+                  animate={{ opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 1, repeat: Infinity }} />
               )}
             </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Progress bar */}
-      <div className="mx-5 mb-5 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #10b981, #7C3AED)' }}
-          animate={{ width: `${Math.min(100, (step / 2) * 100)}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-      </div>
-    </motion.div>
-  );
-}
-
-function StatRow({ label, value, color, large }) {
-  return (
-    <div className="flex items-center justify-between py-2">
-      <span className={`font-black ${large ? 'text-base' : 'text-sm'}`} style={{ color: color || '#fff' }}>
-        {value}
-      </span>
-      <span className="text-xs text-white/50">{label}</span>
-    </div>
-  );
-}
-
-function RecommendationCard({ rec, index }) {
-  const s = PRIORITY_STYLE[rec.priority] || PRIORITY_STYLE.low;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.07 }}
-      className="rounded-xl p-3.5"
-      style={{ background: s.bg, border: `1px solid ${s.border}` }}
-    >
-      <div className="flex items-start gap-2.5">
-        <div className="mt-1 w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.dot }} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <p className="text-xs font-black text-white text-right leading-snug flex-1">{rec.title_he}</p>
-            {rec.estimated_gain_ils != null && (
-              <span className="text-xs font-black text-emerald-400 flex-shrink-0 whitespace-nowrap">
-                +₪{fmt(rec.estimated_gain_ils)}
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-white/50 leading-relaxed text-right">{rec.desc_he}</p>
+          ))}
         </div>
       </div>
     </motion.div>
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Stat pill ───────────────────────────────────────────────────────────────
+function StatPill({ label, value, color }) {
+  if (!value && value !== 0) return null;
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+      <span className="text-xs font-bold" style={{ color }}>{value}</span>
+      <span className="text-[11px] text-white/45">{label}</span>
+    </div>
+  );
+}
+
+// ─── Recharts custom bar (fix: use fill prop correctly) ──────────────────────
+function ArbitrageBar(props) {
+  const { x, y, width, height, loss_kwh } = props;
+  const color = loss_kwh > 3 ? '#ef4444' : loss_kwh > 1.5 ? '#f59e0b' : '#10b981';
+  return <rect x={x} y={y} width={width} height={Math.max(height, 2)} fill={color} rx={3} />;
+}
+
+// ─── Priority badge ──────────────────────────────────────────────────────────
+const PRIORITY_STYLE = {
+  high:   { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.3)',   dot: '#ef4444', label: 'גבוהה' },
+  medium: { bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  dot: '#f59e0b', label: 'בינונית' },
+  low:    { bg: 'rgba(16,185,129,0.10)',  border: 'rgba(16,185,129,0.25)', dot: '#10b981', label: 'נמוכה' },
+};
+
+// ─── Main component ──────────────────────────────────────────────────────────
 export default function PortfolioAudit() {
-  const [open, setOpen] = useState(true);
-  const [state, setState] = useState('idle'); // idle | loading | result | error
-  const [step, setStep] = useState(0);
-  const [dragOver, setDragOver] = useState(false);
-  const [fileName, setFileName] = useState('');
+  const [open, setOpen]           = useState(true);
+  const [state, setState]         = useState('idle'); // idle | loading | result | error
+  const [step, setStep]           = useState(0);
+  const [dragOver, setDragOver]   = useState(false);
+  const [fileName, setFileName]   = useState('');
+  const [fileSize, setFileSize]   = useState('');
   const [reportType, setReportType] = useState('electricity_bill');
-  const [result, setResult] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [result, setResult]       = useState(null);
+  const [errorMsg, setErrorMsg]   = useState('');
   const fileRef = useRef();
   const { lang } = useLang();
   const isHe = lang === 'he';
 
+  const fmtSize = (bytes) => {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  };
+
   const processFile = useCallback(async (file) => {
     if (!file) return;
+
+    // Client-side validation
+    const allowed = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowed.includes(file.type)) {
+      toast.error(isHe ? 'סוג קובץ לא נתמך. השתמש ב-PDF, JPG או PNG' : 'Unsupported file type. Use PDF, JPG or PNG.');
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error(isHe ? 'הקובץ גדול מדי (מקסימום 15MB)' : 'File too large (max 15MB)');
+      return;
+    }
+
     setFileName(file.name);
+    setFileSize(fmtSize(file.size));
     setState('loading');
     setStep(0);
     setErrorMsg('');
 
     try {
-      // Step 0 → upload
+      // Step 0 — Upload
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-      // Step 1 → OCR signal
       setStep(1);
 
-      // Step 2 → analyze
-      setStep(2);
+      // Step 1–3 — Analyze (OCR + AI + save)
       const response = await base44.functions.invoke('analyzeEnergyReport', {
         file_url,
         report_type: reportType,
       });
+      setStep(2);
 
       const data = response?.data;
-      if (!data?.success) throw new Error(data?.error || 'Analysis failed');
+      if (!data?.success) throw new Error(data?.error || 'ניתוח נכשל');
+
+      setStep(3);
+      // Small pause so user sees "Saving" step
+      await new Promise(r => setTimeout(r, 600));
 
       setResult(data);
       setState('result');
-      toast.success(isHe ? '✅ ניתוח AI הושלם!' : '✅ AI Analysis complete!');
+      toast.success(isHe ? '✅ הניתוח הושלם — נמצאו הזדמנויות!' : '✅ Analysis complete!');
     } catch (err) {
-      setErrorMsg(err.message || 'Unknown error');
+      setErrorMsg(err.message);
       setState('error');
+      toast.error(isHe ? `שגיאה: ${err.message}` : `Error: ${err.message}`);
     }
   }, [reportType, isHe]);
 
-  const handleDrop = (e) => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
     setDragOver(false);
     processFile(e.dataTransfer.files[0]);
-  };
+  }, [processFile]);
 
-  const reset = () => { setState('idle'); setResult(null); setFileName(''); setErrorMsg(''); setStep(0); };
+  const handleFileInput = (e) => processFile(e.target.files[0]);
+  const reset = () => { setState('idle'); setResult(null); setFileName(''); setFileSize(''); setErrorMsg(''); };
 
-  // Derived data — safe access
-  const analysis = result?.analysis || {};
-  const extracted = result?.extracted || analysis.extracted || {};
-  const rev = analysis.revenue_analysis || {};
-  const hourly = Array.isArray(analysis.hourly_loss_profile) ? analysis.hourly_loss_profile : [];
-  const recs = Array.isArray(analysis.recommendations) ? analysis.recommendations : [];
-  const flags = Array.isArray(analysis.risk_flags) ? analysis.risk_flags : [];
+  // Safe derived values
+  const analysis  = result?.analysis || {};
+  const extracted = result?.extracted || {};
+  const rev       = analysis.revenue_analysis || {};
+  const gap       = typeof rev.missing_roi_ils === 'number' ? rev.missing_roi_ils : 0;
+  const lossPct   = typeof rev.missing_roi_pct === 'number' ? rev.missing_roi_pct : 0;
+  const hourly    = Array.isArray(analysis.hourly_loss_profile) ? analysis.hourly_loss_profile : [];
+  const recs      = Array.isArray(analysis.recommendations)     ? analysis.recommendations     : [];
+  const risks     = Array.isArray(analysis.risk_flags)          ? analysis.risk_flags           : [];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
 
       {/* ── Header toggle ─────────────────────────────────────────────────── */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between rounded-2xl p-4 transition-all active:scale-[0.98]"
+        className="w-full flex items-center justify-between rounded-2xl px-4 py-3.5 transition-all active:scale-[0.98]"
         style={{
-          background: state === 'result'
-            ? 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(124,58,237,0.08))'
-            : 'rgba(124,58,237,0.07)',
-          border: `1px solid ${state === 'result' ? 'rgba(16,185,129,0.35)' : 'rgba(124,58,237,0.35)'}`,
+          background: open
+            ? 'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(79,70,229,0.08))'
+            : 'rgba(255,255,255,0.02)',
+          border: `1px solid ${open ? 'rgba(124,58,237,0.45)' : 'rgba(255,255,255,0.08)'}`,
+          boxShadow: open ? '0 0 28px rgba(124,58,237,0.15)' : 'none',
         }}
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.3)' }}>
-            <Sparkles className="w-4 h-4 text-violet-400" />
+          <div className="relative">
+            <motion.div
+              animate={{ opacity: [0.4, 0.9, 0.4] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+              className="absolute inset-0 rounded-xl"
+              style={{ background: 'rgba(124,58,237,0.3)', filter: 'blur(6px)' }}
+            />
+            <div className="relative w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)' }}>
+              <Sparkles className="w-4 h-4 text-violet-400" />
+            </div>
           </div>
           <div className="text-right">
-            <p className="text-sm font-black text-white">
-              {isHe ? 'ביקורת פורטפוליו מיידית' : 'Instant Portfolio Audit'}
+            <p className="text-sm font-black text-white leading-tight">
+              {isHe ? 'ביקורת פורטפוליו AI' : 'AI Portfolio Audit'}
             </p>
-            <p className="text-[10px] text-white/40">
-              {state === 'result'
-                ? (isHe ? `ניתחנו: ${fileName}` : `Analyzed: ${fileName}`)
-                : (isHe ? 'העלה חשבון · AI OCR · גלה ROI שאבדת' : 'Upload bill · AI OCR · Find missing ROI')}
+            <p className="text-[10px] text-white/35 mt-0.5">
+              {isHe ? 'העלה חשבון · OCR · ROI שאבדת' : 'Upload bill · OCR · Missing ROI'}
             </p>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
+          {state === 'result' && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>
+              ✓ {isHe ? 'הושלם' : 'Done'}
+            </span>
+          )}
           {state === 'idle' && (
             <motion.span
               animate={{ opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>
-              {isHe ? '📊 העלה דו״ח' : '📊 Upload'}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(16,185,129,0.18)', color: '#10b981' }}>
+              📊 {isHe ? 'העלה עכשיו' : 'Upload now'}
             </motion.span>
           )}
-          {state === 'result' && (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"
-              style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>
-              <CheckCircle2 className="w-3 h-3" />
-              {isHe ? 'הושלם' : 'Done'}
-            </span>
-          )}
-          {open ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+          {open
+            ? <ChevronUp className="w-4 h-4 text-white/30" />
+            : <ChevronDown className="w-4 h-4 text-white/30" />}
         </div>
       </button>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
-      <AnimatePresence initial={false}>
+      <AnimatePresence>
         {open && (
           <motion.div
-            key="body"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -264,267 +267,298 @@ export default function PortfolioAudit() {
           >
             <div className="pt-3 space-y-3">
 
-              {/* ── IDLE: type selector + dropzone ────────────────────────── */}
-              <AnimatePresence mode="wait">
-                {state === 'idle' && (
-                  <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-
-                    {/* Type Pills */}
-                    <div className="flex gap-2">
-                      {[
-                        { key: 'electricity_bill', he: '⚡ חשבון חשמל', en: '⚡ Electricity Bill' },
-                        { key: 'roi_report',       he: '📈 דוח ROI',   en: '📈 ROI Report' },
-                      ].map(({ key, he, en }) => (
+              {/* ── IDLE: type selector + drop zone ─────────────────────── */}
+              {state === 'idle' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                  {/* Type selector */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { key: 'electricity_bill', emoji: '⚡', labelHe: 'חשבון חשמל', labelEn: 'Electricity Bill' },
+                      { key: 'roi_report',       emoji: '📈', labelHe: 'דוח ROI',    labelEn: 'ROI Report' },
+                    ].map(({ key, emoji, labelHe, labelEn }) => {
+                      const active = reportType === key;
+                      return (
                         <button key={key} onClick={() => setReportType(key)}
-                          className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                          className="py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
                           style={{
-                            background: reportType === key ? 'rgba(124,58,237,0.22)' : 'rgba(255,255,255,0.04)',
-                            border: `1px solid ${reportType === key ? 'rgba(124,58,237,0.55)' : 'rgba(255,255,255,0.08)'}`,
-                            color: reportType === key ? '#c4b5fd' : 'rgba(255,255,255,0.35)',
+                            background: active ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.03)',
+                            border: `1px solid ${active ? 'rgba(124,58,237,0.55)' : 'rgba(255,255,255,0.07)'}`,
+                            color: active ? '#c4b5fd' : 'rgba(255,255,255,0.35)',
                           }}>
-                          {isHe ? he : en}
+                          {emoji} {isHe ? labelHe : labelEn}
                         </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Drop zone */}
+                  <motion.div
+                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                    onClick={() => fileRef.current?.click()}
+                    animate={{ scale: dragOver ? 1.02 : 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className="rounded-2xl border-2 border-dashed cursor-pointer p-7 text-center space-y-3 select-none"
+                    style={{
+                      borderColor: dragOver ? 'rgba(124,58,237,0.9)' : 'rgba(124,58,237,0.3)',
+                      background:  dragOver
+                        ? 'rgba(124,58,237,0.12)'
+                        : 'linear-gradient(135deg,rgba(124,58,237,0.05),rgba(79,70,229,0.03))',
+                    }}
+                  >
+                    <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFileInput} />
+
+                    <motion.div
+                      animate={dragOver ? { rotate: -8, scale: 1.15 } : { rotate: 0, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                      className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center"
+                      style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)' }}
+                    >
+                      <Upload className="w-6 h-6 text-violet-400" />
+                    </motion.div>
+
+                    <div>
+                      <p className="text-sm font-black text-white">
+                        {dragOver
+                          ? (isHe ? 'שחרר כאן!' : 'Drop it!')
+                          : (isHe ? 'גרור קובץ לכאן' : 'Drag & Drop here')}
+                      </p>
+                      <p className="text-[11px] text-white/35 mt-1">
+                        {isHe ? 'PDF · JPG · PNG · עד 15MB' : 'PDF · JPG · PNG · up to 15MB'}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-center gap-2">
+                      {['PDF', 'JPG', 'PNG'].map(t => (
+                        <span key={t} className="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                          style={{ background: 'rgba(124,58,237,0.18)', color: '#a78bfa' }}>{t}</span>
                       ))}
                     </div>
 
-                    {/* Drop Zone */}
-                    <motion.div
-                      animate={dragOver ? { scale: 1.015 } : { scale: 1 }}
-                      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                      onDragLeave={() => setDragOver(false)}
-                      onDrop={handleDrop}
-                      onClick={() => fileRef.current?.click()}
-                      className="rounded-2xl cursor-pointer transition-colors py-10 text-center space-y-4"
-                      style={{
-                        background: dragOver ? 'rgba(124,58,237,0.13)' : 'rgba(124,58,237,0.04)',
-                        border: `2px dashed ${dragOver ? 'rgba(167,139,250,0.8)' : 'rgba(124,58,237,0.3)'}`,
-                      }}
-                    >
-                      <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => processFile(e.target.files[0])} />
-
-                      <motion.div
-                        animate={dragOver ? { y: -4, scale: 1.1 } : { y: 0, scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                        className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center"
-                        style={{ background: 'rgba(124,58,237,0.16)', border: '1px solid rgba(124,58,237,0.3)' }}
-                      >
-                        <Upload className="w-7 h-7 text-violet-400" />
-                      </motion.div>
-
-                      <div className="space-y-1 px-4">
-                        <p className="text-sm font-black text-white">
-                          {isHe ? 'גרור חשבון חשמל / דוח ROI לכאן' : 'Drop your energy bill / ROI report here'}
-                        </p>
-                        <p className="text-[11px] text-white/35">
-                          {isHe ? 'PDF · JPG · PNG — מוצפן ומאובטח לחלוטין' : 'PDF · JPG · PNG — Fully encrypted'}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-center gap-2">
-                        {['PDF', 'JPG', 'PNG'].map(t => (
-                          <span key={t} className="text-[10px] px-2.5 py-0.5 rounded-full font-bold"
-                            style={{ background: 'rgba(124,58,237,0.18)', color: '#a78bfa' }}>{t}</span>
-                        ))}
-                      </div>
-
-                      <p className="text-xs font-bold text-violet-400/70">
-                        {isHe ? 'או לחץ לבחירה מהמכשיר' : 'or tap to browse files'}
-                      </p>
-                    </motion.div>
-
-                  </motion.div>
-                )}
-
-                {/* ── LOADING ──────────────────────────────────────────────── */}
-                {state === 'loading' && (
-                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <ProcessingOverlay step={step} fileName={fileName} />
-                  </motion.div>
-                )}
-
-                {/* ── ERROR ────────────────────────────────────────────────── */}
-                {state === 'error' && (
-                  <motion.div key="error" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                    className="rounded-2xl p-5 text-center space-y-3"
-                    style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                    <p className="text-2xl">😕</p>
-                    <p className="text-sm font-black text-red-400">
-                      {isHe ? 'שגיאה בניתוח הקובץ' : 'Analysis failed'}
+                    <p className="text-xs font-bold text-violet-400">
+                      {isHe ? '← לחץ לבחירת קובץ' : 'or click to browse →'}
                     </p>
-                    {errorMsg && (
-                      <p className="text-[10px] text-white/30 px-4 leading-relaxed">{errorMsg}</p>
-                    )}
-                    <button onClick={reset}
-                      className="flex items-center justify-center gap-1.5 mx-auto px-4 py-2 rounded-xl text-xs font-bold text-white/70 transition-all active:scale-95"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                      <RotateCcw className="w-3 h-3" />
-                      {isHe ? 'נסה שוב' : 'Try again'}
-                    </button>
                   </motion.div>
-                )}
 
-                {/* ── RESULT ───────────────────────────────────────────────── */}
-                {state === 'result' && result && (
-                  <motion.div key="result" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="space-y-3">
+                  {/* Trust strip */}
+                  <div className="flex items-center justify-center gap-4">
+                    {[
+                      { icon: '🔒', text: isHe ? 'מוצפן AES-256' : 'AES-256 encrypted' },
+                      { icon: '🗑️', text: isHe ? 'נמחק לאחר ניתוח' : 'Deleted after analysis' },
+                      { icon: '⚡', text: isHe ? 'ניתוח תוך 20 שניות' : '~20 sec analysis' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-1">
+                        <span className="text-[10px]">{item.icon}</span>
+                        <span className="text-[10px] text-white/30">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-                    {/* AI Summary Banner */}
-                    {analysis.summary && (
-                      <div className="rounded-2xl p-4"
-                        style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(16,185,129,0.06))', border: '1px solid rgba(124,58,237,0.22)' }}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center">
-                            <Sparkles className="w-3 h-3 text-violet-400" />
-                          </div>
-                          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">
-                            {isHe ? 'סיכום AI' : 'AI Summary'}
-                          </p>
+              {/* ── LOADING ──────────────────────────────────────────────── */}
+              {state === 'loading' && (
+                <ProcessingView step={step} fileName={`${fileName} · ${fileSize}`} />
+              )}
+
+              {/* ── ERROR ────────────────────────────────────────────────── */}
+              {state === 'error' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="rounded-2xl p-5 text-center space-y-4"
+                  style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                  <div className="text-3xl">❌</div>
+                  <div>
+                    <p className="text-sm font-bold text-red-400 mb-1">
+                      {isHe ? 'שגיאה בניתוח' : 'Analysis Failed'}
+                    </p>
+                    <p className="text-[11px] text-red-300/60 leading-relaxed">{errorMsg}</p>
+                  </div>
+                  <button onClick={reset}
+                    className="flex items-center gap-2 mx-auto px-4 py-2 rounded-xl text-xs font-bold text-white/70 hover:text-white transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <RotateCcw className="w-3 h-3" />
+                    {isHe ? 'נסה שנית' : 'Try again'}
+                  </button>
+                </motion.div>
+              )}
+
+              {/* ── RESULT ───────────────────────────────────────────────── */}
+              {state === 'result' && result && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+
+                  {/* AI Summary */}
+                  {analysis.summary && (
+                    <div className="rounded-2xl p-4"
+                      style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(79,70,229,0.07))', border: '1px solid rgba(124,58,237,0.25)' }}>
+                      <p className="text-[10px] font-black text-violet-400/60 uppercase tracking-widest mb-2">
+                        🤖 {isHe ? 'סיכום AI' : 'AI Summary'}
+                      </p>
+                      <p className="text-xs text-white/80 leading-relaxed">{analysis.summary}</p>
+                    </div>
+                  )}
+
+                  {/* Extracted stats */}
+                  <div className="rounded-2xl p-4"
+                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3">
+                      {isHe ? 'נתונים שחולצו' : 'Extracted Data'}
+                    </p>
+                    <StatPill label="Meter ID"                                                             value={extracted.meter_id}                                                                  color="#a78bfa" />
+                    <StatPill label={isHe ? 'תקופת חיוב' : 'Billing Period'}                              value={extracted.billing_period}                                                            color="#60a5fa" />
+                    <StatPill label={isHe ? 'סה"כ צריכה' : 'Total Usage'}                                 value={extracted.total_kwh      ? `${extracted.total_kwh} kWh`                    : null} color="#f59e0b" />
+                    <StatPill label={isHe ? 'תעריף ממוצע' : 'Avg Tariff'}                                 value={extracted.tariff_per_kwh ? `₪${extracted.tariff_per_kwh}/kWh`               : null} color="#34d399" />
+                    <StatPill label={isHe ? 'סה"כ חשבון' : 'Total Billed'}                                value={extracted.total_amount_ils ? `₪${Number(extracted.total_amount_ils).toLocaleString()}` : null} color="#f87171" />
+                    <StatPill label={isHe ? 'ספק' : 'Provider'}                                           value={extracted.provider}                                                                  color="#94a3b8" />
+                  </div>
+
+                  {/* Revenue comparison — BIG money moment */}
+                  {rev.actual_revenue_ils > 0 && (
+                    <div className="rounded-2xl overflow-hidden"
+                      style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div className="px-4 py-3 flex items-center justify-between"
+                        style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <span className="text-[10px] font-black text-white/35 uppercase tracking-widest">
+                          {isHe ? 'השוואת הכנסות' : 'Revenue Comparison'}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between px-4 py-3">
+                          <span className="text-base font-black text-red-400">
+                            ₪{Number(rev.actual_revenue_ils).toLocaleString()}
+                          </span>
+                          <span className="text-xs text-white/50">{isHe ? 'הכנסה בפועל' : 'Actual'}</span>
                         </div>
-                        <p className="text-xs text-white/80 leading-relaxed">{analysis.summary}</p>
+                        <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.04]">
+                          <span className="text-base font-black text-emerald-400">
+                            ₪{Number(rev.optimized_revenue_ils).toLocaleString()}
+                          </span>
+                          <span className="text-xs text-white/50">{isHe ? 'מותאם VPP AI' : 'VPP AI Optimized'}</span>
+                        </div>
+                        {/* Gap highlight */}
+                        <div className="mx-3 mb-3 mt-1 rounded-xl px-4 py-3 flex items-center justify-between"
+                          style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                          <div>
+                            <p className="text-xl font-black text-amber-400">+₪{Number(gap).toLocaleString()}</p>
+                            <p className="text-[10px] text-amber-400/60 mt-0.5">
+                              {lossPct.toFixed(0)}% {isHe ? 'פוטנציאל בלתי מנוצל' : 'untapped potential'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <AlertTriangle className="w-5 h-5 text-amber-400 ml-auto" />
+                            <p className="text-[10px] text-amber-400 font-bold mt-1">
+                              {isHe ? 'ROI שאבדת' : 'Missing ROI'}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {/* Extracted KPIs */}
-                    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className="px-4 pt-3 pb-1">
-                        <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">
-                          {isHe ? 'נתונים שחולצו מהמסמך' : 'Extracted Data'}
-                        </p>
-                      </div>
-                      <div className="divide-y divide-white/5 px-4">
-                        {[
-                          { label: isHe ? 'מספר מונה' : 'Meter ID',       val: extracted.meter_id,                                         color: '#a78bfa' },
-                          { label: isHe ? 'תקופת חיוב' : 'Billing Period',  val: extracted.billing_period,                                    color: '#60a5fa' },
-                          { label: isHe ? 'סה"כ kWh' : 'Total kWh',        val: extracted.total_kwh ? `${fmt(extracted.total_kwh)} kWh` : null, color: '#f59e0b' },
-                          { label: isHe ? 'תעריף' : 'Tariff',              val: extracted.tariff_per_kwh ? `₪${extracted.tariff_per_kwh}/kWh` : null, color: '#34d399' },
-                          { label: isHe ? 'סה"כ לתשלום' : 'Total Billed',  val: extracted.total_amount_ils ? `₪${fmt(extracted.total_amount_ils)}` : null, color: '#f87171' },
-                          { label: isHe ? 'ספק' : 'Provider',             val: extracted.provider,                                          color: '#94a3b8' },
-                        ].filter(r => r.val).map((row, i) => (
-                          <StatRow key={i} label={row.label} value={row.val} color={row.color} />
+                  {/* Hourly chart — fixed CustomBar */}
+                  {hourly.length > 0 && (
+                    <div className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
+                        {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
+                      </p>
+                      <ResponsiveContainer width="100%" height={96}>
+                        <BarChart data={hourly} barSize={16} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                          <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
+                          <Tooltip
+                            cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                            contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                            formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']}
+                          />
+                          <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  {/* Recommendations */}
+                  {recs.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black text-white/35 uppercase tracking-widest px-1">
+                        {isHe ? 'המלצות AI' : 'AI Recommendations'}
+                      </p>
+                      {recs.map((r, i) => {
+                        const s = PRIORITY_STYLE[r.priority] || PRIORITY_STYLE.low;
+                        return (
+                          <motion.div key={i}
+                            initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.07 }}
+                            className="rounded-xl p-3.5"
+                            style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <div className="w-1.5 h-1.5 rounded-full" style={{ background: s.dot }} />
+                                <span className="text-[10px] text-white/40">{s.label}</span>
+                              </div>
+                              {r.estimated_gain_ils > 0 && (
+                                <span className="text-xs font-black text-emerald-400">
+                                  +₪{Number(r.estimated_gain_ils).toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs font-bold text-white text-right leading-snug">{r.title_he}</p>
+                            <p className="text-[10px] text-white/45 mt-1 text-right leading-relaxed">{r.desc_he}</p>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Risk Flags */}
+                  {risks.length > 0 && (
+                    <div className="rounded-xl p-3.5"
+                      style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                      <p className="text-[10px] font-black text-red-400/60 uppercase tracking-widest mb-2">
+                        ⚠️ {isHe ? 'ממצאי סיכון' : 'Risk Flags'}
+                      </p>
+                      <div className="space-y-1">
+                        {risks.map((flag, i) => (
+                          <p key={i} className="text-[11px] text-red-300/70 leading-relaxed">• {flag}</p>
                         ))}
                       </div>
                     </div>
+                  )}
 
-                    {/* Revenue Gap Card */}
-                    {rev.actual_revenue_ils != null && (
-                      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <div className="grid grid-cols-2 divide-x divide-white/5">
-                          <div className="p-4 text-center">
-                            <p className="text-[10px] text-white/40 mb-1">{isHe ? 'הכנסה בפועל' : 'Actual Revenue'}</p>
-                            <p className="text-xl font-black text-red-400">₪{fmt(rev.actual_revenue_ils)}</p>
-                          </div>
-                          <div className="p-4 text-center">
-                            <p className="text-[10px] text-white/40 mb-1">{isHe ? 'מותאם VPP AI' : 'VPP AI Optimized'}</p>
-                            <p className="text-xl font-black text-emerald-400">₪{fmt(rev.optimized_revenue_ils)}</p>
-                          </div>
-                        </div>
-                        <div className="p-4 flex items-center justify-between"
-                          style={{ background: 'rgba(245,158,11,0.08)', borderTop: '1px solid rgba(245,158,11,0.2)' }}>
-                          <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 text-amber-400" />
-                            <span className="text-xs font-bold text-amber-400">
-                              {isHe ? 'ROI שאבדת' : 'Missing ROI'}
-                            </span>
-                          </div>
-                          <div className="text-left">
-                            <p className="text-lg font-black text-amber-400">+₪{fmt(rev.missing_roi_ils)}</p>
-                            <p className="text-[10px] text-amber-400/60">{fmtPct(rev.missing_roi_pct)} {isHe ? 'בלתי מנוצל' : 'untapped'}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  {/* Compliance */}
+                  {analysis.compliance_notes && (
+                    <div className="rounded-xl p-3.5 flex gap-3"
+                      style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.18)' }}>
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-[11px] text-white/55 leading-relaxed">{analysis.compliance_notes}</p>
+                    </div>
+                  )}
 
-                    {/* Hourly Loss Chart */}
-                    {hourly.length > 0 && (
-                      <div className="rounded-2xl p-4"
-                        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                        <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
-                          {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
-                        </p>
-                        <ResponsiveContainer width="100%" height={90}>
-                          <BarChart data={hourly} barSize={12} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-                            <XAxis dataKey="hour"
-                              tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }}
-                              axisLine={false} tickLine={false} />
-                            <Tooltip
-                              cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                              contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
-                              formatter={(v) => [`${Number(v).toFixed(2)} kWh`, isHe ? 'אובדן' : 'Loss']}
-                            />
-                            <Bar dataKey="loss_kwh" radius={[3, 3, 0, 0]}>
-                              {hourly.map((entry, i) => (
-                                <Cell key={i}
-                                  fill={entry.loss_kwh > 3 ? '#ef4444' : entry.loss_kwh > 1.5 ? '#f59e0b' : '#10b981'}
-                                />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
+                  {/* CTA */}
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => toast.success(isHe ? '📊 הדוח המלא יישלח לאימייל בקרוב!' : '📊 Full report coming to your email!')}
+                    className="w-full py-4 rounded-2xl font-black text-sm text-white"
+                    style={{
+                      background: 'linear-gradient(135deg,#7C3AED,#4F46E5)',
+                      boxShadow: '0 0 30px rgba(124,58,237,0.4)',
+                    }}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      {isHe ? 'צור דוח ארביטראז׳ מלא' : 'Generate Full Arbitrage Report'}
+                    </div>
+                    <p className="text-[11px] text-violet-200/50 mt-1 font-normal">
+                      {isHe ? 'תכנית פעולה אישית + תחזית הכנסות' : 'Personal action plan + revenue forecast'}
+                    </p>
+                  </motion.button>
 
-                    {/* Recommendations */}
-                    {recs.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">
-                          {isHe ? '💡 המלצות AI' : '💡 AI Recommendations'}
-                        </p>
-                        {recs.map((r, i) => <RecommendationCard key={i} rec={r} index={i} />)}
-                      </div>
-                    )}
-
-                    {/* Risk Flags */}
-                    {flags.length > 0 && (
-                      <div className="rounded-2xl p-4 space-y-1.5"
-                        style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                        <p className="text-[10px] font-black text-red-400/70 uppercase tracking-widest mb-2">
-                          ⚠️ {isHe ? 'דגלים אדומים' : 'Risk Flags'}
-                        </p>
-                        {flags.map((f, i) => (
-                          <p key={i} className="text-[11px] text-red-300/80 leading-relaxed">• {f}</p>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Compliance Notes */}
-                    {analysis.compliance_notes && (
-                      <div className="rounded-2xl p-4 flex items-start gap-3"
-                        style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)' }}>
-                        <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-[10px] font-black text-emerald-400/70 uppercase tracking-widest mb-1">
-                            {isHe ? 'תקנות רלוונטיות' : 'Compliance Notes'}
-                          </p>
-                          <p className="text-[11px] text-white/55 leading-relaxed">{analysis.compliance_notes}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* CTA */}
-                    <button
-                      onClick={() => toast.success(isHe ? '📊 הדוח המלא ישלח לאימייל!' : '📊 Full report will be sent to your email!')}
-                      className="w-full py-4 rounded-2xl font-black text-sm text-white flex flex-col items-center gap-1 active:scale-[0.97] transition-transform"
-                      style={{ background: 'linear-gradient(135deg, #7C3AED, #4F46E5)', boxShadow: '0 0 28px rgba(124,58,237,0.3)' }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
-                        {isHe ? 'הפק דוח ארביטראז׳ מלא' : 'Generate Full Arbitrage Report'}
-                      </div>
-                      <span className="text-[11px] text-violet-300/60 font-normal">
-                        {isHe ? 'ניתוח מלא + תכנית פעולה אישית' : 'Full analysis + personalized action plan'}
-                      </span>
-                    </button>
-
-                    {/* Reset */}
-                    <button onClick={reset}
-                      className="w-full text-[11px] text-white/25 py-1.5 hover:text-white/50 transition-colors flex items-center justify-center gap-1.5">
-                      <RotateCcw className="w-3 h-3" />
-                      {isHe ? 'העלה קובץ נוסף' : 'Analyze another file'}
-                    </button>
-
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  <button onClick={reset}
+                    className="w-full py-2 text-xs text-white/25 hover:text-white/50 transition-colors flex items-center justify-center gap-1.5">
+                    <RotateCcw className="w-3 h-3" />
+                    {isHe ? 'נתח קובץ נוסף' : 'Analyze another file'}
+                  </button>
+                </motion.div>
+              )}
 
             </div>
           </motion.div>

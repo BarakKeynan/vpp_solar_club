@@ -2,9 +2,9 @@ import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, FileText, Zap, TrendingUp, AlertTriangle,
-  ChevronDown, ChevronUp, RotateCcw, ShieldCheck, Sparkles,
+  ChevronDown, ChevronUp, RotateCcw, ShieldCheck, Sparkles, X, Download,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, CartesianGrid } from 'recharts';
 import { useLang } from '@/lib/i18n';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -107,6 +107,188 @@ const PRIORITY_STYLE = {
   low:    { bg: 'rgba(16,185,129,0.10)',  border: 'rgba(16,185,129,0.25)', dot: '#10b981', label: 'נמוכה' },
 };
 
+// ─── Default hourly data (always shown even without real data) ───────────────
+const DEFAULT_HOURLY = [
+  { hour: '06', loss_kwh: 0.2 }, { hour: '08', loss_kwh: 0.5 },
+  { hour: '10', loss_kwh: 0.8 }, { hour: '12', loss_kwh: 0.6 },
+  { hour: '14', loss_kwh: 0.4 }, { hour: '17', loss_kwh: 1.2 },
+  { hour: '18', loss_kwh: 3.1 }, { hour: '19', loss_kwh: 3.8 },
+  { hour: '20', loss_kwh: 2.9 },
+];
+
+// ─── Full Arbitrage Report Modal ─────────────────────────────────────────────
+function FullReportModal({ onClose, analysis, extracted, rev, recs, risks, isHe, profileLabel, period, roiSummary }) {
+  const gap = typeof rev.missing_roi_ils === 'number' ? rev.missing_roi_ils : 0;
+  const monthlyTrend = Array.isArray(analysis.monthly_trend) ? analysis.monthly_trend : [];
+  const hourly = Array.isArray(analysis.hourly_loss_profile) && analysis.hourly_loss_profile.length > 0
+    ? analysis.hourly_loss_profile : DEFAULT_HOURLY;
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end"
+      style={{ background: 'rgba(0,0,0,0.85)' }}
+      onClick={onClose}>
+      <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full rounded-t-3xl max-h-[92vh] overflow-y-auto"
+        style={{ background: '#0A0F1E', border: '1px solid rgba(124,58,237,0.4)', borderBottom: 'none' }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 rounded-full bg-white/15" /></div>
+
+        <div className="px-5 pb-28 space-y-5">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <button onClick={onClose} className="p-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <X className="w-4 h-4 text-white/50" />
+            </button>
+            <div className="text-right">
+              <p className="text-base font-black text-white">📊 {isHe ? 'דוח ארביטראז׳ מלא' : 'Full Arbitrage Report'}</p>
+              <p className="text-[10px] text-white/35 mt-0.5">{profileLabel.emoji} {isHe ? profileLabel.he : profileLabel.en} · {period.detected_period || '—'}</p>
+            </div>
+          </div>
+
+          {/* Big gap highlight */}
+          {gap > 0 && (
+            <div className="rounded-2xl p-5 text-center"
+              style={{ background: 'linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.08))', border: '1px solid rgba(245,158,11,0.4)' }}>
+              <p className="text-[10px] font-black text-amber-400/60 uppercase tracking-widest mb-1">{isHe ? 'פוטנציאל ROI שאבד' : 'Missing ROI Potential'}</p>
+              <p className="text-4xl font-black text-amber-400">+₪{Number(gap).toLocaleString()}</p>
+              <p className="text-xs text-white/40 mt-1">{isHe ? 'ניתן לשחזר עם אופטימיזציית VPP AI' : 'Recoverable with VPP AI optimization'}</p>
+            </div>
+          )}
+
+          {/* Revenue table */}
+          {rev.actual_revenue_ils > 0 && (
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">{isHe ? 'ניתוח הכנסות' : 'Revenue Analysis'}</p>
+              </div>
+              {[
+                { label: isHe ? 'הכנסה בפועל' : 'Actual Revenue', value: `₪${Number(rev.actual_revenue_ils).toLocaleString()}`, color: '#f87171' },
+                { label: isHe ? 'מותאם VPP AI' : 'VPP AI Optimized', value: `₪${Number(rev.optimized_revenue_ils || 0).toLocaleString()}`, color: '#10b981' },
+                { label: isHe ? 'ממוצע חודשי' : 'Monthly Avg', value: rev.monthly_avg_ils ? `₪${Number(rev.monthly_avg_ils).toLocaleString()}` : '—', color: '#60a5fa' },
+                { label: isHe ? 'תחזית רבעונית' : 'Quarterly Proj.', value: rev.quarterly_projection_ils ? `₪${Number(rev.quarterly_projection_ils).toLocaleString()}` : '—', color: '#a78bfa' },
+                { label: isHe ? 'תחזית שנתית' : 'Annual Proj.', value: rev.annual_projection_ils ? `₪${Number(rev.annual_projection_ils).toLocaleString()}` : '—', color: '#f59e0b' },
+              ].map((row, i) => (
+                <div key={i} className="flex items-center justify-between px-4 py-3 border-t border-white/[0.04]">
+                  <span className="text-sm font-black" style={{ color: row.color }}>{row.value}</span>
+                  <span className="text-xs text-white/45">{row.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Hourly arbitrage chart */}
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
+              {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
+            </p>
+            <ResponsiveContainer width="100%" height={120}>
+              <BarChart data={hourly} barSize={18} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 8, fill: 'rgba(255,255,255,0.2)' }} axisLine={false} tickLine={false} width={24} />
+                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                  contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                  formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']} />
+                <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <p className="text-[9px] text-white/25 text-center mt-2">{isHe ? 'שעות 18–20 = שיא פוטנציאל ארביטראז׳' : 'Hours 18–20 = peak arbitrage potential'}</p>
+          </div>
+
+          {/* Monthly trend */}
+          {monthlyTrend.length > 1 && (
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
+                {isHe ? 'מגמה חודשית — kWh vs ₪' : 'Monthly Trend'}
+              </p>
+              <ResponsiveContainer width="100%" height={100}>
+                <BarChart data={monthlyTrend} barSize={12} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                  <XAxis dataKey="month" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                    contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                    formatter={(v, name) => [name === 'ils' ? `₪${v}` : `${v} kWh`, name === 'ils' ? '₪' : 'kWh']} />
+                  <Bar dataKey="kwh" fill="#3b82f6" radius={[3, 3, 0, 0]} opacity={0.7} />
+                  <Bar dataKey="ils" fill="#10b981" radius={[3, 3, 0, 0]} opacity={0.7} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* ROI Summary */}
+          {(roiSummary.irr_percent || roiSummary.payback_years || roiSummary.npv_ils) && (
+            <div className="rounded-2xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
+              <p className="text-[10px] font-black text-amber-400/70 uppercase tracking-widest mb-3">📈 {isHe ? 'סיכום השקעה' : 'Investment Summary'}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {roiSummary.irr_percent > 0 && <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}><p className="text-lg font-black text-amber-300">{roiSummary.irr_percent}%</p><p className="text-[9px] text-white/35">IRR</p></div>}
+                {roiSummary.payback_years > 0 && <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}><p className="text-lg font-black text-amber-300">{roiSummary.payback_years} {isHe ? 'שנים' : 'yrs'}</p><p className="text-[9px] text-white/35">{isHe ? 'החזר' : 'Payback'}</p></div>}
+                {roiSummary.npv_ils > 0 && <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}><p className="text-lg font-black text-emerald-300">₪{Number(roiSummary.npv_ils).toLocaleString()}</p><p className="text-[9px] text-white/35">NPV</p></div>}
+                {roiSummary.co2_saved_annual_kg > 0 && <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}><p className="text-lg font-black text-green-300">{Number(roiSummary.co2_saved_annual_kg).toLocaleString()}</p><p className="text-[9px] text-white/35">kg CO₂/yr</p></div>}
+              </div>
+            </div>
+          )}
+
+          {/* All recommendations */}
+          {recs.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">{isHe ? 'תכנית פעולה מלאה' : 'Full Action Plan'}</p>
+              {recs.map((r, i) => {
+                const s = PRIORITY_STYLE[r.priority] || PRIORITY_STYLE.low;
+                return (
+                  <div key={i} className="rounded-xl p-3.5" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: s.dot }} />
+                        <span className="text-[10px] text-white/40">{s.label}</span>
+                        {r.timeline_he && <span className="text-[9px] text-white/25">· {r.timeline_he}</span>}
+                      </div>
+                      {r.estimated_gain_ils > 0 && <span className="text-sm font-black text-emerald-400">+₪{Number(r.estimated_gain_ils).toLocaleString()}</span>}
+                    </div>
+                    <p className="text-xs font-bold text-white text-right">{r.title_he}</p>
+                    <p className="text-[10px] text-white/45 mt-1 text-right leading-relaxed">{r.desc_he}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Risk flags */}
+          {risks.length > 0 && (
+            <div className="rounded-xl p-3.5" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <p className="text-[10px] font-black text-red-400/60 uppercase tracking-widest mb-2">⚠️ {isHe ? 'ממצאי סיכון' : 'Risk Flags'}</p>
+              {risks.map((flag, i) => <p key={i} className="text-[11px] text-red-300/70 leading-relaxed">• {flag}</p>)}
+            </div>
+          )}
+
+          {/* Extracted full data */}
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3">{isHe ? 'נתונים מלאים שחולצו' : 'Full Extracted Data'}</p>
+            <StatPill label="Meter ID" value={extracted.meter_id} color="#a78bfa" />
+            <StatPill label={isHe ? 'תקופת חיוב' : 'Billing Period'} value={extracted.billing_period} color="#60a5fa" />
+            <StatPill label={isHe ? 'סה"כ צריכה' : 'Total Usage'} value={extracted.total_kwh ? `${extracted.total_kwh} kWh` : null} color="#f59e0b" />
+            <StatPill label={isHe ? 'שיא / שפל' : 'Peak / Off-Peak'} value={(extracted.peak_kwh && extracted.off_peak_kwh) ? `${extracted.peak_kwh} / ${extracted.off_peak_kwh} kWh` : null} color="#f59e0b" />
+            <StatPill label={isHe ? 'תעריף ממוצע' : 'Avg Tariff'} value={extracted.tariff_per_kwh ? `₪${extracted.tariff_per_kwh}/kWh` : null} color="#34d399" />
+            <StatPill label={isHe ? 'סה"כ חשבון' : 'Total Billed'} value={extracted.total_amount_ils ? `₪${Number(extracted.total_amount_ils).toLocaleString()}` : null} color="#f87171" />
+            <StatPill label={isHe ? 'ספק' : 'Provider'} value={extracted.provider} color="#94a3b8" />
+            <StatPill label={isHe ? 'הספק מערכת' : 'System kWp'} value={extracted.system_capacity_kw ? `${extracted.system_capacity_kw} kWp` : null} color="#a78bfa" />
+            <StatPill label={isHe ? 'ייצור שנתי' : 'Annual Yield'} value={extracted.annual_yield_kwh ? `${extracted.annual_yield_kwh} kWh` : null} color="#34d399" />
+            <StatPill label={isHe ? 'חיוב דמנד' : 'Demand Charge'} value={extracted.demand_charge_ils ? `₪${extracted.demand_charge_ils}` : null} color="#f87171" />
+            {extracted.co2_saved_kg > 0 && <StatPill label="🌱 CO₂" value={`${Number(extracted.co2_saved_kg).toLocaleString()} kg`} color="#10b981" />}
+          </div>
+
+          <button onClick={onClose}
+            className="w-full py-3.5 rounded-2xl font-black text-sm text-white/70 transition-all"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            {isHe ? 'סגור' : 'Close'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function PortfolioAudit() {
   const [open, setOpen]           = useState(true);
@@ -118,6 +300,7 @@ export default function PortfolioAudit() {
   const [reportType, setReportType] = useState('electricity_bill');
   const [result, setResult]       = useState(null);
   const [errorMsg, setErrorMsg]   = useState('');
+  const [showReport, setShowReport] = useState(false);
   const fileRef = useRef();
   const { lang } = useLang();
   const isHe = lang === 'he';
@@ -576,24 +759,31 @@ export default function PortfolioAudit() {
                     </div>
                   )}
 
-                  {/* Hourly loss chart */}
-                  {hourly.length > 0 && (
-                    <div className="rounded-2xl p-4"
-                      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
-                        {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
-                      </p>
-                      <ResponsiveContainer width="100%" height={96}>
-                        <BarChart data={hourly} barSize={16} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                          <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
-                          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                            contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
-                            formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']} />
-                          <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
+                  {/* Hourly loss chart — always shown, real data or default */}
+                  {(() => {
+                    const chartData = hourly.length > 0 ? hourly : DEFAULT_HOURLY;
+                    const isDefault = hourly.length === 0;
+                    return (
+                      <div className="rounded-2xl p-4"
+                        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">
+                            {isHe ? 'אובדן ארביטראז׳ לפי שעה' : 'Arbitrage Loss by Hour'}
+                          </p>
+                          {isDefault && <span className="text-[9px] text-white/20 italic">{isHe ? 'דוגמה' : 'example'}</span>}
+                        </div>
+                        <ResponsiveContainer width="100%" height={100}>
+                          <BarChart data={chartData} barSize={16} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                            <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
+                            <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                              contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                              formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']} />
+                            <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    );
+                  })()}
 
                   {/* Monthly trend chart */}
                   {monthlyTrend.length > 1 && (
@@ -671,18 +861,18 @@ export default function PortfolioAudit() {
                     </div>
                   )}
 
-                  {/* CTA */}
+                  {/* CTA — opens full report modal */}
                   <motion.button
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => toast.success(isHe ? '📊 הדוח המלא יישלח לאימייל בקרוב!' : '📊 Full report coming to your email!')}
+                    onClick={() => setShowReport(true)}
                     className="w-full py-4 rounded-2xl font-black text-sm text-white"
                     style={{ background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', boxShadow: '0 0 30px rgba(124,58,237,0.4)' }}>
                     <div className="flex items-center justify-center gap-2">
                       <TrendingUp className="w-4 h-4" />
-                      {isHe ? 'צור דוח ארביטראז׳ מלא' : 'Generate Full Arbitrage Report'}
+                      {isHe ? 'פתח דוח ארביטראז׳ מלא' : 'Open Full Arbitrage Report'}
                     </div>
                     <p className="text-[11px] text-violet-200/50 mt-1 font-normal">
-                      {isHe ? 'תכנית פעולה אישית + תחזית הכנסות' : 'Personal action plan + revenue forecast'}
+                      {isHe ? 'תכנית פעולה אישית + תחזית הכנסות + גרפים' : 'Action plan + revenue forecast + charts'}
                     </p>
                   </motion.button>
 
@@ -696,6 +886,24 @@ export default function PortfolioAudit() {
 
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Full Report Modal */}
+      <AnimatePresence>
+        {showReport && (
+          <FullReportModal
+            onClose={() => setShowReport(false)}
+            analysis={analysis}
+            extracted={extracted}
+            rev={rev}
+            recs={recs}
+            risks={risks}
+            isHe={isHe}
+            profileLabel={profileLabel}
+            period={period}
+            roiSummary={roiSummary}
+          />
         )}
       </AnimatePresence>
     </motion.div>

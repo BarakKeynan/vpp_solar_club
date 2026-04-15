@@ -66,7 +66,7 @@ const CustomBar = ({ x, y, width, height, value }) => {
 };
 
 export default function PortfolioAudit() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [state, setState] = useState('idle'); // idle | processing | result
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -116,8 +116,8 @@ export default function PortfolioAudit() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>
-            {isHe ? 'Lead Gen' : 'Lead Gen'}
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse" style={{ background: 'rgba(16,185,129,0.25)', color: '#10b981' }}>
+            {isHe ? '📊 העלה דו״ח' : '📊 Upload Report'}
           </span>
           {open ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
         </div>

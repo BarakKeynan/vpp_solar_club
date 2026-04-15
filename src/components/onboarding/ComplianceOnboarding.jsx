@@ -82,7 +82,30 @@ export default function ComplianceOnboarding({ onDone }) {
         className="w-full max-w-lg rounded-t-3xl overflow-y-auto"
         style={{ background: '#0D1420', border: '1px solid rgba(249,115,22,0.25)', borderBottom: 'none', maxHeight: '92vh' }}>
 
-        <div className="p-6 space-y-6 pb-10">
+        {/* Sticky Submit Button at Top-level so it's always visible */}
+        <div className="sticky bottom-0 z-10 px-6 pt-3 pb-6"
+          style={{ background: 'linear-gradient(to top, #0D1420 80%, transparent)' }}>
+          <button
+            onClick={handleDone}
+            disabled={!allChecked}
+            className="w-full py-5 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-95"
+            style={{
+              background: allChecked ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.06)',
+              boxShadow: allChecked ? '0 0 40px rgba(16,185,129,0.6), 0 0 80px rgba(16,185,129,0.2)' : 'none',
+              color: allChecked ? 'white' : 'rgba(255,255,255,0.3)',
+              cursor: allChecked ? 'pointer' : 'not-allowed',
+              border: allChecked ? '1px solid rgba(16,185,129,0.6)' : '1px solid rgba(255,255,255,0.06)',
+            }}>
+            ✅ {isHe ? 'אשר ופתח את הדשבורד' : 'Confirm & Unlock Dashboard'}
+          </button>
+          {!allChecked && (
+            <p className="text-[11px] text-white/25 text-center mt-2">
+              {isHe ? 'יש לסמן את כל הסעיפים, להפעיל הסכמת AI ולחתום' : 'Check all items, enable AI consent and sign'}
+            </p>
+          )}
+        </div>
+
+        <div className="p-6 space-y-6 pb-2">
           {/* Handle */}
           <div className="flex justify-center -mt-2">
             <div className="w-10 h-1 rounded-full bg-white/15" />
@@ -183,27 +206,6 @@ export default function ComplianceOnboarding({ onDone }) {
             )}
           </div>
 
-          {/* Submit */}
-          <button
-            onClick={handleDone}
-            disabled={!allChecked}
-            className="w-full py-5 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-95"
-            style={{
-              background: allChecked ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.06)',
-              boxShadow: allChecked ? '0 0 40px rgba(16,185,129,0.6), 0 0 80px rgba(16,185,129,0.2)' : 'none',
-              color: allChecked ? 'white' : 'rgba(255,255,255,0.3)',
-              cursor: allChecked ? 'pointer' : 'not-allowed',
-              border: allChecked ? '1px solid rgba(16,185,129,0.6)' : '1px solid rgba(255,255,255,0.06)',
-              fontSize: '1rem',
-            }}>
-            ✅ {isHe ? 'אשר ופתח את הדשבורד' : 'Confirm & Unlock Dashboard'}
-          </button>
-
-          {!allChecked && (
-            <p className="text-[11px] text-white/25 text-center">
-              {isHe ? 'יש לסמן את כל הסעיפים, להפעיל הסכמת AI ולחתום' : 'Check all items, enable AI consent and sign'}
-            </p>
-          )}
         </div>
       </motion.div>
     </motion.div>

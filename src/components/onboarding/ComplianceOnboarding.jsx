@@ -10,11 +10,13 @@ const checkItems = {
     'אני מאשר כי התקנת הסוללה/הממיר שלי עומדת בתקן NFPA 855 ובתקני בטיחות אש מקומיים.',
     'אני מאשר כי האתר מחזיק חוזה תחזוקה תקף.',
     'אני מודע לכך שהחלפת ספק חשמל דרך מערכת נוגה אורכת כ-60 יום להכנסה לתוקף.',
+    'קראתי והבנתי את מדיניות הפרטיות בהתאם לחוק הגנת הפרטיות, התשמ"א–1981 ותיקון מס׳ 13 (2025). אני מסכים לאיסוף ועיבוד נתוני הצריכה שלי לצורך מתן השירות, ומאשר את זכותי לעיון, תיקון ומחיקה של המידע.',
   ],
   en: [
     'I certify my battery/inverter installation meets NFPA 855 and local fire safety standards.',
     'I confirm the site has a valid maintenance contract.',
     'I acknowledge that electricity provider switching through the Noga system takes ~60 days to take effect.',
+    'I have read and understood the Privacy Policy in accordance with the Israeli Privacy Protection Law (1981) and Amendment No. 13 (2025). I consent to the collection and processing of my consumption data for service purposes, and acknowledge my rights to access, correct, and delete my data.',
   ],
 };
 
@@ -25,7 +27,7 @@ export default function ComplianceOnboarding({ onDone }) {
   const [drawing, setDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
   const [aiConsent, setAiConsent] = useState(false);
-  const [checked, setChecked] = useState([false, false, false]);
+  const [checked, setChecked] = useState([false, false, false, false]);
   const allChecked = checked.every(Boolean) && aiConsent && hasSignature;
 
   const toggle = (i) => setChecked(prev => prev.map((v, idx) => idx === i ? !v : v));

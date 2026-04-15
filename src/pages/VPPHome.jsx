@@ -131,6 +131,16 @@ export default function VPPHome() {
         {showCompliance && <ComplianceOnboarding onDone={() => setShowCompliance(false)} />}
       </AnimatePresence>
 
+      {/* Dev Reset Button */}
+      {!showCompliance && (
+        <button
+          onClick={() => { localStorage.removeItem('vpp_compliance_done'); setShowCompliance(true); }}
+          className="w-full text-[10px] text-white/20 hover:text-white/50 py-1 transition-colors text-center"
+        >
+          🔄 {lang === 'he' ? 'איפוס אשף ציות (בדיקה)' : 'Reset Compliance Wizard (dev)'}
+        </button>
+      )}
+
       {/* Unified AI Advisory */}
       <UnifiedAIAdvisory />
 

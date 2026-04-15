@@ -12,6 +12,8 @@ import BatteryHealthCard from '@/components/dashboard/BatteryHealthCard';
 import BatterySelectModal from '@/components/dashboard/BatterySelectModal';
 import WeatherWidget from '@/components/dashboard/WeatherWidget';
 import PortfolioAudit from '@/components/dashboard/PortfolioAudit';
+import UnifiedAIAdvisory from '@/components/dashboard/UnifiedAIAdvisory';
+import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding/ComplianceOnboarding';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -79,6 +81,8 @@ const getAlerts = (t) => [
 export default function VPPHome() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
+  const complianceDone = useComplianceDone();
+  const [showCompliance, setShowCompliance] = useState(!complianceDone);
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [selectedBattery, setSelectedBattery] = useState(null);
@@ -122,6 +126,14 @@ export default function VPPHome() {
 
   return (
     <div className="p-3 space-y-3 pb-28">
+      {/* Compliance Onboarding */}
+      <AnimatePresence>
+        {showCompliance && <ComplianceOnboarding onDone={() => setShowCompliance(false)} />}
+      </AnimatePresence>
+
+      {/* Unified AI Advisory */}
+      <UnifiedAIAdvisory />
+
       {/* Header + Auto-Pilot inline */}
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
         className={`rounded-2xl border px-4 py-3 flex items-center justify-between transition-all ${autoPilot ? 'border-primary/50 bg-primary/8' : 'border-border bg-card'}`}>

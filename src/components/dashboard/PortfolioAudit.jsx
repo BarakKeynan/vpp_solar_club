@@ -186,14 +186,26 @@ export default function PortfolioAudit() {
   const reset = () => { setState('idle'); setResult(null); setFileName(''); setFileSize(''); setErrorMsg(''); };
 
   // Safe derived values
-  const analysis  = result?.analysis || {};
-  const extracted = result?.extracted || {};
-  const rev       = analysis.revenue_analysis || {};
-  const gap       = typeof rev.missing_roi_ils === 'number' ? rev.missing_roi_ils : 0;
-  const lossPct   = typeof rev.missing_roi_pct === 'number' ? rev.missing_roi_pct : 0;
-  const hourly    = Array.isArray(analysis.hourly_loss_profile) ? analysis.hourly_loss_profile : [];
-  const recs      = Array.isArray(analysis.recommendations)     ? analysis.recommendations     : [];
-  const risks     = Array.isArray(analysis.risk_flags)          ? analysis.risk_flags           : [];
+  const analysis       = result?.analysis || {};
+  const extracted      = result?.extracted || {};
+  const rev            = analysis.revenue_analysis || {};
+  const gap            = typeof rev.missing_roi_ils === 'number' ? rev.missing_roi_ils : 0;
+  const lossPct        = typeof rev.missing_roi_pct === 'number' ? rev.missing_roi_pct : 0;
+  const hourly         = Array.isArray(analysis.hourly_loss_profile) ? analysis.hourly_loss_profile : [];
+  const monthlyTrend   = Array.isArray(analysis.monthly_trend)       ? analysis.monthly_trend       : [];
+  const recs           = Array.isArray(analysis.recommendations)     ? analysis.recommendations     : [];
+  const risks          = Array.isArray(analysis.risk_flags)          ? analysis.risk_flags           : [];
+  const period         = analysis.analysis_period || {};
+  const profileInsight = analysis.profile_insights || {};
+  const roiSummary     = analysis.roi_summary || {};
+
+  const PROFILE_LABELS = {
+    private_residential: { emoji: '🏠', he: 'פרטי / מגורים',    en: 'Residential' },
+    kibbutz_community:   { emoji: '🌾', he: 'קיבוץ / קהילה',    en: 'Kibbutz/Community' },
+    solar_farm:          { emoji: '☀️', he: 'חווה סולארית',      en: 'Solar Farm' },
+    investor:            { emoji: '📊', he: 'משקיע',              en: 'Investor' },
+  };
+  const profileLabel = PROFILE_LABELS[analysis.user_profile] || { emoji: '⚡', he: 'כללי', en: 'General' };
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
@@ -387,6 +399,28 @@ export default function PortfolioAudit() {
               {state === 'result' && result && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
 
+                  {/* Profile + Period banner */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl p-3 text-center"
+                      style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)' }}>
+                      <p className="text-lg">{profileLabel.emoji}</p>
+                      <p className="text-[10px] font-black text-violet-300 mt-0.5">{isHe ? profileLabel.he : profileLabel.en}</p>
+                      <p className="text-[9px] text-white/30">{isHe ? 'פרופיל משתמש' : 'User Profile'}</p>
+                    </div>
+                    <div className="rounded-xl p-3 text-center"
+                      style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)' }}>
+                      <p className="text-[11px] font-black text-blue-300">{period.detected_period || '—'}</p>
+                      <p className="text-[9px] text-white/30 mt-0.5">{isHe ? 'תקופת ניתוח' : 'Analysis Period'}</p>
+                      {period.months_count > 1 && (
+                        <p className="text-[9px] font-bold text-blue-400 mt-1">
+                          {period.months_count === 3 ? (isHe ? '📅 רבעוני' : '📅 Quarterly') :
+                           period.months_count === 12 ? (isHe ? '📅 שנתי' : '📅 Annual') :
+                           `${period.months_count} ${isHe ? 'חודשים' : 'months'}`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
                   {/* AI Summary */}
                   {analysis.summary && (
                     <div className="rounded-2xl p-4"
@@ -404,58 +438,145 @@ export default function PortfolioAudit() {
                     <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3">
                       {isHe ? 'נתונים שחולצו' : 'Extracted Data'}
                     </p>
-                    <StatPill label="Meter ID"                                                             value={extracted.meter_id}                                                                  color="#a78bfa" />
-                    <StatPill label={isHe ? 'תקופת חיוב' : 'Billing Period'}                              value={extracted.billing_period}                                                            color="#60a5fa" />
-                    <StatPill label={isHe ? 'סה"כ צריכה' : 'Total Usage'}                                 value={extracted.total_kwh      ? `${extracted.total_kwh} kWh`                    : null} color="#f59e0b" />
-                    <StatPill label={isHe ? 'תעריף ממוצע' : 'Avg Tariff'}                                 value={extracted.tariff_per_kwh ? `₪${extracted.tariff_per_kwh}/kWh`               : null} color="#34d399" />
-                    <StatPill label={isHe ? 'סה"כ חשבון' : 'Total Billed'}                                value={extracted.total_amount_ils ? `₪${Number(extracted.total_amount_ils).toLocaleString()}` : null} color="#f87171" />
-                    <StatPill label={isHe ? 'ספק' : 'Provider'}                                           value={extracted.provider}                                                                  color="#94a3b8" />
+                    <StatPill label="Meter ID"                                                              value={extracted.meter_id}                                                                   color="#a78bfa" />
+                    <StatPill label={isHe ? 'תקופת חיוב' : 'Billing Period'}                               value={extracted.billing_period}                                                             color="#60a5fa" />
+                    <StatPill label={isHe ? 'סה"כ צריכה' : 'Total Usage'}                                  value={extracted.total_kwh       ? `${extracted.total_kwh} kWh`                    : null}  color="#f59e0b" />
+                    <StatPill label={isHe ? 'שיא / שפל' : 'Peak / Off-Peak'}                               value={(extracted.peak_kwh && extracted.off_peak_kwh) ? `${extracted.peak_kwh} / ${extracted.off_peak_kwh} kWh` : null} color="#f59e0b" />
+                    <StatPill label={isHe ? 'תעריף ממוצע' : 'Avg Tariff'}                                  value={extracted.tariff_per_kwh  ? `₪${extracted.tariff_per_kwh}/kWh`               : null}  color="#34d399" />
+                    <StatPill label={isHe ? 'סה"כ חשבון' : 'Total Billed'}                                 value={extracted.total_amount_ils ? `₪${Number(extracted.total_amount_ils).toLocaleString()}` : null} color="#f87171" />
+                    <StatPill label={isHe ? 'ספק' : 'Provider'}                                            value={extracted.provider}                                                                   color="#94a3b8" />
+                    <StatPill label={isHe ? 'הספק מערכת' : 'System Capacity'}                              value={extracted.system_capacity_kw ? `${extracted.system_capacity_kw} kWp`           : null}  color="#a78bfa" />
+                    <StatPill label={isHe ? 'ייצור שנתי' : 'Annual Yield'}                                 value={extracted.annual_yield_kwh   ? `${extracted.annual_yield_kwh} kWh`             : null}  color="#34d399" />
+                    <StatPill label={isHe ? 'חיוב דמנד' : 'Demand Charge'}                                 value={extracted.demand_charge_ils  ? `₪${extracted.demand_charge_ils}`               : null}  color="#f87171" />
+                    {extracted.co2_saved_kg > 0 && (
+                      <StatPill label={isHe ? '🌱 CO₂ שנחסך' : '🌱 CO₂ Saved'}
+                        value={`${Number(extracted.co2_saved_kg).toLocaleString()} kg`} color="#10b981" />
+                    )}
                   </div>
 
-                  {/* Revenue comparison — BIG money moment */}
+                  {/* Period projections */}
+                  {(rev.monthly_avg_ils || rev.quarterly_projection_ils || rev.annual_projection_ils || period.annualized_cost_ils) && (
+                    <div className="rounded-2xl p-4"
+                      style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      <p className="text-[10px] font-black text-blue-400/70 uppercase tracking-widest mb-3">
+                        📅 {isHe ? 'תחזית לתקופות' : 'Period Projections'}
+                      </p>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        {rev.monthly_avg_ils > 0 && (
+                          <div className="rounded-lg p-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-sm font-black text-blue-300">₪{Number(rev.monthly_avg_ils).toLocaleString()}</p>
+                            <p className="text-[9px] text-white/35">{isHe ? 'ממוצע חודשי' : 'Monthly avg'}</p>
+                          </div>
+                        )}
+                        {rev.quarterly_projection_ils > 0 && (
+                          <div className="rounded-lg p-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-sm font-black text-violet-300">₪{Number(rev.quarterly_projection_ils).toLocaleString()}</p>
+                            <p className="text-[9px] text-white/35">{isHe ? 'רבעוני' : 'Quarterly'}</p>
+                          </div>
+                        )}
+                        {rev.annual_projection_ils > 0 && (
+                          <div className="rounded-lg p-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-sm font-black text-emerald-300">₪{Number(rev.annual_projection_ils).toLocaleString()}</p>
+                            <p className="text-[9px] text-white/35">{isHe ? 'שנתי' : 'Annual'}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Revenue comparison */}
                   {rev.actual_revenue_ils > 0 && (
                     <div className="rounded-2xl overflow-hidden"
                       style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div className="px-4 py-3 flex items-center justify-between"
-                        style={{ background: 'rgba(255,255,255,0.03)' }}>
+                      <div className="px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
                         <span className="text-[10px] font-black text-white/35 uppercase tracking-widest">
                           {isHe ? 'השוואת הכנסות' : 'Revenue Comparison'}
                         </span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between px-4 py-3">
-                          <span className="text-base font-black text-red-400">
-                            ₪{Number(rev.actual_revenue_ils).toLocaleString()}
-                          </span>
+                          <span className="text-base font-black text-red-400">₪{Number(rev.actual_revenue_ils).toLocaleString()}</span>
                           <span className="text-xs text-white/50">{isHe ? 'הכנסה בפועל' : 'Actual'}</span>
                         </div>
                         <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.04]">
-                          <span className="text-base font-black text-emerald-400">
-                            ₪{Number(rev.optimized_revenue_ils).toLocaleString()}
-                          </span>
+                          <span className="text-base font-black text-emerald-400">₪{Number(rev.optimized_revenue_ils).toLocaleString()}</span>
                           <span className="text-xs text-white/50">{isHe ? 'מותאם VPP AI' : 'VPP AI Optimized'}</span>
                         </div>
-                        {/* Gap highlight */}
                         <div className="mx-3 mb-3 mt-1 rounded-xl px-4 py-3 flex items-center justify-between"
                           style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
                           <div>
                             <p className="text-xl font-black text-amber-400">+₪{Number(gap).toLocaleString()}</p>
-                            <p className="text-[10px] text-amber-400/60 mt-0.5">
-                              {lossPct.toFixed(0)}% {isHe ? 'פוטנציאל בלתי מנוצל' : 'untapped potential'}
-                            </p>
+                            <p className="text-[10px] text-amber-400/60 mt-0.5">{lossPct.toFixed(0)}% {isHe ? 'פוטנציאל בלתי מנוצל' : 'untapped potential'}</p>
                           </div>
                           <div className="text-right">
                             <AlertTriangle className="w-5 h-5 text-amber-400 ml-auto" />
-                            <p className="text-[10px] text-amber-400 font-bold mt-1">
-                              {isHe ? 'ROI שאבדת' : 'Missing ROI'}
-                            </p>
+                            <p className="text-[10px] text-amber-400 font-bold mt-1">{isHe ? 'ROI שאבדת' : 'Missing ROI'}</p>
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Hourly chart — fixed CustomBar */}
+                  {/* Profile-specific insights */}
+                  {profileInsight.insights_he?.length > 0 && (
+                    <div className="rounded-2xl p-4 space-y-2"
+                      style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <p className="text-[10px] font-black text-emerald-400/70 uppercase tracking-widest">
+                        {profileLabel.emoji} {isHe ? (profileInsight.title_he || 'תובנות אישיות') : 'Profile Insights'}
+                      </p>
+                      {profileInsight.main_opportunity_he && (
+                        <p className="text-xs font-bold text-emerald-300 text-right">{profileInsight.main_opportunity_he}</p>
+                      )}
+                      <div className="space-y-1.5 mt-1">
+                        {profileInsight.insights_he.map((ins, i) => (
+                          <p key={i} className="text-[11px] text-white/60 text-right leading-relaxed">• {ins}</p>
+                        ))}
+                      </div>
+                      {profileInsight.benchmark_comparison_he && (
+                        <div className="mt-2 pt-2 border-t border-white/5">
+                          <p className="text-[10px] text-white/35 text-right">📊 {profileInsight.benchmark_comparison_he}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ROI / Investment summary */}
+                  {(roiSummary.irr_percent || roiSummary.payback_years || roiSummary.npv_ils) && (
+                    <div className="rounded-2xl p-4"
+                      style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                      <p className="text-[10px] font-black text-amber-400/70 uppercase tracking-widest mb-3">
+                        📈 {isHe ? 'סיכום ROI' : 'Investment Summary'}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {roiSummary.irr_percent > 0 && (
+                          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-base font-black text-amber-300">{roiSummary.irr_percent}%</p>
+                            <p className="text-[9px] text-white/35">IRR</p>
+                          </div>
+                        )}
+                        {roiSummary.payback_years > 0 && (
+                          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-base font-black text-amber-300">{roiSummary.payback_years} {isHe ? 'שנים' : 'yrs'}</p>
+                            <p className="text-[9px] text-white/35">{isHe ? 'החזר השקעה' : 'Payback'}</p>
+                          </div>
+                        )}
+                        {roiSummary.npv_ils > 0 && (
+                          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-base font-black text-emerald-300">₪{Number(roiSummary.npv_ils).toLocaleString()}</p>
+                            <p className="text-[9px] text-white/35">NPV</p>
+                          </div>
+                        )}
+                        {roiSummary.co2_saved_annual_kg > 0 && (
+                          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            <p className="text-base font-black text-green-300">{Number(roiSummary.co2_saved_annual_kg).toLocaleString()}</p>
+                            <p className="text-[9px] text-white/35">kg CO₂/yr</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hourly loss chart */}
                   {hourly.length > 0 && (
                     <div className="rounded-2xl p-4"
                       style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -465,12 +586,30 @@ export default function PortfolioAudit() {
                       <ResponsiveContainer width="100%" height={96}>
                         <BarChart data={hourly} barSize={16} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
                           <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
-                          <Tooltip
-                            cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                             contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
-                            formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']}
-                          />
+                            formatter={(v) => [`${v} kWh`, isHe ? 'אובדן' : 'Loss']} />
                           <Bar dataKey="loss_kwh" shape={<ArbitrageBar />} radius={[3, 3, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  {/* Monthly trend chart */}
+                  {monthlyTrend.length > 1 && (
+                    <div className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <p className="text-[10px] font-black text-white/35 uppercase tracking-widest mb-3 text-right">
+                        {isHe ? 'מגמה חודשית — kWh vs ₪' : 'Monthly Trend — kWh vs ₪'}
+                      </p>
+                      <ResponsiveContainer width="100%" height={96}>
+                        <BarChart data={monthlyTrend} barSize={14} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                          <XAxis dataKey="month" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
+                          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                            contentStyle={{ background: '#0D1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 11 }}
+                            formatter={(v, name) => [name === 'ils' ? `₪${v}` : `${v} kWh`, name === 'ils' ? '₪' : 'kWh']} />
+                          <Bar dataKey="kwh" fill="#3b82f6" radius={[3, 3, 0, 0]} opacity={0.7} />
+                          <Bar dataKey="ils" fill="#10b981" radius={[3, 3, 0, 0]} opacity={0.7} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -494,11 +633,10 @@ export default function PortfolioAudit() {
                               <div className="flex items-center gap-1.5 flex-shrink-0">
                                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: s.dot }} />
                                 <span className="text-[10px] text-white/40">{s.label}</span>
+                                {r.timeline_he && <span className="text-[9px] text-white/25">· {r.timeline_he}</span>}
                               </div>
                               {r.estimated_gain_ils > 0 && (
-                                <span className="text-xs font-black text-emerald-400">
-                                  +₪{Number(r.estimated_gain_ils).toLocaleString()}
-                                </span>
+                                <span className="text-xs font-black text-emerald-400">+₪{Number(r.estimated_gain_ils).toLocaleString()}</span>
                               )}
                             </div>
                             <p className="text-xs font-bold text-white text-right leading-snug">{r.title_he}</p>
@@ -538,11 +676,7 @@ export default function PortfolioAudit() {
                     whileTap={{ scale: 0.97 }}
                     onClick={() => toast.success(isHe ? '📊 הדוח המלא יישלח לאימייל בקרוב!' : '📊 Full report coming to your email!')}
                     className="w-full py-4 rounded-2xl font-black text-sm text-white"
-                    style={{
-                      background: 'linear-gradient(135deg,#7C3AED,#4F46E5)',
-                      boxShadow: '0 0 30px rgba(124,58,237,0.4)',
-                    }}
-                  >
+                    style={{ background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', boxShadow: '0 0 30px rgba(124,58,237,0.4)' }}>
                     <div className="flex items-center justify-center gap-2">
                       <TrendingUp className="w-4 h-4" />
                       {isHe ? 'צור דוח ארביטראז׳ מלא' : 'Generate Full Arbitrage Report'}

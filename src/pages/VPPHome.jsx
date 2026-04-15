@@ -14,6 +14,7 @@ import WeatherWidget from '@/components/dashboard/WeatherWidget';
 import PortfolioAudit from '@/components/dashboard/PortfolioAudit';
 import UnifiedAIAdvisory from '@/components/dashboard/UnifiedAIAdvisory';
 import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding/ComplianceOnboarding';
+import ConnectedDevices from '@/components/dashboard/ConnectedDevices';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -234,6 +235,9 @@ export default function VPPHome() {
 
       {/* Battery Health */}
       <BatteryHealthCard />
+
+      {/* Connected Devices */}
+      <ConnectedDevices />
 
       {/* Community Synergy Hub */}
       <CommunitySynergyHub />

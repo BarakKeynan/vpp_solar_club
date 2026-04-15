@@ -131,7 +131,7 @@ function NodeDrawer({ node, isHe, onClose }) {
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl max-h-[82vh] overflow-y-auto"
+        className="w-full rounded-t-3xl max-h-[88vh] overflow-y-auto"
         style={{ background: '#0D1420', border: `1px solid ${d.borderColor}`, borderBottom: 'none' }}
         onClick={e => e.stopPropagation()}
       >
@@ -140,7 +140,7 @@ function NodeDrawer({ node, isHe, onClose }) {
           <div className="w-10 h-1 rounded-full bg-white/15" />
         </div>
 
-        <div className="px-5 pb-8 space-y-5">
+        <div className="px-5 pb-28 space-y-5">
           {/* Header */}
           <div className="flex items-center justify-between">
             <button onClick={onClose}

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, PenLine, X, Check } from 'lucide-react';
+import { PenLine, X, Check } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 const STORAGE_KEY = 'vpp_compliance_done';
@@ -73,76 +73,57 @@ export default function ComplianceOnboarding({ onDone }) {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: 'rgba(0,0,0,0.88)' }}>
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      className="fixed inset-0 z-50 flex flex-col justify-end"
+      style={{ background: 'rgba(0,0,0,0.88)' }}
+    >
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        className="w-full max-w-lg rounded-t-3xl overflow-y-auto"
-        style={{ background: '#0D1420', border: '1px solid rgba(249,115,22,0.25)', borderBottom: 'none', maxHeight: '92vh' }}>
-
-        {/* Sticky Submit Button at Top-level so it's always visible */}
-        <div className="sticky bottom-0 z-10 px-6 pt-3 pb-6"
-          style={{ background: 'linear-gradient(to top, #0D1420 80%, transparent)' }}>
-          <button
-            onClick={handleDone}
-            disabled={!allChecked}
-            className="w-full py-5 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-95"
-            style={{
-              background: allChecked ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.06)',
-              boxShadow: allChecked ? '0 0 40px rgba(16,185,129,0.6), 0 0 80px rgba(16,185,129,0.2)' : 'none',
-              color: allChecked ? 'white' : 'rgba(255,255,255,0.3)',
-              cursor: allChecked ? 'pointer' : 'not-allowed',
-              border: allChecked ? '1px solid rgba(16,185,129,0.6)' : '1px solid rgba(255,255,255,0.06)',
-            }}>
-            ✅ {isHe ? 'אשר ופתח את הדשבורד' : 'Confirm & Unlock Dashboard'}
-          </button>
-          {!allChecked && (
-            <p className="text-[11px] text-white/25 text-center mt-2">
-              {isHe ? 'יש לסמן את כל הסעיפים, להפעיל הסכמת AI ולחתום' : 'Check all items, enable AI consent and sign'}
-            </p>
-          )}
+        className="w-full max-w-lg mx-auto flex flex-col rounded-t-3xl"
+        style={{ background: '#0D1420', border: '1px solid rgba(249,115,22,0.25)', borderBottom: 'none', maxHeight: '88vh' }}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+          <div className="w-10 h-1 rounded-full bg-white/15" />
         </div>
 
-        <div className="p-6 space-y-6 pb-2">
-          {/* Handle */}
-          <div className="flex justify-center -mt-2">
-            <div className="w-10 h-1 rounded-full bg-white/15" />
-          </div>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-5">
 
           {/* Header */}
           <div className="text-center space-y-1">
-            <div className="text-4xl mb-2">⚖️</div>
-            <h2 className="text-xl font-black" style={{ color: '#F97316' }}>
+            <div className="text-3xl mb-1">⚖️</div>
+            <h2 className="text-lg font-black" style={{ color: '#F97316' }}>
               {isHe ? 'תנאי שימוש ואישור בטיחות' : 'Terms of Use & Safety Agreement'}
             </h2>
-            <p className="text-xs text-white/40">
+            <p className="text-[11px] text-white/40">
               {isHe ? 'בהתאם לתיקון 13 לחוק הגנת הפרטיות (2025)' : 'Per Israel Privacy Amendment 13 (2025)'}
             </p>
           </div>
 
           {/* Advisory Text */}
-          <div className="rounded-2xl p-4 space-y-2 text-sm leading-relaxed"
+          <div className="rounded-xl p-3 space-y-1"
             style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.2)' }}>
-            <p className="text-[11px] font-black text-orange-400/70 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-black text-orange-400/70 uppercase tracking-widest">
               {isHe ? 'גילוי נאות' : 'Advisory Disclosure'}
             </p>
-            <p className="text-white/75 text-sm leading-relaxed">
+            <p className="text-white/70 text-xs leading-relaxed">
               {isHe
-                ? 'VPP Solar Club היא פלטפורמת ייעוץ מבוססת AI. כל הפעולות הפיזיות (פריקת סוללה, החלפת ספק) דורשות אישורך הסופי המפורש. האפליקציה אינה אחראית לאי-יציבות ברשת החשמל או לבלאי חומרה.'
-                : 'VPP Solar Club is an AI-driven advisory platform. All physical executions (discharging, provider switching) require your explicit final approval. The app is not liable for grid instability or hardware wear.'}
+                ? 'VPP Solar Club היא פלטפורמת ייעוץ מבוססת AI. כל הפעולות הפיזיות דורשות אישורך הסופי המפורש. האפליקציה אינה אחראית לאי-יציבות ברשת החשמל או לבלאי חומרה.'
+                : 'VPP Solar Club is an AI-driven advisory platform. All physical executions require your explicit final approval. The app is not liable for grid instability or hardware wear.'}
             </p>
           </div>
 
           {/* Checkboxes */}
-          <div className="space-y-3">
-            <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">
+          <div className="space-y-2">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">
               {isHe ? 'אישור בטיחות חומרה' : 'Hardware Safety Certification'}
             </p>
             {checkItems[isHe ? 'he' : 'en'].map((item, i) => (
               <button key={i} onClick={() => toggle(i)}
-                className="w-full flex items-start gap-3 p-4 rounded-xl text-right transition-all active:scale-[0.98]"
+                className="w-full flex items-start gap-3 p-3 rounded-xl text-right transition-all active:scale-[0.98]"
                 style={{
                   background: checked[i] ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${checked[i] ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)'}`,
@@ -150,19 +131,19 @@ export default function ComplianceOnboarding({ onDone }) {
                 <div className={`flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center mt-0.5 transition-all ${checked[i] ? 'bg-emerald-500 border-emerald-500' : 'border-white/30'}`}>
                   {checked[i] && <Check className="w-3 h-3 text-black" />}
                 </div>
-                <p className="text-sm text-white/80 leading-relaxed">{item}</p>
+                <p className="text-xs text-white/80 leading-relaxed">{item}</p>
               </button>
             ))}
           </div>
 
           {/* AI Consent */}
-          <div className="flex items-center justify-between rounded-xl p-4"
+          <div className="flex items-center justify-between rounded-xl p-3"
             style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
             <div className="flex-1 text-right">
-              <p className="text-sm font-bold text-white">
+              <p className="text-xs font-bold text-white">
                 {isHe ? 'הסכמה לניתוח AI של דפוסי צריכה' : 'Consent to AI analysis of consumption patterns'}
               </p>
-              <p className="text-[11px] text-white/45 mt-0.5">
+              <p className="text-[10px] text-white/45 mt-0.5">
                 {isHe ? 'נדרש לאופטימיזציה אישית' : 'Required for personalized optimization'}
               </p>
             </div>
@@ -180,20 +161,20 @@ export default function ComplianceOnboarding({ onDone }) {
               </button>
               <div className="flex items-center gap-2">
                 <PenLine className="w-3.5 h-3.5 text-white/40" />
-                <p className="text-xs text-white/50">{isHe ? 'חתום כאן לפתיחת הדשבורד' : 'Sign here to unlock dashboard'}</p>
+                <p className="text-xs text-white/50">{isHe ? 'חתום כאן' : 'Sign here'}</p>
               </div>
             </div>
-            <div className="relative rounded-2xl overflow-hidden"
+            <div className="relative rounded-xl overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)' }}>
               {!hasSignature && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <p className="text-white/15 text-lg font-black">{isHe ? 'חתימה' : 'Signature'}</p>
+                  <p className="text-white/10 text-base font-black">{isHe ? 'חתימה' : 'Signature'}</p>
                 </div>
               )}
               <canvas
                 ref={canvasRef}
                 width={340}
-                height={110}
+                height={90}
                 className="w-full touch-none"
                 onMouseDown={startDraw} onMouseMove={draw} onMouseUp={stopDraw} onMouseLeave={stopDraw}
                 onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={stopDraw}
@@ -207,6 +188,30 @@ export default function ComplianceOnboarding({ onDone }) {
           </div>
 
         </div>
+
+        {/* Fixed bottom button — above nav bar (80px) */}
+        <div className="flex-shrink-0 px-5 pt-3 pb-24"
+          style={{ background: 'linear-gradient(to top, #0D1420 70%, transparent)' }}>
+          <button
+            onClick={handleDone}
+            disabled={!allChecked}
+            className="w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+            style={{
+              background: allChecked ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.06)',
+              boxShadow: allChecked ? '0 0 30px rgba(16,185,129,0.5)' : 'none',
+              color: allChecked ? 'white' : 'rgba(255,255,255,0.3)',
+              cursor: allChecked ? 'pointer' : 'not-allowed',
+              border: allChecked ? '1px solid rgba(16,185,129,0.5)' : '1px solid rgba(255,255,255,0.06)',
+            }}>
+            ✅ {isHe ? 'אשר ופתח את הדשבורד' : 'Confirm & Unlock Dashboard'}
+          </button>
+          {!allChecked && (
+            <p className="text-[10px] text-white/20 text-center mt-1.5">
+              {isHe ? 'יש לסמן את כל הסעיפים, להפעיל AI ולחתום' : 'Check all items, enable AI consent and sign'}
+            </p>
+          )}
+        </div>
+
       </motion.div>
     </motion.div>
   );

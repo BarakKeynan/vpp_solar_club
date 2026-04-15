@@ -74,45 +74,133 @@ function JoinForm() {
   );
 }
 
+const INIT_BATTERIES = [
+  { id: 1, label: 'Tesla Powerwall 2', level: 82, temp: 28, status: 'charging', statusColor: '#10b981', power: '2.4 kW', cycles: 312, target: 90, source: 'solar' },
+  { id: 2, label: 'BYD HVM 11.0',     level: 61, temp: 31, status: 'standby',  statusColor: '#f59e0b', power: '—',      cycles: 198, target: 80, source: 'grid'  },
+];
+
 function BatteryInfoModal({ onClose, navigate, isHe }) {
+  const [batteries, setBatteries] = useState(INIT_BATTERIES);
+  const [editId, setEditId] = useState(null);
+
+  const updateBat = (id, field, val) =>
+    setBatteries(prev => prev.map(b => b.id === id ? { ...b, [field]: val } : b));
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 flex items-end z-50"
-      onClick={onClose}>
+      className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(16,185,129,0.2)' }}
         onClick={e => e.stopPropagation()}>
+
         <div className="flex items-center justify-between">
           <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
           <h2 className="text-base font-black text-white">🔋 {isHe ? 'מצב הסוללה' : 'Battery Status'}</h2>
         </div>
-        {[
-          { label: isHe ? 'טסלה Powerwall 2' : 'Tesla Powerwall 2', level: 82, temp: 28, status: isHe ? 'טוען' : 'Charging', statusColor: '#10b981', power: '2.4 kW', cycles: 312 },
-          { label: isHe ? 'BYD HVM 11.0' : 'BYD HVM 11.0',       level: 61, temp: 31, status: isHe ? 'המתנה' : 'Standby',  statusColor: '#f59e0b', power: '—',      cycles: 198 },
-        ].map((bat, i) => (
-          <div key={i} className="rounded-2xl p-4 space-y-3"
+
+        {/* AI Recommendation */}
+        <div className="rounded-2xl p-3.5 space-y-1"
+          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
+          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
+          <p className="text-xs text-white/70 leading-relaxed">
+            {isHe
+              ? 'טען את Tesla Powerwall עד 95% עכשיו — ייצור סולארי שיאי צפוי בין 11:00–14:00. מחיר הרשת יעלה ב-18:00, כדאי לשמור מלאי למכירה.'
+              : 'Charge Tesla Powerwall to 95% now — peak solar production expected 11:00–14:00. Grid price rises at 18:00, keep reserves for sale.'}
+          </p>
+        </div>
+
+        {batteries.map((bat) => (
+          <div key={bat.id} className="rounded-2xl overflow-hidden"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black" style={{ color: bat.statusColor }}>{bat.status}</span>
-              <p className="text-sm font-black text-white">{bat.label}</p>
+            {/* Header row */}
+            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+              <button onClick={() => setEditId(editId === bat.id ? null : bat.id)}
+                className="text-[10px] font-black px-2 py-1 rounded-lg transition-colors"
+                style={{ background: editId === bat.id ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.05)', color: editId === bat.id ? '#a78bfa' : 'rgba(255,255,255,0.3)' }}>
+                {editId === bat.id ? (isHe ? '✓ שמור' : '✓ Save') : (isHe ? '✏️ ערוך' : '✏️ Edit')}
+              </button>
+              <div className="text-right">
+                <p className="text-sm font-black text-white">{bat.label}</p>
+                <span className="text-xs font-black" style={{ color: bat.statusColor }}>
+                  {bat.status === 'charging' ? (isHe ? 'טוען' : 'Charging') : (isHe ? 'המתנה' : 'Standby')}
+                </span>
+              </div>
             </div>
-            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${bat.level}%` }} />
+
+            {/* Bar */}
+            <div className="px-4 pb-2">
+              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${bat.level}%` }} />
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 text-center">
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-2 px-4 pb-3 text-center">
               <div><p className="text-base font-black text-primary">{bat.level}%</p><p className="text-[10px] text-white/40">{isHe ? 'טעינה' : 'Charge'}</p></div>
               <div><p className="text-base font-black text-orange-400">{bat.temp}°C</p><p className="text-[10px] text-white/40">{isHe ? 'טמפ׳' : 'Temp'}</p></div>
               <div><p className="text-base font-black text-blue-400">{bat.cycles}</p><p className="text-[10px] text-white/40">{isHe ? 'מחזורים' : 'Cycles'}</p></div>
             </div>
-            <div className="flex items-center justify-between rounded-xl px-3 py-2"
-              style={{ background: 'rgba(16,185,129,0.07)' }}>
-              <span className="text-xs font-bold text-primary">{bat.power}</span>
-              <span className="text-[10px] text-white/40">{isHe ? 'הספק נוכחי' : 'Current power'}</span>
-            </div>
+
+            {/* Edit Panel */}
+            <AnimatePresence>
+              {editId === bat.id && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }} className="overflow-hidden px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black text-white">{bat.target}%</span>
+                    <p className="text-[10px] text-white/40">{isHe ? 'יעד טעינה' : 'Charge target'}</p>
+                  </div>
+                  <input type="range" min={50} max={100} step={5} value={bat.target}
+                    onChange={e => updateBat(bat.id, 'target', Number(e.target.value))}
+                    className="w-full accent-emerald-400" />
+                  <div>
+                    <p className="text-[10px] text-white/40 mb-2 text-right">{isHe ? 'מקור טעינה' : 'Charge source'}</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { k: 'solar', label: isHe ? '☀️ שמש' : '☀️ Solar', color: '#f59e0b' },
+                        { k: 'battery', label: isHe ? '🔋 סוללה' : '🔋 Battery', color: '#10b981' },
+                        { k: 'grid', label: isHe ? '⚡ רשת' : '⚡ Grid', color: '#60a5fa' },
+                      ].map(s => (
+                        <button key={s.k} onClick={() => updateBat(bat.id, 'source', s.k)}
+                          className="py-1.5 rounded-lg text-[10px] font-black transition-all"
+                          style={{
+                            background: bat.source === s.k ? `${s.color}22` : 'rgba(255,255,255,0.04)',
+                            border: `1px solid ${bat.source === s.k ? s.color : 'rgba(255,255,255,0.08)'}`,
+                            color: bat.source === s.k ? s.color : 'rgba(255,255,255,0.35)',
+                          }}>
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
+
+        {/* Devices under charge */}
+        <div>
+          <p className="text-[11px] font-black text-white/40 uppercase tracking-widest mb-2">{isHe ? 'מכשירים מחוברים לטעינה' : 'Devices on charge circuit'}</p>
+          {[
+            { icon: '☀️', name: isHe ? 'SolarEdge SE10K' : 'SolarEdge SE10K', type: isHe ? 'ממיר' : 'Inverter', power: '4.2 kW', status: '#10b981' },
+            { icon: '🚗', name: isHe ? 'Wallbox Pulsar' : 'Wallbox Pulsar',   type: isHe ? 'טוען EV' : 'EV Charger', power: '11 kW',  status: '#f59e0b' },
+            { icon: '🏠', name: isHe ? 'מד חכם IL-32' : 'Smart Meter IL-32', type: isHe ? 'מד חשמל' : 'Meter',       power: '1.8 kW', status: '#a78bfa' },
+          ].map((d, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1.5"
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="text-lg">{d.icon}</span>
+              <div className="flex-1 text-right">
+                <p className="text-xs font-black text-white">{d.name}</p>
+                <p className="text-[10px] text-white/35">{d.type}</p>
+              </div>
+              <span className="text-xs font-black" style={{ color: d.status }}>{d.power}</span>
+            </div>
+          ))}
+        </div>
+
         <button onClick={() => { onClose(); navigate('/charge-battery'); }}
           className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}>
@@ -124,21 +212,39 @@ function BatteryInfoModal({ onClose, navigate, isHe }) {
 }
 
 function SellInfoModal({ onClose, navigate, isHe }) {
+  const [editMode, setEditMode] = useState(false);
+  const [sellKwh, setSellKwh] = useState(8.0);
+  const [sellMode, setSellMode] = useState('optimal');
+  const estRevenue = (sellKwh * 0.72).toFixed(2);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 flex items-end z-50"
-      onClick={onClose}>
+      className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4"
+        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(59,130,246,0.2)' }}
         onClick={e => e.stopPropagation()}>
+
         <div className="flex items-center justify-between">
           <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
           <h2 className="text-base font-black text-white">⚡ {isHe ? 'מכירה לרשת' : 'Sell to Grid'}</h2>
         </div>
+
+        {/* AI Recommendation */}
+        <div className="rounded-2xl p-3.5 space-y-1"
+          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
+          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
+          <p className="text-xs text-white/70 leading-relaxed">
+            {isHe
+              ? 'מחיר שיא ₪0.72 עכשיו. מכור 8–10 kWh מיד — צפי לירידה ב-20:30. הרווח הצפוי: ₪58–72.'
+              : 'Peak price ₪0.72 now. Sell 8–10 kWh immediately — price expected to drop at 20:30. Est. profit: ₪58–72.'}
+          </p>
+        </div>
+
+        {/* Price banner */}
         <div className="rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-white/40">{isHe ? 'מחיר עכשיו' : 'Current price'}</span>
             <span className="text-2xl font-black text-blue-400">₪0.72/kWh</span>
           </div>
@@ -147,17 +253,68 @@ function SellInfoModal({ onClose, navigate, isHe }) {
             {isHe ? 'שעת שיא — מחיר מקסימלי!' : 'Peak hour — max price!'}
           </div>
         </div>
+
+        {/* Stats */}
         {[
           { label: isHe ? 'נמכר היום' : 'Sold today', value: '9.8 kWh', color: '#60a5fa' },
           { label: isHe ? 'הכנסה היום' : 'Earned today', value: '₪47', color: '#10b981' },
           { label: isHe ? 'זמין למכירה' : 'Available', value: '11.1 kWh', color: '#a78bfa' },
-          { label: isHe ? 'הכנסה צפויה' : 'Est. revenue', value: '≈ ₪80', color: '#f59e0b' },
+          { label: isHe ? 'הכנסה צפויה' : 'Est. revenue', value: `≈ ₪${estRevenue}`, color: '#f59e0b' },
         ].map((item, i) => (
           <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
             <span className="text-sm font-black" style={{ color: item.color }}>{item.value}</span>
             <span className="text-xs text-white/40">{item.label}</span>
           </div>
         ))}
+
+        {/* Edit toggle */}
+        <button onClick={() => setEditMode(v => !v)}
+          className="w-full py-2 rounded-xl text-xs font-black transition-all"
+          style={{
+            background: editMode ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${editMode ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)'}`,
+            color: editMode ? '#a78bfa' : 'rgba(255,255,255,0.4)',
+          }}>
+          {editMode ? (isHe ? '✓ סגור עריכה' : '✓ Close edit') : (isHe ? '✏️ ערוך הגדרות מכירה' : '✏️ Edit sale settings')}
+        </button>
+
+        <AnimatePresence>
+          {editMode && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }} className="overflow-hidden space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-black text-white">{sellKwh.toFixed(1)} kWh</span>
+                  <p className="text-[10px] text-white/40">{isHe ? 'כמות למכירה' : 'Amount to sell'}</p>
+                </div>
+                <input type="range" min={1} max={11} step={0.5} value={sellKwh}
+                  onChange={e => setSellKwh(Number(e.target.value))}
+                  className="w-full accent-blue-400" />
+              </div>
+              <div>
+                <p className="text-[10px] text-white/40 mb-2 text-right">{isHe ? 'אופן מכירה' : 'Sell mode'}</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { k: 'optimal', label: isHe ? '🤖 AI' : '🤖 AI', color: '#a78bfa' },
+                    { k: 'now',     label: isHe ? '⚡ מיידי' : '⚡ Now', color: '#10b981' },
+                    { k: 'sched',   label: isHe ? '🕐 מתוזמן' : '🕐 Sched', color: '#60a5fa' },
+                  ].map(m => (
+                    <button key={m.k} onClick={() => setSellMode(m.k)}
+                      className="py-1.5 rounded-lg text-[10px] font-black transition-all"
+                      style={{
+                        background: sellMode === m.k ? `${m.color}22` : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${sellMode === m.k ? m.color : 'rgba(255,255,255,0.08)'}`,
+                        color: sellMode === m.k ? m.color : 'rgba(255,255,255,0.35)',
+                      }}>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <button onClick={() => { onClose(); navigate('/sell-to-grid'); }}
           className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)' }}>
@@ -169,29 +326,44 @@ function SellInfoModal({ onClose, navigate, isHe }) {
 }
 
 function EVInfoModal({ onClose, navigate, isHe }) {
+  const [editMode, setEditMode] = useState(false);
+  const [targetCharge, setTargetCharge] = useState(90);
+  const [chargeSource, setChargeSource] = useState('solar');
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 flex items-end z-50"
-      onClick={onClose}>
+      className="fixed inset-0 bg-black/70 flex items-end z-50" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl p-5 space-y-4"
+        className="w-full rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
         style={{ background: '#0d1829', border: '1px solid rgba(245,158,11,0.2)' }}
         onClick={e => e.stopPropagation()}>
+
         <div className="flex items-center justify-between">
           <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
           <h2 className="text-base font-black text-white">🚗 {isHe ? 'רכב חשמלי' : 'Electric Vehicle'}</h2>
         </div>
-        {/* EV Status Card */}
+
+        {/* AI Recommendation */}
+        <div className="rounded-2xl p-3.5 space-y-1"
+          style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.1),rgba(124,58,237,0.07))', border: '1px solid rgba(167,139,250,0.3)' }}>
+          <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest">🤖 {isHe ? 'המלצת AI' : 'AI Tip'}</p>
+          <p className="text-xs text-white/70 leading-relaxed">
+            {isHe
+              ? 'עצור טעינה ב-80% — מחיר גריד גבוה עכשיו. טען מסולאר בין 11–14. בשעה 18:00 הפעל V2G ומכור 15 kWh לרשת.'
+              : 'Stop charging at 80% — grid price is high now. Use solar 11–14. At 18:00 activate V2G and sell 15 kWh to grid.'}
+          </p>
+        </div>
+
+        {/* EV Status */}
         <div className="rounded-2xl p-4 space-y-3"
           style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-amber-400">{isHe ? 'טוען ·  11 kW' : 'Charging · 11 kW'}</span>
+            <span className="text-xs font-black text-amber-400">{isHe ? 'טוען · 11 kW' : 'Charging · 11 kW'}</span>
             <p className="text-sm font-black text-white">Wallbox Pulsar Plus</p>
           </div>
           <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
-            <motion.div initial={{ width: 0 }} animate={{ width: '68%' }}
-              transition={{ duration: 1 }}
+            <motion.div initial={{ width: 0 }} animate={{ width: '68%' }} transition={{ duration: 1 }}
               className="h-full rounded-full bg-amber-400" />
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
@@ -200,7 +372,56 @@ function EVInfoModal({ onClose, navigate, isHe }) {
             <div><p className="text-lg font-black text-green-400">340 km</p><p className="text-[10px] text-white/40">{isHe ? 'טווח' : 'Range'}</p></div>
           </div>
         </div>
-        {/* Modes */}
+
+        {/* Edit toggle */}
+        <button onClick={() => setEditMode(v => !v)}
+          className="w-full py-2 rounded-xl text-xs font-black transition-all"
+          style={{
+            background: editMode ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${editMode ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)'}`,
+            color: editMode ? '#a78bfa' : 'rgba(255,255,255,0.4)',
+          }}>
+          {editMode ? (isHe ? '✓ סגור עריכה' : '✓ Close edit') : (isHe ? '✏️ ערוך הגדרות רכב' : '✏️ Edit EV settings')}
+        </button>
+
+        <AnimatePresence>
+          {editMode && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }} className="overflow-hidden space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-black text-white">{targetCharge}%</span>
+                  <p className="text-[10px] text-white/40">{isHe ? 'יעד טעינה' : 'Charge target'}</p>
+                </div>
+                <input type="range" min={50} max={100} step={5} value={targetCharge}
+                  onChange={e => setTargetCharge(Number(e.target.value))}
+                  className="w-full accent-amber-400" />
+              </div>
+              <div>
+                <p className="text-[10px] text-white/40 mb-2 text-right">{isHe ? 'מקור טעינה' : 'Charge source'}</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { k: 'solar',   label: isHe ? '☀️ שמש' : '☀️ Solar',   color: '#f59e0b' },
+                    { k: 'battery', label: isHe ? '🔋 סוללה' : '🔋 Battery', color: '#10b981' },
+                    { k: 'grid',    label: isHe ? '⚡ רשת' : '⚡ Grid',     color: '#60a5fa' },
+                  ].map(s => (
+                    <button key={s.k} onClick={() => setChargeSource(s.k)}
+                      className="py-1.5 rounded-lg text-[10px] font-black transition-all"
+                      style={{
+                        background: chargeSource === s.k ? `${s.color}22` : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${chargeSource === s.k ? s.color : 'rgba(255,255,255,0.08)'}`,
+                        color: chargeSource === s.k ? s.color : 'rgba(255,255,255,0.35)',
+                      }}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Capabilities */}
         <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">{isHe ? 'יכולות הרכב' : 'EV Capabilities'}</p>
         {[
           { icon: '⚡', title: isHe ? 'V2H — פריקה לבית' : 'V2H — Discharge to Home', desc: isHe ? 'הרכב מספק חשמל לבית בזמן הפסקה או שיא' : 'EV powers your home during outage or peak', color: '#10b981' },
@@ -216,6 +437,7 @@ function EVInfoModal({ onClose, navigate, isHe }) {
             </div>
           </div>
         ))}
+
         <button onClick={() => { onClose(); navigate('/charge-ev'); }}
           className="w-full py-3.5 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>

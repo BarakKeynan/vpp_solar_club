@@ -15,6 +15,43 @@ export default function AIAssistant() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+  const dragRef = useRef(null);
+  const [pos, setPos] = useState({ x: 16, y: null });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef(null);
+
+  // Initialize position bottom-right on mount
+  useEffect(() => {
+    setPos({ x: window.innerWidth - 160, y: window.innerHeight - 160 });
+  }, []);
+
+  const onPointerDown = (e) => {
+    if (open) return;
+    dragStart.current = {
+      startX: e.clientX - pos.x,
+      startY: e.clientY - pos.y,
+      moved: false,
+    };
+    setDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e) => {
+    if (!dragStart.current) return;
+    const dx = Math.abs(e.clientX - (dragStart.current.startX + pos.x));
+    const dy = Math.abs(e.clientY - (dragStart.current.startY + pos.y));
+    if (dx > 4 || dy > 4) dragStart.current.moved = true;
+    setPos({
+      x: Math.max(0, Math.min(window.innerWidth - 140, e.clientX - dragStart.current.startX)),
+      y: Math.max(0, Math.min(window.innerHeight - 60, e.clientY - dragStart.current.startY)),
+    });
+  };
+
+  const onPointerUp = (e) => {
+    if (dragStart.current && !dragStart.current.moved) setOpen(true);
+    dragStart.current = null;
+    setDragging(false);
+  };
 
   // Initialize with welcome message when opened
   useEffect(() => {
@@ -69,14 +106,19 @@ export default function AIAssistant() {
   return (
     <>
       {/* FAB Button – Upgraded AI Assistant icon */}
-      <motion.button
-        onClick={() => setOpen(true)}
-        whileTap={{ scale: 0.92 }}
-        whileHover={{ scale: 1.08 }}
-        className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full shadow-xl px-3 py-2.5"
+      <div
+        ref={dragRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        className="fixed z-40 flex items-center gap-2 rounded-full shadow-xl px-3 py-2.5 select-none"
         style={{
+          left: pos.x,
+          top: pos.y,
+          cursor: dragging ? 'grabbing' : 'grab',
           background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #10B981 100%)',
           boxShadow: '0 4px 24px rgba(59,130,246,0.45), 0 0 12px rgba(16,185,129,0.3)',
+          touchAction: 'none',
         }}
       >
         <div className="relative">
@@ -87,10 +129,10 @@ export default function AIAssistant() {
             className="absolute inset-0 rounded-full bg-white/30"
           />
         </div>
-        <span className="text-white text-[11px] font-bold whitespace-nowrap">
+        <span className="text-white text-[11px] font-bold whitespace-nowrap pointer-events-none">
           {t('ai_assistant_title')}
         </span>
-      </motion.button>
+      </div>
 
       {/* Chat Panel */}
       <AnimatePresence>

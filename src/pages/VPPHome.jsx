@@ -17,6 +17,7 @@ import UnifiedAIAdvisory from '@/components/dashboard/UnifiedAIAdvisory';
 import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding/ComplianceOnboarding';
 import ConnectedDevices from '@/components/dashboard/ConnectedDevices';
 import PeakSheddingSettings from '@/components/dashboard/PeakSheddingSettings';
+import ProfitGapReport from '@/components/dashboard/ProfitGapReport';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -240,6 +241,9 @@ export default function VPPHome() {
 
       {/* Live Trading Metrics */}
       <LiveTradingMetrics />
+
+      {/* Profit Gap Report */}
+      <ProfitGapReport />
 
       {/* Portfolio Audit */}
       <PortfolioAudit />

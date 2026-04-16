@@ -119,7 +119,7 @@ A solar home user's 90-day profile:
 Write a SHORT ${lang === 'en' ? 'English' : 'Hebrew'} insight (2–3 sentences) explaining objectively WHY Cellcom Energy yields more for THIS specific production/consumption signature. Reference net-metering tariff and SMP rates. Be neutral and data-driven.`,
         response_json_schema: { type: 'object', properties: { insight: { type: 'string' } } },
       }).then(r => {
-        setInsight(r.insight);
+        setInsight(r?.insight || r);
         setAnalyzing(false);
       }).catch(() => {
         setInsight(lang === 'en'

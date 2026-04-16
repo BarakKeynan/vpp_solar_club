@@ -14,7 +14,9 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { file_url, report_type } = await req.json();
+    let body;
+    try { body = await req.json(); } catch { return Response.json({ error: 'Invalid JSON body' }, { status: 400 }); }
+    const { file_url, report_type } = body || {};
     if (!file_url) return Response.json({ error: 'file_url is required' }, { status: 400 });
 
     const isRoi = report_type === 'roi_report';

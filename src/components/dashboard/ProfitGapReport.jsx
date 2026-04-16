@@ -231,21 +231,12 @@ export default function ProfitGapReport() {
                       </div>
                     </div>
 
-                    <AnimatePresence>
-                      {isExp && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-3.5 pb-3 pt-0 border-t"
-                            style={{ borderColor: `${cfg.color}30` }}>
-                            <p className="text-[11px] text-white/60 leading-relaxed mt-2">{f.detail}</p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {isExp && (
+                      <div className="px-3.5 pb-3 pt-0 border-t"
+                        style={{ borderColor: `${cfg.color}30` }}>
+                        <p className="text-[11px] text-white/60 leading-relaxed mt-2">{f.detail}</p>
+                      </div>
+                    )}
                   </motion.button>
                 );
               })}

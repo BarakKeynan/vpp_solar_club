@@ -85,8 +85,14 @@ const getAlerts = (t) => [
 export default function VPPHome() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
-  const complianceDone = useComplianceDone();
-  const [showCompliance, setShowCompliance] = useState(!complianceDone);
+  const [complianceDone, complianceLoading] = useComplianceDone();
+  const [showCompliance, setShowCompliance] = useState(false);
+
+  useEffect(() => {
+    if (!complianceLoading && !complianceDone) {
+      setShowCompliance(true);
+    }
+  }, [complianceDone, complianceLoading]);
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [selectedBattery, setSelectedBattery] = useState(null);

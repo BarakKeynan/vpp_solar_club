@@ -1,0 +1,26 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "The role of the user in the app",
+      "enum": [
+        "admin",
+        "user"
+      ]
+    },
+    "compliance_signed": {
+      "type": "boolean",
+      "description": "Whether the user has completed the compliance onboarding wizard",
+      "default": false
+    },
+    "compliance_signed_at": {
+      "type": "string",
+      "description": "ISO timestamp of when the compliance was signed"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

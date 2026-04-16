@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { PenLine, X, Check } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
+import { base44 } from '@/api/base44Client';
 
 const STORAGE_KEY = 'vpp_compliance_done';
 
@@ -69,8 +70,16 @@ export default function ComplianceOnboarding({ onDone }) {
     setHasSignature(false);
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
+    // Save locally (fast UX)
     localStorage.setItem(STORAGE_KEY, 'true');
+    // Save to cloud (persistent across devices)
+    try {
+      await base44.auth.updateMe({
+        compliance_signed: true,
+        compliance_signed_at: new Date().toISOString(),
+      });
+    } catch (_) { /* localStorage fallback still works */ }
     onDone();
   };
 
@@ -219,6 +228,24 @@ export default function ComplianceOnboarding({ onDone }) {
   );
 }
 
+/**
+ * Returns [complianceDone, loading].
+ * Checks localStorage first (instant), then syncs from cloud user record.
+ * If cloud says signed → updates localStorage so future loads are instant.
+ */
 export function useComplianceDone() {
-  return localStorage.getItem(STORAGE_KEY) === 'true';
+  const [done, setDone] = useState(() => localStorage.getItem(STORAGE_KEY) === 'true');
+  const [loading, setLoading] = useState(!done); // skip cloud check if already done locally
+
+  useEffect(() => {
+    if (done) return; // already confirmed locally, no need to check cloud
+    base44.auth.me().then(user => {
+      if (user?.compliance_signed) {
+        localStorage.setItem(STORAGE_KEY, 'true');
+        setDone(true);
+      }
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  return [done, loading];
 }

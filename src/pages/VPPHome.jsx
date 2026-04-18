@@ -21,6 +21,7 @@ import ProfitGapReport from '@/components/dashboard/ProfitGapReport';
 import SmartEnergyBanner from '@/components/dashboard/SmartEnergyBanner';
 import CommunityImpactCard from '@/components/dashboard/CommunityImpactCard';
 import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
+import GamificationBadge from '@/components/dashboard/GamificationBadge';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -244,6 +245,9 @@ export default function VPPHome() {
 
       {/* Community Impact */}
       <CommunityImpactCard />
+
+      {/* Gamification — Rank & National Contribution */}
+      <GamificationBadge />
 
       {/* Battery Health (technical) */}
       <BatteryHealthCard />

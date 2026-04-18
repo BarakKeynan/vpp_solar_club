@@ -18,6 +18,9 @@ import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding
 import ConnectedDevices from '@/components/dashboard/ConnectedDevices';
 import PeakSheddingSettings from '@/components/dashboard/PeakSheddingSettings';
 import ProfitGapReport from '@/components/dashboard/ProfitGapReport';
+import SmartEnergyBanner from '@/components/dashboard/SmartEnergyBanner';
+import CommunityImpactCard from '@/components/dashboard/CommunityImpactCard';
+import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -151,6 +154,9 @@ export default function VPPHome() {
         </button>
       )}
 
+      {/* Smart Energy Push Banner */}
+      <SmartEnergyBanner />
+
       {/* Unified AI Advisory */}
       <UnifiedAIAdvisory />
 
@@ -233,7 +239,13 @@ export default function VPPHome() {
       {/* Weather Widget */}
       <WeatherWidget />
 
-      {/* Battery Health */}
+      {/* Simple Savings + Battery Health (user-friendly) */}
+      <SimpleSavingsCard />
+
+      {/* Community Impact */}
+      <CommunityImpactCard />
+
+      {/* Battery Health (technical) */}
       <BatteryHealthCard />
 
       {/* Connected Devices */}

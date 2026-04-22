@@ -94,12 +94,25 @@ const AuthenticatedApp = () => {
         <Route path="/monthly-report" element={<MonthlyReport />} />
         <Route path="/pro-dashboard" element={<ProDashboard />} />
         <Route path="/bulk-audit" element={<BulkAudit />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/accessibility" element={<Accessibility />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
+};
+
+// Public pages wrapper - always accessible, redirect to Dashboard if already logged in
+const PublicRoute = ({ children }) => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  
+  if (isLoadingPublicSettings || isLoadingAuth) return null;
+  
+  // If authenticated (no error = success), go to Dashboard
+  if (!authError) {
+    return <Navigate to="/Dashboard" replace />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -109,8 +122,9 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <Routes>
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/landing" element={<PublicRoute><Landing /></PublicRoute>} />
+            <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<AuthenticatedApp />} />
           </Routes>

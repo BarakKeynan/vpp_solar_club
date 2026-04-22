@@ -235,7 +235,7 @@ function AuthForm({ onOTP }) {
 
       {/* Google */}
       <button
-        onClick={() => base44.auth.redirectToLogin()}
+        onClick={() => base44.auth.redirectToLogin('/Dashboard')}
         className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-95"
         style={{ background: 'white', color: '#111', boxShadow: '0 2px 12px rgba(0,0,0,0.35)' }}
       >

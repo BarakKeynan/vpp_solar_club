@@ -79,11 +79,11 @@ function OTPScreen({ method, contact, onBack }) {
             onKeyDown={e => handleKey(i, e)}
             className="flex-1 h-14 text-center text-2xl font-black text-white rounded-xl outline-none transition-all"
             style={{
-              background: d ? 'rgba(255,140,0,0.12)' : 'rgba(255,255,255,0.05)',
-              border: `1.5px solid ${d ? 'rgba(255,140,0,0.7)' : 'rgba(255,255,255,0.1)'}`,
+              background: d ? 'rgba(56,189,248,0.10)' : 'rgba(255,255,255,0.05)',
+              border: `1.5px solid ${d ? 'rgba(56,189,248,0.6)' : 'rgba(255,255,255,0.1)'}`,
             }}
-            onFocus={e => e.target.style.borderColor = 'rgba(255,140,0,0.9)'}
-            onBlur={e => e.target.style.borderColor = digits[i] ? 'rgba(255,140,0,0.7)' : 'rgba(255,255,255,0.1)'}
+            onFocus={e => e.target.style.borderColor = 'rgba(56,189,248,0.9)'}
+            onBlur={e => e.target.style.borderColor = digits[i] ? 'rgba(56,189,248,0.6)' : 'rgba(255,255,255,0.1)'}
           />
         ))}
       </div>
@@ -103,7 +103,11 @@ function OTPScreen({ method, contact, onBack }) {
         onClick={() => verify(digits)}
         disabled={loading || digits.join('').length < 6}
         className="w-full py-4 rounded-2xl font-black text-white text-base transition-all disabled:opacity-30"
-        style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}
+        style={{
+          background: 'linear-gradient(135deg, rgba(14,165,233,0.25) 0%, rgba(56,189,248,0.18) 100%)',
+          border: '1px solid rgba(56,189,248,0.45)',
+          boxShadow: '0 0 24px rgba(56,189,248,0.15)',
+        }}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
@@ -120,7 +124,7 @@ function OTPScreen({ method, contact, onBack }) {
           onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.35)'}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <button className="flex items-center gap-1.5 text-sm" style={{ color: 'rgba(255,140,0,0.7)' }}>
+        <button className="flex items-center gap-1.5 text-sm" style={{ color: 'rgba(125,211,252,0.7)' }}>
           <RefreshCw className="w-3.5 h-3.5" /> Resend Code
         </button>
       </div>
@@ -196,9 +200,9 @@ function AuthForm({ onOTP }) {
             onClick={() => setTab(key)}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold transition-all"
             style={{
-              background: tab === key ? 'rgba(255,140,0,0.15)' : 'transparent',
-              color: tab === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
-              borderBottom: tab === key ? '2px solid #FF8C00' : '2px solid transparent',
+              background: tab === key ? 'rgba(56,189,248,0.12)' : 'transparent',
+              color: tab === key ? '#7dd3fc' : 'rgba(255,255,255,0.35)',
+              borderBottom: tab === key ? '2px solid rgba(56,189,248,0.7)' : '2px solid transparent',
             }}
           >
             <Icon className="w-3.5 h-3.5" /> {label}
@@ -218,14 +222,19 @@ function AuthForm({ onOTP }) {
             background: 'rgba(255,255,255,0.05)',
             border: '1.5px solid rgba(255,255,255,0.1)',
           }}
-          onFocus={e => e.target.style.borderColor = 'rgba(255,140,0,0.6)'}
+          onFocus={e => e.target.style.borderColor = 'rgba(56,189,248,0.6)'}
           onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
         />
         <button
           type="submit"
           disabled={!contact || loading}
           className="w-full py-3.5 rounded-xl font-black text-white text-base transition-all disabled:opacity-30"
-          style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}
+          style={{
+            background: 'linear-gradient(135deg, rgba(14,165,233,0.25) 0%, rgba(56,189,248,0.18) 100%)',
+            border: '1px solid rgba(56,189,248,0.45)',
+            boxShadow: '0 0 24px rgba(56,189,248,0.15)',
+            backdropFilter: 'blur(8px)',
+          }}
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -272,13 +281,15 @@ export default function Auth() {
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-10 flex flex-col items-center gap-1"
+        transition={{ duration: 0.6 }}
+        className="mb-8 w-48"
       >
-        <span className="text-2xl">☀️</span>
-        <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          VPP Solar Club
-        </span>
+        <img
+          src="https://media.base44.com/images/public/69badf95d1c3200592bebb1e/f004e2167_Screenshot_20260422_170358_Gallery.jpg"
+          alt="VPP Solar Club"
+          className="w-full h-auto object-contain rounded-xl"
+          style={{ filter: 'drop-shadow(0 0 24px rgba(56,189,248,0.3))' }}
+        />
       </motion.div>
 
       {/* Card */}
@@ -315,7 +326,7 @@ export default function Auth() {
           onClick={() => navigate('/terms')}
           className="underline transition-colors"
           style={{ color: 'rgba(255,255,255,0.38)' }}
-          onMouseEnter={e => e.target.style.color = 'rgba(255,140,0,0.8)'}
+          onMouseEnter={e => e.target.style.color = 'rgba(125,211,252,0.9)'}
           onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.38)'}
         >
           Terms of Service

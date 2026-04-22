@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Phone, Mail, User, Lock, CheckCircle2, Shield, Smartphone } from 'lucide-react';
 import TermsModal from '@/components/register/TermsModal';
+import SmsVerification from '@/components/register/SmsVerification';
 
 // Password strength
 function getStrength(pw) {
@@ -70,10 +71,10 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [twoFA, setTwoFA] = useState(false);
+  const [step, setStep] = useState('form'); // 'form' | 'sms' | 'success'
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -88,12 +89,17 @@ export default function Register() {
     if (!termsAgreed || !privacyAgreed) return setError('יש להסכים לתנאי השימוש ולמדיניות הפרטיות');
 
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1800));
+    await new Promise(r => setTimeout(r, 1000));
     setLoading(false);
-    setSuccess(true);
+    // If 2FA enabled → go to SMS step, else straight to success
+    if (twoFA) {
+      setStep('sms');
+    } else {
+      setStep('success');
+    }
   };
 
-  if (success) {
+  if (step === 'success') {
     return (
       <div className="min-h-screen flex items-center justify-center p-6"
         style={{ background: 'linear-gradient(135deg,#060D1F,#0D1A2E)' }}>
@@ -108,12 +114,12 @@ export default function Register() {
           <h2 className="text-2xl font-black text-white">ברוך הבא! 🎉</h2>
           <p className="text-white/60 text-sm">החשבון שלך נוצר בהצלחה. שלחנו אימות למייל <strong className="text-white">{form.email}</strong></p>
           {twoFA && (
-            <div className="rounded-xl p-3 text-sm text-amber-300"
-              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
-              📱 קוד אימות SMS נשלח ל-{form.phone}
+            <div className="rounded-xl p-3 text-sm text-emerald-300"
+              style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' }}>
+              ✅ הטלפון {form.phone} אומת בהצלחה
             </div>
           )}
-          <button onClick={() => { setSuccess(false); setForm({ name: '', email: '', phone: '', password: '', confirm: '' }); }}
+          <button onClick={() => { setStep('form'); setForm({ name: '', email: '', phone: '', password: '', confirm: '' }); }}
             className="w-full py-3 rounded-xl font-black text-white text-sm"
             style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}>
             כניסה לדשבורד →
@@ -150,6 +156,16 @@ export default function Register() {
         <div className="rounded-3xl p-6 space-y-4"
           style={{ background: 'rgba(13,21,37,0.9)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}>
 
+          {/* SMS Verification step */}
+          {step === 'sms' && (
+            <SmsVerification
+              phone={form.phone}
+              onVerified={() => setStep('success')}
+              onBack={() => setStep('form')}
+            />
+          )}
+
+          {step === 'form' && <>
           <h2 className="text-lg font-black text-white text-right">יצירת חשבון חדש</h2>
 
           {/* Google Sign In */}
@@ -248,6 +264,7 @@ export default function Register() {
             <Shield className="w-3 h-3 text-white/25" />
             <p className="text-[10px] text-white/25">מוצפן SSL · GDPR · חוק הגנת הפרטיות תשמ"א</p>
           </div>
+          </>}
         </div>
 
         {/* Sign in link */}

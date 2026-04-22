@@ -3,9 +3,24 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
+const T = {
+  he: {
+    sub: 'נהל, אחסן וסחר באנרגיה עם AI',
+    enter: 'כניסה למערכת',
+    brand: 'VPP Solar Club · מופעל על ידי AI',
+  },
+  en: {
+    sub: 'Manage, Store & Trade Energy with AI',
+    enter: 'Enter System',
+    brand: 'VPP Solar Club · Powered by AI',
+  },
+};
+
 export default function Landing() {
   const navigate = useNavigate();
   const [pressed, setPressed] = useState(false);
+  const [lang, setLang] = useState('he');
+  const t = T[lang];
 
   const handleEnter = () => {
     setPressed(true);
@@ -47,6 +62,15 @@ export default function Landing() {
         }} />
       </div>
 
+      {/* Lang toggle */}
+      <button
+        onClick={() => setLang(l => l === 'he' ? 'en' : 'he')}
+        className="absolute top-6 right-6 z-30 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+        style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: 'rgba(147,210,245,0.8)' }}
+      >
+        {lang === 'he' ? 'EN' : 'עב'}
+      </button>
+
       {/* Content */}
       <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-2xl mx-auto">
 
@@ -73,7 +97,7 @@ export default function Landing() {
           className="text-base font-light mb-10 tracking-widest uppercase"
           style={{ color: 'rgba(147,210,245,0.55)', letterSpacing: '0.22em' }}
         >
-          Manage, Store &amp; Trade Energy with AI
+          {t.sub}
         </motion.p>
 
         {/* CTA */}
@@ -91,7 +115,7 @@ export default function Landing() {
             letterSpacing: '0.06em',
           }}
         >
-          Enter System
+          {t.enter}
           <ArrowRight className="w-4 h-4 opacity-70" />
         </motion.button>
       </div>
@@ -104,7 +128,7 @@ export default function Landing() {
         className="absolute bottom-8 z-20 text-xs tracking-widest uppercase"
         style={{ color: 'rgba(147,210,245,0.22)' }}
       >
-        VPP Solar Club · Powered by AI
+        {t.brand}
       </motion.p>
     </div>
   );

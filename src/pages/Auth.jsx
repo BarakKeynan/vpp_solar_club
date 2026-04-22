@@ -1,8 +1,63 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Mail, Phone, ArrowLeft, RefreshCw, Eye, EyeOff, Lock } from 'lucide-react';
+
+const LangCtx = createContext('he');
+
+const T = {
+  he: {
+    verifyTitle: m => `אימות ${m === 'phone' ? 'טלפון' : 'מייל'}`,
+    verifySubtitle: c => `שלחנו קוד בן 6 ספרות אל ${c}`,
+    demoCode: 'קוד לדמו:',
+    wrongCode: 'הקוד שגוי. נסה שנית.',
+    verifying: 'מאמת...',
+    confirm: 'אשר קוד',
+    back: 'חזור',
+    resend: 'שלח שוב',
+    signInTitle: 'כניסה לחשבון',
+    signInSub: 'גש לפורטפוליו האנרגיה שלך',
+    google: 'המשך עם Google',
+    or: 'או',
+    emailTab: 'מייל',
+    phoneTab: 'טלפון',
+    emailPlaceholder: 'your@email.com',
+    phonePlaceholder: '050-0000000',
+    passPlaceholder: 'סיסמה',
+    sending: 'שולח...',
+    submit: 'כניסה ←',
+    noAccount: 'עדיין אין לך חשבון?',
+    signUp: 'הצטרפות חינם →',
+    terms: 'בכניסה אתה מסכים לתנאי השימוש',
+    props: ['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם'],
+  },
+  en: {
+    verifyTitle: m => `Verify ${m === 'phone' ? 'Phone' : 'Email'}`,
+    verifySubtitle: c => `We sent a 6-digit code to ${c}`,
+    demoCode: 'Demo code:',
+    wrongCode: 'Wrong code. Please try again.',
+    verifying: 'Verifying...',
+    confirm: 'Confirm Code',
+    back: 'Back',
+    resend: 'Resend',
+    signInTitle: 'Sign In',
+    signInSub: 'Access your energy portfolio',
+    google: 'Continue with Google',
+    or: 'or',
+    emailTab: 'Email',
+    phoneTab: 'Phone',
+    emailPlaceholder: 'your@email.com',
+    phonePlaceholder: '+1 555-000-0000',
+    passPlaceholder: 'Password',
+    sending: 'Sending...',
+    submit: 'Sign In →',
+    noAccount: "Don't have an account?",
+    signUp: 'Join Free →',
+    terms: 'By signing in you agree to our Terms of Service',
+    props: ['⚡ Save up to 60%', '🌱 100% Green', '🤖 AI Smart'],
+  },
+};
 
 // ── Password Input ──────────────────────────────────────────────────────────
 function PasswordInput({ value, onChange, placeholder }) {
@@ -37,6 +92,8 @@ function PasswordInput({ value, onChange, placeholder }) {
 
 // ── OTP Screen ─────────────────────────────────────────────────────────────
 function OTPScreen({ method, contact, onBack }) {
+  const lang = useContext(LangCtx);
+  const t = T[lang];
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,7 +131,7 @@ function OTPScreen({ method, contact, onBack }) {
     if (code === '123456') {
       base44.auth.redirectToLogin();
     } else {
-      setError('הקוד שגוי. נסה שנית.');
+      setError(t.wrongCode);
       setDigits(['', '', '', '', '', '']);
       refs.current[0]?.focus();
     }
@@ -83,9 +140,9 @@ function OTPScreen({ method, contact, onBack }) {
   return (
     <motion.div key="otp" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35 }} className="w-full space-y-6">
       <div>
-        <h2 className="text-xl font-black text-white mb-1">אימות {method === 'phone' ? 'טלפון' : 'מייל'}</h2>
+        <h2 className="text-xl font-black text-white mb-1">{t.verifyTitle(method)}</h2>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>
-          שלחנו קוד בן 6 ספרות אל <span className="text-white/70 font-semibold">{contact}</span>
+          {t.verifySubtitle('')}<span className="text-white/70 font-semibold">{contact}</span>
         </p>
       </div>
 
@@ -112,7 +169,7 @@ function OTPScreen({ method, contact, onBack }) {
       </div>
 
       <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.2)' }}>
-        קוד לדמו: <span style={{ color: 'rgba(255,255,255,0.4)' }}>123456</span>
+        {t.demoCode} <span style={{ color: 'rgba(255,255,255,0.4)' }}>123456</span>
       </p>
 
       {error && (
@@ -134,17 +191,17 @@ function OTPScreen({ method, contact, onBack }) {
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            מאמת...
+            {t.verifying}
           </span>
-        ) : 'אשר קוד'}
+        ) : t.confirm}
       </button>
 
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          <ArrowLeft className="w-4 h-4" /> חזור
+          <ArrowLeft className="w-4 h-4" /> {t.back}
         </button>
         <button className="flex items-center gap-1.5 text-sm" style={{ color: 'rgba(125,211,252,0.7)' }}>
-          <RefreshCw className="w-3.5 h-3.5" /> שלח שוב
+          <RefreshCw className="w-3.5 h-3.5" /> {t.resend}
         </button>
       </div>
     </motion.div>
@@ -153,6 +210,8 @@ function OTPScreen({ method, contact, onBack }) {
 
 // ── Main Auth Form ──────────────────────────────────────────────────────────
 function AuthForm({ onOTP }) {
+  const lang = useContext(LangCtx);
+  const t = T[lang];
   const [tab, setTab] = useState('email'); // 'email' | 'phone'
   const [contact, setContact] = useState('');
   const [password, setPassword] = useState('');
@@ -170,8 +229,8 @@ function AuthForm({ onOTP }) {
   return (
     <motion.div key="form" initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }} transition={{ duration: 0.35 }} className="w-full space-y-5">
       <div>
-        <h2 className="text-xl font-black text-white mb-1">כניסה לחשבון</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.36)' }}>גש לפורטפוליו האנרגיה שלך</p>
+        <h2 className="text-xl font-black text-white mb-1">{t.signInTitle}</h2>
+        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.36)' }}>{t.signInSub}</p>
       </div>
 
       {/* Google */}
@@ -186,21 +245,21 @@ function AuthForm({ onOTP }) {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        המשך עם Google
+        {t.google}
       </button>
 
       {/* Divider */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-        <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.28)' }}>או</span>
+        <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.28)' }}>{t.or}</span>
         <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
       </div>
 
       {/* Tab: Email / Phone */}
       <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
         {[
-          { key: 'email', icon: Mail, label: 'מייל' },
-          { key: 'phone', icon: Phone, label: 'טלפון' },
+          { key: 'email', icon: Mail, label: t.emailTab },
+          { key: 'phone', icon: Phone, label: t.phoneTab },
         ].map(({ key, icon: Icon, label }) => (
           <button
             key={key}
@@ -223,7 +282,7 @@ function AuthForm({ onOTP }) {
           <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'rgba(255,255,255,0.3)' }} />
           <input
             type={tab === 'phone' ? 'tel' : 'email'}
-            placeholder={tab === 'phone' ? '050-0000000' : 'your@email.com'}
+            placeholder={tab === 'phone' ? t.phonePlaceholder : t.emailPlaceholder}
             value={contact}
             onChange={e => setContact(e.target.value)}
             className="w-full py-3.5 pr-10 pl-4 rounded-xl text-white text-sm outline-none transition-all"
@@ -234,7 +293,7 @@ function AuthForm({ onOTP }) {
         </div>
 
         {tab === 'email' && (
-          <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder="סיסמה" />
+          <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder={t.passPlaceholder} />
         )}
 
         <button
@@ -251,17 +310,17 @@ function AuthForm({ onOTP }) {
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              שולח...
+              {t.sending}
             </span>
-          ) : 'כניסה ←'}
+          ) : t.submit}
         </button>
       </form>
 
       {/* Sign up link */}
       <p className="text-center text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-        עדיין אין לך חשבון?{' '}
+        {t.noAccount}{' '}
         <Link to="/register" className="font-bold underline" style={{ color: 'rgba(125,211,252,0.8)' }}>
-          הצטרפות חינם →
+          {t.signUp}
         </Link>
       </p>
     </motion.div>
@@ -274,6 +333,8 @@ export default function Auth() {
   const [screen, setScreen] = useState('form');
   const [otpMethod, setOtpMethod] = useState('email');
   const [otpContact, setOtpContact] = useState('');
+  const [lang, setLang] = useState('he');
+  const t = T[lang];
 
   const handleOTP = (method, contact) => {
     setOtpMethod(method);
@@ -282,6 +343,7 @@ export default function Auth() {
   };
 
   return (
+    <LangCtx.Provider value={lang}>
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center px-5 overflow-hidden">
       {/* Solar background */}
       <div className="absolute inset-0 z-0"
@@ -313,7 +375,16 @@ export default function Auth() {
         onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
         onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.25)'}
       >
-        <ArrowLeft className="w-3.5 h-3.5" /> חזור
+        <ArrowLeft className="w-3.5 h-3.5" /> {t.back}
+      </button>
+
+      {/* Lang toggle */}
+      <button
+        onClick={() => setLang(l => l === 'he' ? 'en' : 'he')}
+        className="absolute top-6 right-6 z-20 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+        style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: 'rgba(147,210,245,0.8)' }}
+      >
+        {lang === 'he' ? 'EN' : 'עב'}
       </button>
 
       {/* Logo */}
@@ -338,7 +409,7 @@ export default function Auth() {
         transition={{ delay: 0.2 }}
         className="relative z-10 flex items-center gap-3 mb-6"
       >
-        {['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם'].map(item => (
+        {t.props.map(item => (
           <span key={item} className="text-[10px] font-bold px-2 py-1 rounded-full"
             style={{ background: 'rgba(56,189,248,0.1)', color: 'rgba(147,210,245,0.7)', border: '1px solid rgba(56,189,248,0.2)' }}>
             {item}
@@ -376,15 +447,15 @@ export default function Auth() {
         className="relative z-10 mt-6 text-xs text-center"
         style={{ color: 'rgba(255,255,255,0.18)' }}
       >
-        בכניסה אתה מסכים ל{' '}
         <button
           onClick={() => navigate('/terms')}
           className="underline"
           style={{ color: 'rgba(255,255,255,0.35)' }}
         >
-          תנאי השימוש
+          {t.terms}
         </button>
       </motion.p>
     </div>
+    </LangCtx.Provider>
   );
 }

@@ -6,6 +6,79 @@ import SmsVerification from '@/components/register/SmsVerification';
 import EmailVerification from '@/components/register/EmailVerification';
 import { base44 } from '@/api/base44Client';
 
+const LANG = {
+  he: {
+    tagline: 'נהל, אחסן וסחר באנרגיה סולארית בחכמה',
+    props: ['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם'],
+    cardTitle: 'יצירת חשבון — בחינם לחלוטין',
+    cardSub: 'הצטרף ל-2,400+ חברים שכבר חוסכים',
+    google: 'המשך עם Google',
+    or: 'או',
+    phoneTab: '📱 טלפון + OTP',
+    emailTab: '📧 מייל + סיסמה',
+    nameLabel: 'שם מלא', namePlaceholder: 'ישראל ישראלי',
+    phoneLabel: 'מספר טלפון', phonePlaceholder: '050-0000000',
+    emailLabel: 'כתובת מייל', emailPlaceholder: 'israel@example.com',
+    passLabel: 'סיסמה', passPlaceholder: 'לפחות 8 תווים',
+    confirmLabel: 'אימות סיסמה', confirmPlaceholder: 'חזור על הסיסמה',
+    twoFATitle: 'הפעל אימות דו-שלבי (2FA)',
+    twoFASub: 'SMS לאבטחה מוגברת',
+    smsBadge: '📲 ישלח קוד SMS לטלפון שלך לאימות מהיר — ללא סיסמה',
+    terms1: 'קראתי ואני מסכים ל', terms2: 'תנאי השימוש',
+    privacy1: 'קראתי ואני מסכים ל', privacy2: 'מדיניות הפרטיות',
+    otpBtn: '📲 שלח קוד OTP',
+    submitBtn: '✨ צור חשבון בחינם',
+    loading: 'מעבד...',
+    security: 'מוצפן SSL · GDPR · חוק הגנת הפרטיות תשמ"א',
+    hasAccount: 'כבר יש לך חשבון?', signIn: 'כניסה',
+    successTitle: 'ברוך הבא! 🎉',
+    successSub: 'החשבון שלך נוצר בהצלחה. שלחנו אימות למייל',
+    successPhone: 'הטלפון {phone} אומת בהצלחה',
+    successBtn: 'כניסה לדשבורד →',
+    errRequired: 'נא למלא שם ומספר טלפון',
+    errAllFields: 'נא למלא את כל השדות',
+    errPassMatch: 'הסיסמאות אינן תואמות',
+    errPassWeak: 'הסיסמה חלשה מדי',
+    errTerms: 'יש להסכים לתנאי השימוש ולמדיניות הפרטיות',
+    headlineMain: 'הצטרף למהפכת האנרגיה',
+  },
+  en: {
+    tagline: 'Manage, Store & Trade Solar Energy Smartly',
+    props: ['⚡ Save up to 60%', '🌱 100% Green', '🤖 AI Smart'],
+    cardTitle: 'Create Account — Completely Free',
+    cardSub: 'Join 2,400+ members already saving',
+    google: 'Continue with Google',
+    or: 'or',
+    phoneTab: '📱 Phone + OTP',
+    emailTab: '📧 Email + Password',
+    nameLabel: 'Full Name', namePlaceholder: 'John Smith',
+    phoneLabel: 'Phone Number', phonePlaceholder: '+1 555-000-0000',
+    emailLabel: 'Email Address', emailPlaceholder: 'john@example.com',
+    passLabel: 'Password', passPlaceholder: 'At least 8 characters',
+    confirmLabel: 'Confirm Password', confirmPlaceholder: 'Repeat your password',
+    twoFATitle: 'Enable Two-Factor Auth (2FA)',
+    twoFASub: 'SMS for extra security',
+    smsBadge: '📲 A one-time SMS code will be sent for quick verification — no password needed',
+    terms1: 'I have read and agree to the', terms2: 'Terms of Service',
+    privacy1: 'I have read and agree to the', privacy2: 'Privacy Policy',
+    otpBtn: '📲 Send OTP Code',
+    submitBtn: '✨ Create Free Account',
+    loading: 'Processing...',
+    security: 'SSL Encrypted · GDPR · Privacy Compliant',
+    hasAccount: 'Already have an account?', signIn: 'Sign In',
+    successTitle: 'Welcome! 🎉',
+    successSub: 'Your account was created successfully. We sent a verification email to',
+    successPhone: 'Phone {phone} verified successfully',
+    successBtn: 'Go to Dashboard →',
+    errRequired: 'Please fill in name and phone number',
+    errAllFields: 'Please fill in all fields',
+    errPassMatch: 'Passwords do not match',
+    errPassWeak: 'Password is too weak',
+    errTerms: 'You must agree to the Terms and Privacy Policy',
+    headlineMain: 'Join the Energy Revolution',
+  },
+};
+
 // Password strength
 function getStrength(pw) {
   let score = 0;
@@ -86,6 +159,8 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
 }
 
 export default function Register() {
+  const [lang, setLang] = useState('he');
+  const t = LANG[lang];
   const [regMode, setRegMode] = useState('phone'); // 'phone' | 'email'
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [twoFA, setTwoFA] = useState(false);
@@ -104,8 +179,8 @@ export default function Register() {
     setError('');
 
     if (regMode === 'phone') {
-      if (!form.name || !form.phone) return setError('נא למלא שם ומספר טלפון');
-      if (!termsAgreed || !privacyAgreed) return setError('יש להסכים לתנאי השימוש ולמדיניות הפרטיות');
+      if (!form.name || !form.phone) return setError(t.errRequired);
+      if (!termsAgreed || !privacyAgreed) return setError(t.errTerms);
       setLoading(true);
       await new Promise(r => setTimeout(r, 800));
       setLoading(false);
@@ -114,10 +189,10 @@ export default function Register() {
     }
 
     // email mode
-    if (!form.name || !form.email || !form.phone || !form.password) return setError('נא למלא את כל השדות');
-    if (form.password !== form.confirm) return setError('הסיסמאות אינן תואמות');
-    if (getStrength(form.password) < 2) return setError('הסיסמה חלשה מדי');
-    if (!termsAgreed || !privacyAgreed) return setError('יש להסכים לתנאי השימוש ולמדיניות הפרטיות');
+    if (!form.name || !form.email || !form.phone || !form.password) return setError(t.errAllFields);
+    if (form.password !== form.confirm) return setError(t.errPassMatch);
+    if (getStrength(form.password) < 2) return setError(t.errPassWeak);
+    if (!termsAgreed || !privacyAgreed) return setError(t.errTerms);
 
     setLoading(true);
     await new Promise(r => setTimeout(r, 1000));
@@ -141,18 +216,18 @@ export default function Register() {
             style={{ background: 'rgba(16,185,129,0.2)', border: '2px solid #10b981' }}>
             <CheckCircle2 className="w-10 h-10 text-emerald-400" />
           </motion.div>
-          <h2 className="text-2xl font-black text-white">ברוך הבא! 🎉</h2>
-          <p className="text-white/60 text-sm">החשבון שלך נוצר בהצלחה. שלחנו אימות למייל <strong className="text-white">{form.email}</strong></p>
+          <h2 className="text-2xl font-black text-white">{t.successTitle}</h2>
+          <p className="text-white/60 text-sm">{t.successSub} <strong className="text-white">{form.email}</strong></p>
           {twoFA && (
             <div className="rounded-xl p-3 text-sm text-emerald-300"
               style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' }}>
-              ✅ הטלפון {form.phone} אומת בהצלחה
+              ✅ {t.successPhone.replace('{phone}', form.phone)}
             </div>
           )}
           <button onClick={() => base44.auth.redirectToLogin()}
             className="w-full py-3 rounded-xl font-black text-white text-sm"
             style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}>
-            כניסה לדשבורד →
+            {t.successBtn}
           </button>
         </motion.div>
       </div>
@@ -174,6 +249,15 @@ export default function Register() {
       <div className="absolute inset-0 z-0"
         style={{ background: 'linear-gradient(160deg, rgba(2,8,20,0.93) 0%, rgba(4,14,32,0.88) 50%, rgba(2,10,22,0.95) 100%)' }}
       />
+
+      {/* Lang toggle */}
+      <button
+        onClick={() => setLang(l => l === 'he' ? 'en' : 'he')}
+        className="absolute top-5 right-5 z-20 px-3 py-1.5 rounded-full text-xs font-bold"
+        style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: 'rgba(147,210,245,0.8)' }}
+      >
+        {lang === 'he' ? 'EN' : 'עב'}
+      </button>
 
       {/* Cyan glow orbs */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -209,12 +293,12 @@ export default function Register() {
               style={{ filter: 'drop-shadow(0 0 24px rgba(56,189,248,0.3))' }}
             />
           </motion.div>
-          <h1 className="text-xl font-black text-white mb-1">הצטרף למהפכת האנרגיה</h1>
-          <p className="text-sm text-white/40">נהל, אחסן וסחר באנרגיה סולארית בחכמה</p>
+          <h1 className="text-xl font-black text-white mb-1">{t.headlineMain}</h1>
+          <p className="text-sm text-white/40">{t.tagline}</p>
 
           {/* Value props row */}
           <div className="flex items-center justify-center gap-4 mt-3">
-            {['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם'].map(item => (
+            {t.props.map(item => (
               <span key={item} className="text-[10px] font-bold px-2 py-1 rounded-full"
                 style={{ background: 'rgba(56,189,248,0.1)', color: 'rgba(147,210,245,0.7)', border: '1px solid rgba(56,189,248,0.2)' }}>
                 {item}
@@ -247,8 +331,8 @@ export default function Register() {
 
           {step === 'form' && <>
           <div className="text-right">
-            <h2 className="text-lg font-black text-white">יצירת חשבון — בחינם לחלוטין</h2>
-            <p className="text-xs text-white/35 mt-0.5">הצטרף ל-2,400+ חברים שכבר חוסכים</p>
+            <h2 className="text-lg font-black text-white">{t.cardTitle}</h2>
+            <p className="text-xs text-white/35 mt-0.5">{t.cardSub}</p>
           </div>
 
           {/* Google Sign In */}
@@ -260,22 +344,22 @@ export default function Register() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            המשך עם Google
+            {t.google}
           </button>
 
           {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
-            <span className="text-xs text-white/30 font-bold">או</span>
+            <span className="text-xs text-white/30 font-bold">{t.or}</span>
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
           </div>
 
           {/* Mode tabs: Phone OTP / Email+Password */}
           <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
             {[
-              { key: 'phone', icon: '📱', label: 'טלפון + OTP' },
-              { key: 'email', icon: '📧', label: 'מייל + סיסמה' },
-            ].map(({ key, icon, label }) => (
+              { key: 'phone', label: t.phoneTab },
+              { key: 'email', label: t.emailTab },
+            ].map(({ key, label }) => (
               <button key={key} type="button" onClick={() => { setRegMode(key); setError(''); }}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition-all"
                 style={{
@@ -283,26 +367,26 @@ export default function Register() {
                   color: regMode === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
                   borderBottom: regMode === key ? '2px solid #FF8C00' : '2px solid transparent',
                 }}>
-                {icon} {label}
+                {label}
               </button>
             ))}
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3" dir="rtl">
-            <InputField icon={User} label="שם מלא" value={form.name} onChange={set('name')} placeholder="ישראל ישראלי" />
+            <InputField icon={User} label={t.nameLabel} value={form.name} onChange={set('name')} placeholder={t.namePlaceholder} />
 
             {regMode === 'phone' ? (
               /* Phone OTP mode — only name + phone */
-              <InputField icon={Phone} label="מספר טלפון" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
+              <InputField icon={Phone} label={t.phoneLabel} type="tel" value={form.phone} onChange={set('phone')} placeholder={t.phonePlaceholder} />
             ) : (
               /* Email+Password mode */
               <>
-                <InputField icon={Mail} label="כתובת מייל" type="email" value={form.email} onChange={set('email')} placeholder="israel@example.com" />
-                <InputField icon={Phone} label="מספר טלפון" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
-                <InputField icon={null} label="סיסמה" type="password" value={form.password} onChange={set('password')} placeholder="לפחות 8 תווים"
+                <InputField icon={Mail} label={t.emailLabel} type="email" value={form.email} onChange={set('email')} placeholder={t.emailPlaceholder} />
+                <InputField icon={Phone} label={t.phoneLabel} type="tel" value={form.phone} onChange={set('phone')} placeholder={t.phonePlaceholder} />
+                <InputField icon={null} label={t.passLabel} type="password" value={form.password} onChange={set('password')} placeholder={t.passPlaceholder}
                   suffix={<StrengthMeter password={form.password} />} />
-                <InputField icon={null} label="אימות סיסמה" type="password" value={form.confirm} onChange={set('confirm')} placeholder="חזור על הסיסמה" />
+                <InputField icon={null} label={t.confirmLabel} type="password" value={form.confirm} onChange={set('confirm')} placeholder={t.confirmPlaceholder} />
 
                 {/* 2FA Toggle */}
                 <div className="flex items-center justify-between rounded-xl p-3"
@@ -313,10 +397,10 @@ export default function Register() {
                   </button>
                   <div className="text-right flex-1 mr-3">
                     <div className="flex items-center justify-end gap-1.5">
-                      <p className="text-xs font-bold text-white">הפעל אימות דו-שלבי (2FA)</p>
+                      <p className="text-xs font-bold text-white">{t.twoFATitle}</p>
                       <Smartphone className="w-3.5 h-3.5 text-orange-400" />
                     </div>
-                    <p className="text-[10px] text-white/35 mt-0.5">SMS לאבטחה מוגברת</p>
+                    <p className="text-[10px] text-white/35 mt-0.5">{t.twoFASub}</p>
                   </div>
                 </div>
 

@@ -129,7 +129,7 @@ function OTPScreen({ method, contact, onBack }) {
     await new Promise(r => setTimeout(r, 1000));
     setLoading(false);
     if (code === '123456') {
-      base44.auth.redirectToLogin();
+      window.location.href = '/Dashboard';
     } else {
       setError(t.wrongCode);
       setDigits(['', '', '', '', '', '']);

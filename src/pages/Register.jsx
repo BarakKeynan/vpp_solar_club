@@ -224,7 +224,7 @@ export default function Register() {
               ✅ {t.successPhone.replace('{phone}', form.phone)}
             </div>
           )}
-          <button onClick={() => base44.auth.redirectToLogin()}
+          <button onClick={() => window.location.href = '/Dashboard'}
             className="w-full py-3 rounded-xl font-black text-white text-sm"
             style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}>
             {t.successBtn}

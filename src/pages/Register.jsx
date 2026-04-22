@@ -410,8 +410,8 @@ export default function Register() {
                       className="overflow-hidden">
                       <div className="grid grid-cols-2 gap-2 pt-1">
                         {[
-                          { key: 'sms', icon: '📱', label: 'SMS לטלפון' },
-                          { key: 'email', icon: '📧', label: 'קוד למייל' },
+                          { key: 'sms', icon: '📱', label: lang === 'he' ? 'SMS לטלפון' : 'SMS to Phone' },
+                          { key: 'email', icon: '📧', label: lang === 'he' ? 'קוד למייל' : 'Email Code' },
                         ].map(({ key, icon, label }) => (
                           <button key={key} type="button" onClick={() => setVerifyMethod(key)}
                             className="py-2.5 rounded-xl text-xs font-bold transition-all"
@@ -433,7 +433,7 @@ export default function Register() {
             {/* OTP mode info banner */}
             {regMode === 'phone' && (
               <div className="rounded-xl p-3 text-xs text-right" style={{ background: 'rgba(255,140,0,0.08)', border: '1px solid rgba(255,140,0,0.2)' }}>
-                📲 ישלח קוד SMS לטלפון שלך לאימות מהיר — ללא סיסמה
+                {t.smsBadge}
               </div>
             )}
 
@@ -443,10 +443,10 @@ export default function Register() {
                 <input type="checkbox" checked={termsAgreed} onChange={e => setTermsAgreed(e.target.checked)}
                   className="mt-0.5 flex-shrink-0 accent-orange-500 w-4 h-4" />
                 <span className="text-xs text-white/55 text-right leading-relaxed">
-                  קראתי ואני מסכים ל
+                  {t.terms1}
                   <button type="button" onClick={() => setTermsOpen(true)}
                     className="text-orange-400 hover:text-orange-300 underline mx-1 font-bold">
-                    תנאי השימוש
+                    {t.terms2}
                   </button>
                 </span>
               </label>
@@ -454,10 +454,10 @@ export default function Register() {
                 <input type="checkbox" checked={privacyAgreed} onChange={e => setPrivacyAgreed(e.target.checked)}
                   className="mt-0.5 flex-shrink-0 accent-orange-500 w-4 h-4" />
                 <span className="text-xs text-white/55 text-right leading-relaxed">
-                  קראתי ואני מסכים ל
+                  {t.privacy1}
                   <button type="button" onClick={() => setTermsOpen(true)}
                     className="text-orange-400 hover:text-orange-300 underline mx-1 font-bold">
-                    מדיניות הפרטיות
+                    {t.privacy2}
                   </button>
                 </span>
               </label>
@@ -477,11 +477,11 @@ export default function Register() {
                 boxShadow: '0 0 30px rgba(255,140,0,0.35)',
               }}>
               {loading ? (
-                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> מעבד...</>
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> {t.loading}</>
               ) : regMode === 'phone' ? (
-                <>📲 שלח קוד OTP</>
+                <>{t.otpBtn}</>
               ) : (
-                <>✨ צור חשבון בחינם</>
+                <>{t.submitBtn}</>
               )}
             </button>
           </form>
@@ -489,16 +489,16 @@ export default function Register() {
           {/* Security badge */}
           <div className="flex items-center justify-center gap-2 pt-1">
             <Shield className="w-3 h-3 text-white/25" />
-            <p className="text-[10px] text-white/25">מוצפן SSL · GDPR · חוק הגנת הפרטיות תשמ"א</p>
+            <p className="text-[10px] text-white/25">{t.security}</p>
           </div>
           </>}
         </div>
 
         {/* Sign in link */}
         <p className="text-center text-xs text-white/35 mt-4">
-          כבר יש לך חשבון?{' '}
+          {t.hasAccount}{' '}
           <button onClick={() => base44.auth.redirectToLogin()}
-            className="text-orange-400 font-bold hover:underline">כניסה</button>
+            className="text-orange-400 font-bold hover:underline">{t.signIn}</button>
         </p>
       </motion.div>
 

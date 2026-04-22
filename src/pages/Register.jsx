@@ -132,7 +132,7 @@ export default function Register() {
   if (step === 'success') {
     return (
       <div className="min-h-screen flex items-center justify-center p-6"
-        style={{ background: 'linear-gradient(135deg,#060D1F,#0D1A2E)' }}>
+        style={{ background: '#0B1120', backgroundImage: 'url(https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           className="text-center space-y-4 max-w-sm">
           <motion.div
@@ -160,26 +160,67 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg,#060D1F 0%,#0D1A2E 60%,#0A1628 100%)' }}>
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
 
-      {/* Background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10"
-          style={{ background: '#FF8C00', filter: 'blur(120px)' }} />
+      {/* Solar background image */}
+      <div className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1600&q=80)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(160deg, rgba(2,8,20,0.93) 0%, rgba(4,14,32,0.88) 50%, rgba(2,10,22,0.95) 100%)' }}
+      />
+
+      {/* Cyan glow orbs */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div style={{
+          position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
+          width: '600px', height: '400px',
+          background: 'radial-gradient(ellipse, rgba(56,189,248,0.08) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '15%', right: '10%',
+          width: '300px', height: '300px',
+          background: 'radial-gradient(ellipse, rgba(34,211,238,0.05) 0%, transparent 70%)',
+          filter: 'blur(50px)',
+        }} />
       </div>
 
       <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
         className="w-full max-w-md relative z-10">
 
         {/* Logo / Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl"
-            style={{ background: 'linear-gradient(135deg,rgba(255,140,0,0.3),rgba(255,140,0,0.1))', border: '1px solid rgba(255,140,0,0.4)' }}>
-            ☀️
+        <div className="text-center mb-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="mb-4 w-52 mx-auto"
+          >
+            <img
+              src="https://media.base44.com/images/public/69badf95d1c3200592bebb1e/f004e2167_Screenshot_20260422_170358_Gallery.jpg"
+              alt="VPP Solar Club"
+              className="w-full h-auto object-contain rounded-xl"
+              style={{ filter: 'drop-shadow(0 0 24px rgba(56,189,248,0.3))' }}
+            />
+          </motion.div>
+          <h1 className="text-xl font-black text-white mb-1">הצטרף למהפכת האנרגיה</h1>
+          <p className="text-sm text-white/40">נהל, אחסן וסחר באנרגיה סולארית בחכמה</p>
+
+          {/* Value props row */}
+          <div className="flex items-center justify-center gap-4 mt-3">
+            {['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם'].map(item => (
+              <span key={item} className="text-[10px] font-bold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(56,189,248,0.1)', color: 'rgba(147,210,245,0.7)', border: '1px solid rgba(56,189,248,0.2)' }}>
+                {item}
+              </span>
+            ))}
           </div>
-          <h1 className="text-2xl font-black text-white">VPP Solar Club</h1>
-          <p className="text-sm text-white/40 mt-1">Smart Energy Management</p>
         </div>
 
         {/* Card */}
@@ -205,7 +246,10 @@ export default function Register() {
           )}
 
           {step === 'form' && <>
-          <h2 className="text-lg font-black text-white text-right">יצירת חשבון חדש</h2>
+          <div className="text-right">
+            <h2 className="text-lg font-black text-white">יצירת חשבון — בחינם לחלוטין</h2>
+            <p className="text-xs text-white/35 mt-0.5">הצטרף ל-2,400+ חברים שכבר חוסכים</p>
+          </div>
 
           {/* Google Sign In */}
           <button className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-bold text-sm transition-all hover:bg-white/95 active:scale-95"

@@ -43,10 +43,12 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
     <div className="space-y-1.5">
       <label className="text-xs font-bold text-white/60 block text-right">{label}</label>
       <div className="relative">
-        {/* Field icon — right side */}
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
-          <Icon className="w-4 h-4" />
-        </span>
+        {/* Field icon — right side (only if icon provided) */}
+        {Icon && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
+            <Icon className="w-4 h-4" />
+          </span>
+        )}
 
         <input
           type={inputType}
@@ -58,7 +60,7 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
           style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
-            paddingRight: '2.5rem',
+            paddingRight: Icon ? '2.5rem' : '1rem',
             paddingLeft: isPass ? '2.75rem' : '1rem',
           }}
           onFocus={e => e.target.style.borderColor = 'rgba(255,140,0,0.6)'}
@@ -217,9 +219,9 @@ export default function Register() {
             <InputField icon={User} label="שם מלא" value={form.name} onChange={set('name')} placeholder="ישראל ישראלי" />
             <InputField icon={Mail} label="כתובת מייל" type="email" value={form.email} onChange={set('email')} placeholder="israel@example.com" />
             <InputField icon={Phone} label="מספר טלפון (לאימות 2FA)" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
-            <InputField icon={Lock} label="סיסמה" type="password" value={form.password} onChange={set('password')} placeholder="לפחות 8 תווים"
+            <InputField icon={null} label="סיסמה" type="password" value={form.password} onChange={set('password')} placeholder="לפחות 8 תווים"
               suffix={<StrengthMeter password={form.password} />} />
-            <InputField icon={Lock} label="אימות סיסמה" type="password" value={form.confirm} onChange={set('confirm')} placeholder="חזור על הסיסמה" />
+            <InputField icon={null} label="אימות סיסמה" type="password" value={form.confirm} onChange={set('confirm')} placeholder="חזור על הסיסמה" />
 
             {/* 2FA Toggle */}
             <div className="flex items-center justify-between rounded-xl p-3"

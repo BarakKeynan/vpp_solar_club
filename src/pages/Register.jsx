@@ -53,10 +53,12 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           dir="rtl"
-          className="w-full py-3 px-4 rounded-xl text-sm text-white placeholder-white/25 outline-none transition-all"
+          className="w-full py-3 rounded-xl text-sm text-white placeholder-white/25 outline-none transition-all"
           style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
+            paddingRight: '2.5rem',
+            paddingLeft: isPass ? '2.5rem' : '1rem',
           }}
           onFocus={e => e.target.style.borderColor = 'rgba(255,140,0,0.6)'}
           onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}

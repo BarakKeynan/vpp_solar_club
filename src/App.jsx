@@ -55,7 +55,14 @@ const AuthenticatedApp = () => {
 
   if (authError) {
     if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
-    if (authError.type === 'auth_required') { return <Navigate to="/landing" replace />; }
+    if (authError.type === 'auth_required') {
+      // Redirect to our custom landing/auth pages instead of Base44's default login
+      const path = window.location.pathname;
+      if (path === '/auth' || path === '/landing' || path === '/register' || path === '/terms') {
+        return null; // Let the public routes handle it
+      }
+      return <Navigate to="/landing" replace />;
+    }
   }
 
   return (

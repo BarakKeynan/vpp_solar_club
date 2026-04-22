@@ -1,13 +1,10 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import SplashScreen from './components/SplashScreen';
 import { LangProvider } from './lib/i18n';
 
 // Pages
@@ -38,6 +35,9 @@ import ProDashboard from './pages/ProDashboard.jsx';
 import BulkAudit from './pages/BulkAudit.jsx';
 import Register from './pages/Register.jsx';
 import Accessibility from './pages/Accessibility.jsx';
+import Landing from './pages/Landing.jsx';
+import Auth from './pages/Auth.jsx';
+import Terms from './pages/Terms.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,12 +55,13 @@ const AuthenticatedApp = () => {
 
   if (authError) {
     if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
-    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
+    if (authError.type === 'auth_required') { return <Navigate to="/landing" replace />; }
   }
 
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Dashboard" replace />} />
+      <Route path="/landing" element={<Navigate to="/Dashboard" replace />} />
       <Route element={<AppLayout />}>
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Schedule" element={<Schedule />} />
@@ -95,22 +96,17 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
-
   return (
     <LangProvider>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AnimatePresence>
-            {showSplash && (
-              <SplashScreen
-                key="splash"
-                onDone={() => setShowSplash(false)}
-              />
-            )}
-          </AnimatePresence>
-          {!showSplash && <AuthenticatedApp />}
+          <Routes>
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="*" element={<AuthenticatedApp />} />
+          </Routes>
         </Router>
         <Toaster />
       </QueryClientProvider>

@@ -37,18 +37,19 @@ function StrengthMeter({ password }) {
 function InputField({ icon: Icon, label, type = 'text', value, onChange, placeholder, suffix }) {
   const [show, setShow] = useState(false);
   const isPass = type === 'password';
+  const inputType = isPass ? (show ? 'text' : 'password') : type;
+
   return (
     <div className="space-y-1.5">
       <label className="text-xs font-bold text-white/60 block text-right">{label}</label>
-      <div className="relative flex items-center">
-        {isPass && (
-          <button type="button" onClick={() => setShow(v => !v)}
-            className="absolute left-3 text-white/30 hover:text-white/60 transition-colors">
-            {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-        )}
+      <div className="relative">
+        {/* Field icon — right side */}
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
+          <Icon className="w-4 h-4" />
+        </span>
+
         <input
-          type={isPass ? (show ? 'text' : 'password') : type}
+          type={inputType}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
@@ -58,14 +59,24 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
             paddingRight: '2.5rem',
-            paddingLeft: isPass ? '2.5rem' : '1rem',
+            paddingLeft: isPass ? '2.75rem' : '1rem',
           }}
           onFocus={e => e.target.style.borderColor = 'rgba(255,140,0,0.6)'}
           onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
         />
-        <div className="absolute right-3 text-white/30">
-          <Icon className="w-4 h-4" />
-        </div>
+
+        {/* Eye toggle — left side, only for password fields */}
+        {isPass && (
+          <button
+            type="button"
+            onClick={() => setShow(v => !v)}
+            aria-label={show ? 'הסתר סיסמה' : 'הצג סיסמה'}
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-0.5 transition-colors"
+            style={{ color: show ? '#fb923c' : 'rgba(255,255,255,0.4)' }}
+          >
+            {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        )}
       </div>
       {suffix}
     </div>

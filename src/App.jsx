@@ -37,6 +37,7 @@ import MonthlyReport from './pages/MonthlyReport.jsx';
 import ProDashboard from './pages/ProDashboard.jsx';
 import BulkAudit from './pages/BulkAudit.jsx';
 import Register from './pages/Register.jsx';
+import Accessibility from './pages/Accessibility.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
         <Route path="/pro-dashboard" element={<ProDashboard />} />
         <Route path="/bulk-audit" element={<BulkAudit />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/accessibility" element={<Accessibility />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

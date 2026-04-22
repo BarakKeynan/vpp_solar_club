@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText, Eye } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 export default function More() {
@@ -88,6 +88,15 @@ export default function More() {
       subtitle: t('more_marketplace_sub'),
       color: 'border-secondary/30 bg-secondary/5',
       accent: 'text-secondary',
+    },
+    {
+      path: '/accessibility',
+      icon: Eye,
+      emoji: '♿',
+      title: 'נגישות',
+      subtitle: 'גודל גופן, ניגודיות ועוד',
+      color: 'border-orange-400/30 bg-orange-400/5',
+      accent: 'text-orange-400',
     },
   ];
 

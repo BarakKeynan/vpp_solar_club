@@ -1,0 +1,47 @@
+{
+  "name": "BulkAuditJob",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "electricity_bill",
+        "roi_report"
+      ],
+      "default": "electricity_bill"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "queued"
+    },
+    "analysis_result": {
+      "type": "object"
+    },
+    "error_msg": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "file_url",
+    "file_name"
+  ]
+}

@@ -35,6 +35,7 @@ import FarmDetail from './pages/FarmDetail';
 import VPPClubDashboard from './pages/VPPClubDashboard.jsx';
 import MonthlyReport from './pages/MonthlyReport.jsx';
 import ProDashboard from './pages/ProDashboard.jsx';
+import BulkAudit from './pages/BulkAudit.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -82,6 +83,7 @@ const AuthenticatedApp = () => {
         <Route path="/vpp-club-dashboard" element={<VPPClubDashboard />} />
         <Route path="/monthly-report" element={<MonthlyReport />} />
         <Route path="/pro-dashboard" element={<ProDashboard />} />
+        <Route path="/bulk-audit" element={<BulkAudit />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

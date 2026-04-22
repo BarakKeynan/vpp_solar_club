@@ -4,23 +4,15 @@
   "properties": {
     "role": {
       "type": "string",
-      "description": "The role of the user in the app",
       "enum": [
         "admin",
         "user"
-      ]
+      ],
+      "default": "user"
     },
-    "compliance_signed": {
-      "type": "boolean",
-      "description": "Whether the user has completed the compliance onboarding wizard",
-      "default": false
-    },
-    "compliance_signed_at": {
+    "profile_picture": {
       "type": "string",
-      "description": "ISO timestamp of when the compliance was signed"
+      "description": "URL of the user's profile picture"
     }
-  },
-  "required": [
-    "role"
-  ]
+  }
 }

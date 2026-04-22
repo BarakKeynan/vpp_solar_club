@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery } from 'lucide-react';
+import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery, Camera, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 
@@ -9,6 +9,8 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(u => { setUser(u); setName(u?.full_name || ''); }).catch(() => {});
@@ -18,6 +20,16 @@ export default function Profile() {
     await base44.auth.updateMe({ full_name: name });
     setUser(u => ({ ...u, full_name: name }));
     setEditing(false);
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.auth.updateMe({ profile_picture: file_url });
+    setUser(u => ({ ...u, profile_picture: file_url }));
+    setUploadingPhoto(false);
   };
 
   const stats = [
@@ -42,8 +54,38 @@ export default function Profile() {
       {/* Avatar & Name */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
         className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center">
-          <User className="w-8 h-8 text-primary" />
+        {/* Avatar with upload */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {user?.profile_picture ? (
+              <img src={user.profile_picture} alt="profile" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-8 h-8 text-primary" />
+            )}
+            {uploadingPhoto && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl">
+                <Loader2 className="w-5 h-5 text-white animate-spin" />
+              </div>
+            )}
+          </div>
+          {/* Camera badge */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center border-2 border-card"
+            style={{ background: 'hsl(var(--primary))' }}
+          >
+            <Camera className="w-3 h-3 text-primary-foreground" />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handlePhotoUpload}
+          />
         </div>
         <div className="flex-1">
           {editing ? (

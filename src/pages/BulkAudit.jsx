@@ -75,6 +75,17 @@ export default function BulkAudit() {
       const jobs = await base44.entities.BulkAuditJob.filter({ id: job.id });
       const updated = jobs[0];
 
+      // Send anomaly alert if missing ROI > ₪500
+      const missingROI = updated?.analysis_result?.revenue_analysis?.missing_roi_ils;
+      if (missingROI > 500) {
+        base44.functions.invoke('sendAnomalyAlert', {
+          type: 'ROI גבוה שאבד',
+          value: `₪${Math.round(missingROI).toLocaleString()}`,
+          threshold: '₪500',
+          file_name: entry.name,
+        }).catch(() => {});
+      }
+
       setFiles(prev => prev.map((f, i) => i === idx ? {
         ...f,
         status: updated?.status || 'completed',

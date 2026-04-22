@@ -36,6 +36,7 @@ import VPPClubDashboard from './pages/VPPClubDashboard.jsx';
 import MonthlyReport from './pages/MonthlyReport.jsx';
 import ProDashboard from './pages/ProDashboard.jsx';
 import BulkAudit from './pages/BulkAudit.jsx';
+import Register from './pages/Register.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -84,6 +85,7 @@ const AuthenticatedApp = () => {
         <Route path="/monthly-report" element={<MonthlyReport />} />
         <Route path="/pro-dashboard" element={<ProDashboard />} />
         <Route path="/bulk-audit" element={<BulkAudit />} />
+        <Route path="/register" element={<Register />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

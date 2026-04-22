@@ -94,7 +94,7 @@ export default function More() {
       icon: Eye,
       emoji: '♿',
       title: 'נגישות',
-      subtitle: 'גודל גופן, ניגודיות ועוד',
+      subtitle: 'גודל גופן, ניגודיות, כפתורים גדולים',
       color: 'border-orange-400/30 bg-orange-400/5',
       accent: 'text-orange-400',
     },

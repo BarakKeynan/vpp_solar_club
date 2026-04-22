@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Phone, Mail, User, Lock, CheckCircle2, Shield, Smartphone } from 'lucide-react';
 import TermsModal from '@/components/register/TermsModal';
 import SmsVerification from '@/components/register/SmsVerification';
+import EmailVerification from '@/components/register/EmailVerification';
+import { base44 } from '@/api/base44Client';
 
 // Password strength
 function getStrength(pw) {
@@ -71,7 +73,8 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [twoFA, setTwoFA] = useState(false);
-  const [step, setStep] = useState('form'); // 'form' | 'sms' | 'success'
+  const [verifyMethod, setVerifyMethod] = useState('sms'); // 'sms' | 'email'
+  const [step, setStep] = useState('form'); // 'form' | 'sms' | 'email' | 'success'
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
@@ -91,9 +94,9 @@ export default function Register() {
     setLoading(true);
     await new Promise(r => setTimeout(r, 1000));
     setLoading(false);
-    // If 2FA enabled → go to SMS step, else straight to success
+    // If 2FA enabled → go to verification step
     if (twoFA) {
-      setStep('sms');
+      setStep(verifyMethod); // 'sms' or 'email'
     } else {
       setStep('success');
     }
@@ -119,7 +122,7 @@ export default function Register() {
               ✅ הטלפון {form.phone} אומת בהצלחה
             </div>
           )}
-          <button onClick={() => { setStep('form'); setForm({ name: '', email: '', phone: '', password: '', confirm: '' }); }}
+          <button onClick={() => base44.auth.redirectToLogin()}
             className="w-full py-3 rounded-xl font-black text-white text-sm"
             style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)' }}>
             כניסה לדשבורד →
@@ -160,6 +163,15 @@ export default function Register() {
           {step === 'sms' && (
             <SmsVerification
               phone={form.phone}
+              onVerified={() => setStep('success')}
+              onBack={() => setStep('form')}
+            />
+          )}
+
+          {/* Email Verification step */}
+          {step === 'email' && (
+            <EmailVerification
+              email={form.email}
               onVerified={() => setStep('success')}
               onBack={() => setStep('form')}
             />
@@ -211,6 +223,31 @@ export default function Register() {
                 <p className="text-[10px] text-white/35 mt-0.5">SMS או אפליקציה לאבטחה מוגברת</p>
               </div>
             </div>
+
+            {/* Verify method selector — shown only when 2FA is on */}
+            <AnimatePresence>
+              {twoFA && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden">
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    {[
+                      { key: 'sms', icon: '📱', label: 'SMS לטלפון' },
+                      { key: 'email', icon: '📧', label: 'קוד למייל' },
+                    ].map(({ key, icon, label }) => (
+                      <button key={key} type="button" onClick={() => setVerifyMethod(key)}
+                        className="py-2.5 rounded-xl text-xs font-bold transition-all"
+                        style={{
+                          background: verifyMethod === key ? 'rgba(255,140,0,0.2)' : 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${verifyMethod === key ? 'rgba(255,140,0,0.6)' : 'rgba(255,255,255,0.08)'}`,
+                          color: verifyMethod === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
+                        }}>
+                        {icon} {label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Terms checkboxes */}
             <div className="space-y-2">
@@ -270,7 +307,8 @@ export default function Register() {
         {/* Sign in link */}
         <p className="text-center text-xs text-white/35 mt-4">
           כבר יש לך חשבון?{' '}
-          <span className="text-orange-400 font-bold cursor-pointer hover:underline">כניסה</span>
+          <button onClick={() => base44.auth.redirectToLogin()}
+            className="text-orange-400 font-bold hover:underline">כניסה</button>
         </p>
       </motion.div>
 

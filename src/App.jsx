@@ -99,14 +99,17 @@ function App() {
     <LangProvider>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <AnimatePresence>
-          {showSplash && <SplashScreen key="splash" onDone={() => setShowSplash(false)} />}
-        </AnimatePresence>
-        {!showSplash && (
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-        )}
+        <Router>
+          <AnimatePresence>
+            {showSplash && (
+              <SplashScreen
+                key="splash"
+                onDone={() => setShowSplash(false)}
+              />
+            )}
+          </AnimatePresence>
+          {!showSplash && <AuthenticatedApp />}
+        </Router>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

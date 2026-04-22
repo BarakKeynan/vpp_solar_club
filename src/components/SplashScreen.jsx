@@ -1,11 +1,16 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 
 export default function SplashScreen({ onDone }) {
+  const [showAuth, setShowAuth] = useState(false);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const timer = setTimeout(onDone, 6800);
+    const timer = setTimeout(() => setShowAuth(true), 6800);
     return () => clearTimeout(timer);
-  }, [onDone]);
+  }, []);
 
   return (
     <motion.div
@@ -94,9 +99,39 @@ export default function SplashScreen({ onDone }) {
         className="absolute inset-0 pointer-events-none"
         style={{ background: '#020c18' }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 6.1, duration: 0.65 }}
+        animate={{ opacity: showAuth ? 0 : 1 }}
+        transition={{ delay: showAuth ? 0 : 6.1, duration: 0.65 }}
       />
+
+      {/* Auth buttons — appear after splash */}
+      <AnimatePresence>
+        {showAuth && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute bottom-16 left-0 right-0 px-8 z-20 space-y-3"
+          >
+            <button
+              onClick={() => base44.auth.redirectToLogin()}
+              className="w-full py-4 rounded-2xl font-black text-white text-base"
+              style={{ background: 'linear-gradient(135deg,#FF8C00,#f59e0b)', boxShadow: '0 0 40px rgba(255,140,0,0.4)' }}
+            >
+              🔑 כניסה לחשבון קיים
+            </button>
+            <button
+              onClick={() => { onDone(); navigate('/register'); }}
+              className="w-full py-3.5 rounded-2xl font-bold text-white/80 text-sm"
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)' }}
+            >
+              ✨ הרשמה — חשבון חדש
+            </button>
+            <p className="text-center text-[10px] text-white/25 pt-1">
+              VPP Solar Club · Smart Energy Platform
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

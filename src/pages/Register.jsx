@@ -86,6 +86,7 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
 }
 
 export default function Register() {
+  const [regMode, setRegMode] = useState('phone'); // 'phone' | 'email'
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [twoFA, setTwoFA] = useState(false);
   const [verifyMethod, setVerifyMethod] = useState('sms'); // 'sms' | 'email'
@@ -101,6 +102,18 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (regMode === 'phone') {
+      if (!form.name || !form.phone) return setError('נא למלא שם ומספר טלפון');
+      if (!termsAgreed || !privacyAgreed) return setError('יש להסכים לתנאי השימוש ולמדיניות הפרטיות');
+      setLoading(true);
+      await new Promise(r => setTimeout(r, 800));
+      setLoading(false);
+      setStep('sms');
+      return;
+    }
+
+    // email mode
     if (!form.name || !form.email || !form.phone || !form.password) return setError('נא למלא את כל השדות');
     if (form.password !== form.confirm) return setError('הסיסמאות אינן תואמות');
     if (getStrength(form.password) < 2) return setError('הסיסמה חלשה מדי');
@@ -109,9 +122,8 @@ export default function Register() {
     setLoading(true);
     await new Promise(r => setTimeout(r, 1000));
     setLoading(false);
-    // If 2FA enabled → go to verification step
     if (twoFA) {
-      setStep(verifyMethod); // 'sms' or 'email'
+      setStep(verifyMethod);
     } else {
       setStep('success');
     }
@@ -214,55 +226,88 @@ export default function Register() {
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
           </div>
 
+          {/* Mode tabs: Phone OTP / Email+Password */}
+          <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+            {[
+              { key: 'phone', icon: '📱', label: 'טלפון + OTP' },
+              { key: 'email', icon: '📧', label: 'מייל + סיסמה' },
+            ].map(({ key, icon, label }) => (
+              <button key={key} type="button" onClick={() => { setRegMode(key); setError(''); }}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold transition-all"
+                style={{
+                  background: regMode === key ? 'rgba(255,140,0,0.15)' : 'transparent',
+                  color: regMode === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
+                  borderBottom: regMode === key ? '2px solid #FF8C00' : '2px solid transparent',
+                }}>
+                {icon} {label}
+              </button>
+            ))}
+          </div>
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3" dir="rtl">
             <InputField icon={User} label="שם מלא" value={form.name} onChange={set('name')} placeholder="ישראל ישראלי" />
-            <InputField icon={Mail} label="כתובת מייל" type="email" value={form.email} onChange={set('email')} placeholder="israel@example.com" />
-            <InputField icon={Phone} label="מספר טלפון (לאימות 2FA)" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
-            <InputField icon={null} label="סיסמה" type="password" value={form.password} onChange={set('password')} placeholder="לפחות 8 תווים"
-              suffix={<StrengthMeter password={form.password} />} />
-            <InputField icon={null} label="אימות סיסמה" type="password" value={form.confirm} onChange={set('confirm')} placeholder="חזור על הסיסמה" />
 
-            {/* 2FA Toggle */}
-            <div className="flex items-center justify-between rounded-xl p-3"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <button type="button" onClick={() => setTwoFA(v => !v)}
-                className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${twoFA ? 'bg-orange-500' : 'bg-white/20'}`}>
-                <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${twoFA ? 'left-5' : 'left-0.5'}`} />
-              </button>
-              <div className="text-right flex-1 mr-3">
-                <div className="flex items-center justify-end gap-1.5">
-                  <p className="text-xs font-bold text-white">הפעל אימות דו-שלבי (2FA)</p>
-                  <Smartphone className="w-3.5 h-3.5 text-orange-400" />
-                </div>
-                <p className="text-[10px] text-white/35 mt-0.5">SMS או אפליקציה לאבטחה מוגברת</p>
-              </div>
-            </div>
+            {regMode === 'phone' ? (
+              /* Phone OTP mode — only name + phone */
+              <InputField icon={Phone} label="מספר טלפון" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
+            ) : (
+              /* Email+Password mode */
+              <>
+                <InputField icon={Mail} label="כתובת מייל" type="email" value={form.email} onChange={set('email')} placeholder="israel@example.com" />
+                <InputField icon={Phone} label="מספר טלפון" type="tel" value={form.phone} onChange={set('phone')} placeholder="050-0000000" />
+                <InputField icon={null} label="סיסמה" type="password" value={form.password} onChange={set('password')} placeholder="לפחות 8 תווים"
+                  suffix={<StrengthMeter password={form.password} />} />
+                <InputField icon={null} label="אימות סיסמה" type="password" value={form.confirm} onChange={set('confirm')} placeholder="חזור על הסיסמה" />
 
-            {/* Verify method selector — shown only when 2FA is on */}
-            <AnimatePresence>
-              {twoFA && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden">
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    {[
-                      { key: 'sms', icon: '📱', label: 'SMS לטלפון' },
-                      { key: 'email', icon: '📧', label: 'קוד למייל' },
-                    ].map(({ key, icon, label }) => (
-                      <button key={key} type="button" onClick={() => setVerifyMethod(key)}
-                        className="py-2.5 rounded-xl text-xs font-bold transition-all"
-                        style={{
-                          background: verifyMethod === key ? 'rgba(255,140,0,0.2)' : 'rgba(255,255,255,0.03)',
-                          border: `1px solid ${verifyMethod === key ? 'rgba(255,140,0,0.6)' : 'rgba(255,255,255,0.08)'}`,
-                          color: verifyMethod === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
-                        }}>
-                        {icon} {label}
-                      </button>
-                    ))}
+                {/* 2FA Toggle */}
+                <div className="flex items-center justify-between rounded-xl p-3"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <button type="button" onClick={() => setTwoFA(v => !v)}
+                    className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${twoFA ? 'bg-orange-500' : 'bg-white/20'}`}>
+                    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${twoFA ? 'left-5' : 'left-0.5'}`} />
+                  </button>
+                  <div className="text-right flex-1 mr-3">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <p className="text-xs font-bold text-white">הפעל אימות דו-שלבי (2FA)</p>
+                      <Smartphone className="w-3.5 h-3.5 text-orange-400" />
+                    </div>
+                    <p className="text-[10px] text-white/35 mt-0.5">SMS לאבטחה מוגברת</p>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+
+                <AnimatePresence>
+                  {twoFA && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden">
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {[
+                          { key: 'sms', icon: '📱', label: 'SMS לטלפון' },
+                          { key: 'email', icon: '📧', label: 'קוד למייל' },
+                        ].map(({ key, icon, label }) => (
+                          <button key={key} type="button" onClick={() => setVerifyMethod(key)}
+                            className="py-2.5 rounded-xl text-xs font-bold transition-all"
+                            style={{
+                              background: verifyMethod === key ? 'rgba(255,140,0,0.2)' : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${verifyMethod === key ? 'rgba(255,140,0,0.6)' : 'rgba(255,255,255,0.08)'}`,
+                              color: verifyMethod === key ? '#fb923c' : 'rgba(255,255,255,0.35)',
+                            }}>
+                            {icon} {label}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
+
+            {/* OTP mode info banner */}
+            {regMode === 'phone' && (
+              <div className="rounded-xl p-3 text-xs text-right" style={{ background: 'rgba(255,140,0,0.08)', border: '1px solid rgba(255,140,0,0.2)' }}>
+                📲 ישלח קוד SMS לטלפון שלך לאימות מהיר — ללא סיסמה
+              </div>
+            )}
 
             {/* Terms checkboxes */}
             <div className="space-y-2">
@@ -305,6 +350,8 @@ export default function Register() {
               }}>
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> מעבד...</>
+              ) : regMode === 'phone' ? (
+                <>📲 שלח קוד OTP</>
               ) : (
                 <>✨ צור חשבון בחינם</>
               )}

@@ -23,6 +23,7 @@ import SmartEnergyBanner from '@/components/dashboard/SmartEnergyBanner';
 import CommunityImpactCard from '@/components/dashboard/CommunityImpactCard';
 import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
 import GamificationBadge from '@/components/dashboard/GamificationBadge';
+import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -98,7 +99,9 @@ export default function VPPHome() {
       setShowCompliance(true);
     }
   }, [complianceDone, complianceLoading]);
-  const [user, setUser] = useState(undefined); // undefined = loading, null = not authed, object = authed
+  const [user, setUser] = useState(undefined);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   useEffect(() => {
     base44.auth.me().then(u => setUser(u)).catch(() => setUser(null));
   }, []);
@@ -144,8 +147,24 @@ export default function VPPHome() {
     toast.success(t('auto_optimized_msg'));
   };
 
+  const handleOnboardingDone = () => {
+    setShowOnboarding(false);
+    // Refresh user to remove banner
+    base44.auth.me().then(u => setUser(u)).catch(() => {});
+  };
+
   return (
     <div className="p-3 space-y-3 pb-28">
+      {/* In-Place Onboarding Modal */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <InPlaceOnboarding
+            onDone={handleOnboardingDone}
+            onClose={() => setShowOnboarding(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Compliance Onboarding */}
       <AnimatePresence>
         {showCompliance && <ComplianceOnboarding onDone={() => setShowCompliance(false)} />}
@@ -176,7 +195,7 @@ export default function VPPHome() {
             <p className="text-[10px] text-white/40 mt-0.5">הנתונים הם סימולציה. חבר את המערכת לנתונים אמיתיים.</p>
           </div>
           <button
-            onClick={() => navigate('/onboarding')}
+            onClick={() => setShowOnboarding(true)}
             className="text-[11px] font-black px-3 py-2 rounded-xl flex-shrink-0 active:scale-95 transition-all"
             style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)' }}
           >

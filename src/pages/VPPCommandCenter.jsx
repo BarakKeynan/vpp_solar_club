@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Activity, Clock, Database, ToggleLeft } from 'lucide-react';
+import { RefreshCw, Activity, Clock, Database, ToggleLeft, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
 import PriceChart from '@/components/vpp/PriceChart';
 import FleetGauge from '@/components/vpp/FleetGauge';
 import OptimizationBadge from '@/components/vpp/OptimizationBadge';
@@ -25,12 +26,18 @@ function SectionCard({ title, icon: Icon, iconColor, children, badge }) {
 }
 
 export default function VPPCommandCenter() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [prices, setPrices] = useState([]);
   const [fleet, setFleet] = useState(null);
   const [loadingPrices, setLoadingPrices] = useState(true);
   const [loadingFleet, setLoadingFleet] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setUser(u));
+  }, []);
 
   const fetchPrices = useCallback(async () => {
     const data = await base44.entities.NogaPrice.list('-timestamp', 96);
@@ -99,6 +106,7 @@ export default function VPPCommandCenter() {
   const isVppActive = currentPrice !== null && peakThreshold !== null && currentPrice >= peakThreshold;
 
   const hasMockData = prices.some(p => p.is_mock);
+  const isConnected = user?.system_connected === true;
 
   return (
     <div className="min-h-screen pb-28"
@@ -111,10 +119,20 @@ export default function VPPCommandCenter() {
           <div>
             <h1 className="text-lg font-black text-white tracking-tight">VPP Command Center</h1>
             <div className="flex items-center gap-2 mt-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <p className="text-[10px] text-white/35">
-                {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}` : 'Connecting...'}
-              </p>
+              {/* Connection status indicator */}
+              {isConnected ? (
+                <>
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <p className="text-[10px] font-bold" style={{ color: 'rgba(52,211,153,0.9)' }}>
+                    מחובר · {user?.inverter_model || 'SolarEdge'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <p className="text-[10px] text-amber-400/80 font-bold">לא מחובר</p>
+                </>
+              )}
               {hasMockData && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold"
                   style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}>
@@ -136,6 +154,28 @@ export default function VPPCommandCenter() {
       </div>
 
       <div className="p-4 space-y-4">
+
+        {/* Not Connected Banner */}
+        {user !== null && !isConnected && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl p-4 flex items-start gap-3"
+            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.35)' }}
+          >
+            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-black text-amber-300">המערכת הסולארית לא מחוברת</p>
+              <p className="text-xs text-white/40 mt-0.5">הנתונים המוצגים הם סימולציה בלבד. חבר את המערכת שלך כדי לקבל נתונים אמיתיים.</p>
+            </div>
+            <button
+              onClick={() => navigate('/onboarding')}
+              className="text-xs font-black px-3 py-2 rounded-xl flex-shrink-0 transition-all active:scale-95"
+              style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)' }}
+            >
+              חבר עכשיו ←
+            </button>
+          </motion.div>
+        )}
 
         {/* Optimization Status Badge */}
         <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>

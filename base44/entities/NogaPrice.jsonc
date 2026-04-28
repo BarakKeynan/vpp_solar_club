@@ -1,0 +1,27 @@
+{
+  "name": "NogaPrice",
+  "type": "object",
+  "properties": {
+    "price": {
+      "type": "number",
+      "description": "Electricity price in NIS/kWh"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO timestamp of the price reading"
+    },
+    "is_mock": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this is a mock or real price"
+    },
+    "hour": {
+      "type": "number",
+      "description": "Hour of the day (0-23)"
+    }
+  },
+  "required": [
+    "price",
+    "timestamp"
+  ]
+}

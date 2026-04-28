@@ -1,0 +1,37 @@
+{
+  "name": "FleetStatus",
+  "type": "object",
+  "properties": {
+    "fleet_kwh_available": {
+      "type": "number",
+      "description": "Total kWh available across all fleet batteries"
+    },
+    "total_sites": {
+      "type": "number",
+      "description": "Number of active sites"
+    },
+    "total_power_kw": {
+      "type": "number",
+      "description": "Total current power production in kW"
+    },
+    "avg_soc_pct": {
+      "type": "number",
+      "description": "Average battery State of Charge across fleet (%)"
+    },
+    "sites_data": {
+      "type": "array",
+      "description": "Per-site breakdown",
+      "items": {
+        "type": "object"
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO timestamp of the sync"
+    }
+  },
+  "required": [
+    "fleet_kwh_available",
+    "timestamp"
+  ]
+}

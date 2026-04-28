@@ -98,6 +98,14 @@ export default function More() {
       color: 'border-orange-400/30 bg-orange-400/5',
       accent: 'text-orange-400',
     },
+    {
+      path: '/vpp-command-center',
+      emoji: '🖥️',
+      title: 'VPP Command Center',
+      subtitle: 'מחירי חשמל בזמן אמת · ניהול צי סוללות',
+      color: 'border-cyan-400/30 bg-cyan-400/5',
+      accent: 'text-cyan-400',
+    },
   ];
 
   return (

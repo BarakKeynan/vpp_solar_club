@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { Save, Eye, EyeOff, Zap, Wifi, WifiOff, CheckCircle2, AlertCircle, Loader2, RotateCcw } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Save, Eye, EyeOff, Wifi, WifiOff, CheckCircle2, AlertCircle, Loader2, X, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const CONFIG_KEY = 'vpp_settings';
 
@@ -49,7 +49,6 @@ function SecretInput({ value, onChange, placeholder }) {
 }
 
 export default function VPPSettings() {
-  const { toast } = useToast();
   const [config, setConfig] = useState({
     key: CONFIG_KEY,
     live_mode: false,
@@ -62,6 +61,9 @@ export default function VPPSettings() {
   const [recordId, setRecordId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savedMsg, setSavedMsg] = useState(false);
+  // Dismissible inline warning (only shown when trying to enable Live without creds)
+  const [liveBannerVisible, setLiveBannerVisible] = useState(false);
 
   useEffect(() => {
     loadConfig();
@@ -95,10 +97,25 @@ export default function VPPSettings() {
       setRecordId(rec.id);
     }
     setSaving(false);
-    toast({ title: 'הגדרות נשמרו', description: `מצב: ${config.live_mode ? 'Live 🟢' : 'Simulation 🔵'}` });
+    setSavedMsg(true);
+    setTimeout(() => setSavedMsg(false), 3000);
   };
 
   const set = (k) => (v) => setConfig(c => ({ ...c, [k]: v }));
+
+  const handleToggleLive = () => {
+    const isLive = config.live_mode;
+    if (!isLive) {
+      const hasNogaCreds = !!(config.noga_client_id && config.noga_client_secret);
+      const hasSolarEdgeCreds = !!config.solaredge_api_key;
+      if (!hasNogaCreds || !hasSolarEdgeCreds) {
+        setLiveBannerVisible(true);
+        return; // Don't switch — show inline warning only
+      }
+    }
+    setLiveBannerVisible(false);
+    set('live_mode')(!isLive);
+  };
 
   if (loading) {
     return (
@@ -111,67 +128,84 @@ export default function VPPSettings() {
   const isLive = config.live_mode;
   const hasNogaCreds = !!(config.noga_client_id && config.noga_client_secret);
   const hasSolarEdgeCreds = !!config.solaredge_api_key;
-  const readyForLive = hasNogaCreds && hasSolarEdgeCreds;
 
   return (
     <div className="max-w-2xl mx-auto p-4 pb-28 space-y-6">
-      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-        <h1 className="text-2xl font-black text-foreground">⚙️ VPP Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">ניהול אישורי API ומצב הפעולה של המערכת</p>
+      {/* Header with back link */}
+      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center gap-3">
+        <Link to="/vpp-command-center" className="text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-black text-foreground">⚙️ VPP Settings</h1>
+          <p className="text-sm text-muted-foreground">ניהול אישורי API ומצב הפעולה של המערכת</p>
+        </div>
       </motion.div>
 
-      {/* Mode Toggle */}
+      {/* Dismissible Live Mode warning banner */}
+      {liveBannerVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <span className="flex-1">יש להזין Noga Client ID/Secret ו-SolarEdge API Key לפני מעבר ל-Live Mode.</span>
+          <button onClick={() => setLiveBannerVisible(false)} className="text-destructive/60 hover:text-destructive transition-colors flex-shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
+
+      {/* Mode Toggle Card */}
       <motion.div
         initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
         className={`rounded-2xl border-2 p-5 transition-all ${isLive ? 'border-primary/50 bg-primary/5' : 'border-secondary/30 bg-secondary/5'}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {isLive
-              ? <Wifi className="w-6 h-6 text-primary" />
-              : <WifiOff className="w-6 h-6 text-secondary" />
-            }
+            {isLive ? <Wifi className="w-6 h-6 text-primary" /> : <WifiOff className="w-6 h-6 text-secondary" />}
             <div>
               <p className="font-black text-foreground text-base">
                 {isLive ? '🟢 Live Mode' : '🔵 Simulation Mode'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {isLive ? 'מחובר לממשקי API אמיתיים' : 'מחירים ונתוני צי מדומים'}
+                {isLive ? 'מחובר לממשקי API אמיתיים' : 'מחירים ונתוני צי מדומים — ללא צורך באישורים'}
               </p>
             </div>
           </div>
           <button
-            onClick={() => {
-              if (!isLive && !readyForLive) {
-                toast({ title: 'חסרים אישורי API', description: 'יש להזין Noga + SolarEdge לפני מעבר ל-Live', variant: 'destructive' });
-                return;
-              }
-              set('live_mode')(!isLive);
-            }}
+            onClick={handleToggleLive}
             className={`relative w-14 h-7 rounded-full transition-all flex-shrink-0 ${isLive ? 'bg-primary' : 'bg-muted'}`}
           >
             <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all ${isLive ? 'left-7' : 'left-0.5'}`} />
           </button>
         </div>
 
-        {/* Readiness indicators */}
-        <div className="flex gap-4 mt-4 pt-4 border-t border-border/40">
-          <div className={`flex items-center gap-2 text-xs ${hasNogaCreds ? 'text-primary' : 'text-muted-foreground'}`}>
-            {hasNogaCreds ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            Noga API
-          </div>
-          <div className={`flex items-center gap-2 text-xs ${hasSolarEdgeCreds ? 'text-primary' : 'text-muted-foreground'}`}>
-            {hasSolarEdgeCreds ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            SolarEdge API
-          </div>
-          {!readyForLive && (
-            <div className="flex items-center gap-2 text-xs text-accent ml-auto">
-              <AlertCircle className="w-4 h-4" />
-              נדרשים אישורים להפעלת Live Mode
+        {/* Readiness indicators — only shown when in Live Mode or when creds are partially filled */}
+        {(isLive || hasNogaCreds || hasSolarEdgeCreds) && (
+          <div className="flex gap-4 mt-4 pt-4 border-t border-border/40">
+            <div className={`flex items-center gap-2 text-xs ${hasNogaCreds ? 'text-primary' : 'text-muted-foreground'}`}>
+              {hasNogaCreds ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              Noga API
             </div>
-          )}
-        </div>
+            <div className={`flex items-center gap-2 text-xs ${hasSolarEdgeCreds ? 'text-primary' : 'text-muted-foreground'}`}>
+              {hasSolarEdgeCreds ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              SolarEdge API
+            </div>
+          </div>
+        )}
       </motion.div>
+
+      {/* Simulation mode info — shown only in simulation mode */}
+      {!isLive && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="rounded-xl border border-secondary/30 bg-secondary/5 px-4 py-3 text-xs text-secondary"
+        >
+          ℹ️ Simulation Mode פעיל — המערכת משתמשת בנתוני Mock. אין צורך באישורי API.
+          הנתונים המדומים של Command Center ממשיכים לפעול כרגיל.
+        </motion.div>
+      )}
 
       {/* Credential Groups */}
       {FIELD_DEFS.map((group, gi) => (
@@ -180,9 +214,16 @@ export default function VPPSettings() {
           initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 + gi * 0.05 }}
           className="rounded-2xl border border-border bg-card p-5 space-y-4"
         >
-          <div>
-            <h2 className="font-black text-foreground">{group.group}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">{group.desc}</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="font-black text-foreground">{group.group}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{group.desc}</p>
+            </div>
+            {!isLive && (
+              <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                אופציונלי
+              </span>
+            )}
           </div>
           {group.fields.map(f => (
             <div key={f.key} className="space-y-1.5">
@@ -212,7 +253,7 @@ export default function VPPSettings() {
         style={{ background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 30%))' }}
       >
         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-        {saving ? 'שומר...' : 'שמור הגדרות'}
+        {saving ? 'שומר...' : savedMsg ? '✓ נשמר!' : 'שמור הגדרות'}
       </motion.button>
     </div>
   );

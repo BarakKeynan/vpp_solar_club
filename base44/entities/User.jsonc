@@ -13,6 +13,24 @@
     "profile_picture": {
       "type": "string",
       "description": "URL of the user's profile picture"
+    },
+    "system_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has completed onboarding and connected their solar system"
+    },
+    "inverter_model": {
+      "type": "string",
+      "description": "Discovered inverter model name"
+    },
+    "inverter_token": {
+      "type": "string",
+      "description": "Simulated OAuth token for the connected inverter"
+    },
+    "onboarding_completed_at": {
+      "type": "string",
+      "description": "ISO timestamp when onboarding was completed"
     }
-  }
+  },
+  "required": []
 }

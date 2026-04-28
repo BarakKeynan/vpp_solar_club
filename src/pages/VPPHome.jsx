@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
+import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2, AlertTriangle } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { ClickablePowerNode, ClickableBatteryNode } from '@/components/dashboard/EnergyNodeCard';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
@@ -97,6 +98,11 @@ export default function VPPHome() {
       setShowCompliance(true);
     }
   }, [complianceDone, complianceLoading]);
+  const [user, setUser] = useState(undefined); // undefined = loading, null = not authed, object = authed
+  useEffect(() => {
+    base44.auth.me().then(u => setUser(u)).catch(() => setUser(null));
+  }, []);
+
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [selectedBattery, setSelectedBattery] = useState(null);
@@ -153,6 +159,30 @@ export default function VPPHome() {
         >
           🔄 {lang === 'he' ? 'איפוס אשף ציות (בדיקה)' : 'Reset Compliance Wizard (dev)'}
         </button>
+      )}
+
+      {/* Not Connected Banner */}
+      {user && !user.system_connected && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.3)' }}
+        >
+          <div className="p-2 rounded-xl flex-shrink-0" style={{ background: 'rgba(245,158,11,0.15)' }}>
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-black text-amber-300">המערכת הסולארית לא מחוברת</p>
+            <p className="text-[10px] text-white/40 mt-0.5">הנתונים הם סימולציה. חבר את המערכת לנתונים אמיתיים.</p>
+          </div>
+          <button
+            onClick={() => navigate('/onboarding')}
+            className="text-[11px] font-black px-3 py-2 rounded-xl flex-shrink-0 active:scale-95 transition-all"
+            style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)' }}
+          >
+            חבר ←
+          </button>
+        </motion.div>
       )}
 
       {/* Smart Energy Push Banner */}

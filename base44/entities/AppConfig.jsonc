@@ -1,0 +1,39 @@
+{
+  "name": "AppConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Config key identifier (e.g. 'vpp_settings')"
+    },
+    "live_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, use real APIs. If false, use simulation/mock data."
+    },
+    "noga_client_id": {
+      "type": "string",
+      "description": "Noga Energy OAuth2 Client ID"
+    },
+    "noga_client_secret": {
+      "type": "string",
+      "description": "Noga Energy OAuth2 Client Secret (stored encrypted)"
+    },
+    "noga_api_url": {
+      "type": "string",
+      "description": "Noga API base URL",
+      "default": "https://noga-iso.co.il"
+    },
+    "solaredge_api_key": {
+      "type": "string",
+      "description": "SolarEdge Monitoring API Key"
+    },
+    "solaredge_site_ids": {
+      "type": "string",
+      "description": "Comma-separated list of SolarEdge site IDs"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

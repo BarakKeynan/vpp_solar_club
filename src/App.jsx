@@ -34,6 +34,7 @@ import MonthlyReport from './pages/MonthlyReport.jsx';
 import ProDashboard from './pages/ProDashboard.jsx';
 import BulkAudit from './pages/BulkAudit.jsx';
 import VPPCommandCenter from './pages/VPPCommandCenter.jsx';
+import VPPSettings from './pages/VPPSettings.jsx';
 import Register from './pages/Register.jsx';
 import Accessibility from './pages/Accessibility.jsx';
 import Landing from './pages/Landing.jsx';
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
         <Route path="/pro-dashboard" element={<ProDashboard />} />
         <Route path="/bulk-audit" element={<BulkAudit />} />
         <Route path="/vpp-command-center" element={<VPPCommandCenter />} />
+        <Route path="/vpp-settings" element={<VPPSettings />} />
         <Route path="/accessibility" element={<Accessibility />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

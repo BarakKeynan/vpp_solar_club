@@ -106,6 +106,14 @@ export default function More() {
       color: 'border-cyan-400/30 bg-cyan-400/5',
       accent: 'text-cyan-400',
     },
+    {
+      path: '/vpp-settings',
+      emoji: '🔑',
+      title: 'VPP Settings',
+      subtitle: 'אישורי API · Simulation / Live Mode',
+      color: 'border-primary/30 bg-primary/5',
+      accent: 'text-primary',
+    },
   ];
 
   return (

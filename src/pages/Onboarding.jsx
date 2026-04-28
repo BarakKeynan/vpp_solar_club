@@ -271,8 +271,6 @@ export default function Onboarding() {
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      // If already onboarded, skip to dashboard
-      if (u?.system_connected) navigate('/vpp-command-center', { replace: true });
     });
   }, []);
 

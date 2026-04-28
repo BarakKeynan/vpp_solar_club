@@ -99,9 +99,9 @@ const AuthenticatedApp = () => {
         <Route path="/bulk-audit" element={<BulkAudit />} />
         <Route path="/vpp-command-center" element={<VPPCommandCenter />} />
         <Route path="/vpp-settings" element={<VPPSettings />} />
-        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/accessibility" element={<Accessibility />} />
       </Route>
+      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

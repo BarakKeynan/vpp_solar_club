@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Plug, Shield, LogOut } from 'lucide-react';
+import PaymentManagement from '@/components/billing/PaymentManagement';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
@@ -73,6 +74,10 @@ export default function Settings() {
           ))}
         </motion.div>
       ))}
+
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}>
+        <PaymentManagement />
+      </motion.div>
 
       <button
         onClick={() => base44.auth.logout('/')}

@@ -24,6 +24,7 @@ import CommunityImpactCard from '@/components/dashboard/CommunityImpactCard';
 import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
 import GamificationBadge from '@/components/dashboard/GamificationBadge';
 import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
+import BillingStatusCard from '@/components/billing/BillingStatusCard';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -203,6 +204,9 @@ export default function VPPHome() {
           </button>
         </motion.div>
       )}
+
+      {/* Billing Status */}
+      <BillingStatusCard />
 
       {/* Smart Energy Push Banner */}
       <SmartEnergyBanner />

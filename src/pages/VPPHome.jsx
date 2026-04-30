@@ -1,3 +1,7 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, Sparkles } from 'lucide-react';
+
 // --- רכיב וואטסאפ אישי עם הנייד שלך ---
 function WhatsAppSection({ lang }) {
   const phoneNumber = "972506770772"; 
@@ -69,3 +73,24 @@ function ContactForm({ lang }) {
     </motion.div>
   );
 }
+
+// --- רכיב הבית הראשי המאגד את הכל ---
+function VPPHome() {
+  const [lang, setLang] = React.useState('he');
+
+  return (
+    <div className="min-h-screen bg-background text-foreground p-4 font-sans" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+      <header className="text-center mb-10 space-y-2">
+        <h1 className="text-3xl font-black tracking-tighter">VPP Home 🏠</h1>
+        <p className="text-muted-foreground text-sm">ניהול אנרגיה חכם למשפחה שלך</p>
+      </header>
+
+      <main className="max-w-md mx-auto space-y-8">
+        <WhatsAppSection lang={lang} />
+        <ContactForm lang={lang} />
+      </main>
+    </div>
+  );
+}
+
+export default VPPHome;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2 } from 'lucide-react';
+import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, Wifi, Cpu, Key } from 'lucide-react';
 
 // Steps: welcome → scanning → found → connecting → done
 const INVERTER = {
@@ -165,6 +165,113 @@ function ScanningStep({ onDone }) {
   );
 }
 
+// ── API Key Step ───────────────────────────────────────────────────────────
+const BESS_BRANDS = ['SolarEdge', 'Tesla Powerwall', 'BYD', 'LG Energy', 'Sungrow', 'Huawei', 'Other'];
+const CONNECTION_METHODS = [
+  { key: 'internet_api', icon: Wifi,      label: 'Internet API' },
+  { key: 'bluetooth',    icon: Bluetooth,  label: 'Bluetooth'    },
+  { key: 'gps',          icon: MapPin,     label: 'GPS'          },
+  { key: 'wifi_local',   icon: Wifi,       label: 'WiFi Local'   },
+  { key: 'modbus',       icon: Cpu,        label: 'Modbus'       },
+];
+
+function ApiKeyStep({ onDone }) {
+  const [brand, setBrand] = useState('SolarEdge');
+  const [apiKey, setApiKey] = useState('');
+  const [siteId, setSiteId] = useState('');
+  const [serial, setSerial] = useState('');
+  const [connMethod, setConnMethod] = useState('internet_api');
+
+  return (
+    <motion.div
+      key="apikey"
+      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}
+      className="flex flex-col px-6 pt-8 gap-5 w-full"
+    >
+      <div className="text-center space-y-1">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+          style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.35)' }}>
+          <Key className="w-7 h-7 text-cyan-400" />
+        </div>
+        <h2 className="text-xl font-black text-white">פרטי מערכת הסוללה</h2>
+        <p className="text-xs text-white/40">אלה יישמרו בפרופיל שלך ויאפשרו ניטור אמיתי</p>
+      </div>
+
+      {/* Brand */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-white/40 block">מותג מערכת BESS / ממיר</label>
+        <select value={brand} onChange={e => setBrand(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          {BESS_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
+      </div>
+
+      {/* API Key */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-white/40 block">API Key (ממדיה ניטור / פורטל יצרן)</label>
+        <input type="text" value={apiKey} onChange={e => setApiKey(e.target.value)}
+          placeholder="הדבק כאן את ה-API Key"
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+        />
+      </div>
+
+      {/* Site ID */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-white/40 block">Site ID (אופציונלי)</label>
+        <input type="text" value={siteId} onChange={e => setSiteId(e.target.value)}
+          placeholder="e.g. SE12345"
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+        />
+      </div>
+
+      {/* Serial */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-white/40 block">מספר סריאלי (אופציונלי)</label>
+        <input type="text" value={serial} onChange={e => setSerial(e.target.value)}
+          placeholder="S/N מהממיר / סוללה"
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+        />
+      </div>
+
+      {/* Connection method */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-white/40 block">אמצעי חיבור</label>
+        <div className="flex flex-wrap gap-2">
+          {CONNECTION_METHODS.map(({ key, icon: Icon, label }) => (
+            <button key={key} type="button" onClick={() => setConnMethod(key)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={{
+                background: connMethod === key ? 'rgba(34,211,238,0.18)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${connMethod === key ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                color: connMethod === key ? 'rgba(34,211,238,0.9)' : 'rgba(255,255,255,0.35)',
+              }}>
+              <Icon className="w-3.5 h-3.5" />{label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button onClick={() => onDone({ brand, apiKey, siteId, serial, connMethod })}
+        className="w-full py-4 rounded-2xl font-black text-white text-base transition-all active:scale-95 mt-2"
+        style={{
+          background: 'linear-gradient(135deg, rgba(34,211,238,0.22), rgba(52,211,153,0.18))',
+          border: '1px solid rgba(34,211,238,0.45)',
+          boxShadow: '0 0 30px rgba(34,211,238,0.15)',
+        }}>
+        המשך לחיבור ←
+      </button>
+      <button onClick={() => onDone({ brand: '', apiKey: '', siteId: '', serial: '', connMethod: 'internet_api' })}
+        className="text-xs text-white/25 text-center w-full pb-2 active:opacity-50">
+        דלג — אמלא לאחר מכן
+      </button>
+    </motion.div>
+  );
+}
+
 // ── Found Screen ───────────────────────────────────────────────────────────
 function FoundStep({ onConnect, connecting }) {
   return (
@@ -265,18 +372,29 @@ function SuccessStep() {
 export default function Onboarding() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [step, setStep] = useState('welcome'); // welcome | scanning | found | success
+  const [step, setStep] = useState('welcome'); // welcome | apikey | scanning | found | success
   const [connecting, setConnecting] = useState(false);
+  const [bessData, setBessData] = useState({});
 
   useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-    });
+    base44.auth.me().then(u => setUser(u));
   }, []);
+
+  const handleApiKeyDone = (data) => {
+    setBessData(data);
+    setStep('scanning');
+  };
 
   const handleConnect = async () => {
     setConnecting(true);
-    await base44.functions.invoke('completeOnboarding', { inverter_model: INVERTER.model });
+    await base44.functions.invoke('completeOnboarding', {
+      inverter_model: bessData.brand ? `${bessData.brand} ${INVERTER.model}` : INVERTER.model,
+      bess_brand: bessData.brand || null,
+      bess_api_key: bessData.apiKey || null,
+      site_id: bessData.siteId || null,
+      bess_serial_number: bessData.serial || null,
+      bess_connection_method: bessData.connMethod || 'internet_api',
+    });
     setConnecting(false);
     setStep('success');
     setTimeout(() => navigate('/vpp-command-center', { replace: true }), 2000);
@@ -304,12 +422,13 @@ export default function Onboarding() {
         }} />
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full py-8">
+      <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full py-8 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {step === 'welcome' && <WelcomeStep key="welcome" user={user} onStart={() => setStep('scanning')} />}
+          {step === 'welcome'  && <WelcomeStep key="welcome" user={user} onStart={() => setStep('apikey')} />}
+          {step === 'apikey'   && <ApiKeyStep  key="apikey"  onDone={handleApiKeyDone} />}
           {step === 'scanning' && <ScanningStep key="scanning" onDone={() => setStep('found')} />}
-          {step === 'found' && <FoundStep key="found" onConnect={handleConnect} connecting={connecting} />}
-          {step === 'success' && <SuccessStep key="success" />}
+          {step === 'found'    && <FoundStep key="found" onConnect={handleConnect} connecting={connecting} />}
+          {step === 'success'  && <SuccessStep key="success" />}
         </AnimatePresence>
       </div>
     </div>

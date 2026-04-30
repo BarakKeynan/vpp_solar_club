@@ -455,6 +455,3 @@ export default function VPPHome() {
     </div>
   );
 }
-
-// הוסף את השורה הזו בסוף הקובץ כדי שה-Preview יעבוד
-export default VPPHome;

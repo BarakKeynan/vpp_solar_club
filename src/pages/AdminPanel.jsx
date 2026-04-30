@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Shield, Plus, Save, Loader2, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { Users, Shield, Plus, Save, Loader2, CheckCircle2, ChevronLeft, UserPlus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
+
+const SUPER_ADMINS = [
+  { email: 'barak@vppsolarclub.com', name: 'Barak Keynan' },
+  { email: 'liav@vppsolarclub.com', name: 'Liav' },
+];
 
 function UserRow({ u, onSave }) {
   const [siteId, setSiteId] = useState(u.site_id || '');
@@ -31,11 +36,7 @@ function UserRow({ u, onSave }) {
           <p className="text-sm font-black text-white">{u.full_name || '(No name)'}</p>
           <p className="text-xs text-white/40">{u.email}</p>
         </div>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-          u.role === 'admin'
-            ? 'bg-violet-500/15 text-violet-400 border border-violet-500/30'
-            : 'bg-primary/15 text-primary border border-primary/30'
-        }`}>
+        <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
           {u.role || 'client'}
         </span>
       </div>
@@ -69,12 +70,35 @@ function UserRow({ u, onSave }) {
         onClick={handleSave}
         disabled={saving}
         className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-        style={{ background: saved ? 'rgba(16,185,129,0.15)' : 'rgba(56,189,248,0.1)', color: saved ? '#34d399' : '#38bdf8', border: `1px solid ${saved ? 'rgba(52,211,153,0.3)' : 'rgba(56,189,248,0.25)'}` }}
+        style={{
+          background: saved ? 'rgba(16,185,129,0.15)' : 'rgba(56,189,248,0.1)',
+          color: saved ? '#34d399' : '#38bdf8',
+          border: `1px solid ${saved ? 'rgba(52,211,153,0.3)' : 'rgba(56,189,248,0.25)'}`
+        }}
       >
         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
         {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Customer Data'}
       </button>
     </div>
+  );
+}
+
+function InviteButton({ role, label, color }) {
+  const handleInvite = async () => {
+    const email = window.prompt(`Enter ${role} email to invite:`);
+    if (!email) return;
+    await base44.users.inviteUser(email, role === 'admin' ? 'admin' : 'user');
+    alert(`Invitation sent to ${email}`);
+  };
+
+  return (
+    <button
+      onClick={handleInvite}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95"
+      style={{ background: `${color}15`, border: `1px solid ${color}40`, color }}
+    >
+      <Plus className="w-3.5 h-3.5" /> {label}
+    </button>
   );
 }
 
@@ -104,8 +128,9 @@ export default function AdminPanel() {
 
   if (!isAdmin) return null;
 
-  const clients = users.filter(u => u.role !== 'admin');
-  const admins = users.filter(u => u.role === 'admin');
+  // Clients = anyone NOT in the super admin list
+  const superAdminEmails = SUPER_ADMINS.map(a => a.email);
+  const clients = users.filter(u => !superAdminEmails.includes(u.email));
 
   return (
     <div className="min-h-screen pb-28 p-4 space-y-5">
@@ -120,27 +145,33 @@ export default function AdminPanel() {
           <h1 className="text-lg font-black text-white flex items-center gap-2">
             <Shield className="w-4 h-4 text-violet-400" /> Admin Panel
           </h1>
-          <p className="text-xs text-white/30">Admin-only · Hidden from clients</p>
+          <p className="text-xs text-white/30">Super-Admin only · Hidden from clients</p>
         </div>
       </div>
 
-      {/* Admins */}
+      {/* Admins — hardcoded super admins, always visible */}
       <div className="rounded-2xl overflow-hidden"
         style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
-          <Shield className="w-3.5 h-3.5 text-violet-400" />
-          <p className="text-xs font-bold text-violet-400">Admins ({admins.length})</p>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <Shield className="w-3.5 h-3.5 text-violet-400" />
+            <p className="text-xs font-bold text-violet-400">Super Admins ({SUPER_ADMINS.length})</p>
+          </div>
+          <InviteButton role="admin" label="הזמן אדמין" color="#a78bfa" />
         </div>
         <div className="divide-y divide-white/5">
-          {admins.map(u => (
-            <div key={u.id} className="flex items-center gap-3 px-4 py-3">
+          {SUPER_ADMINS.map(admin => (
+            <div key={admin.email} className="flex items-center gap-3 px-4 py-3">
               <div className="w-7 h-7 rounded-full bg-violet-500/20 flex items-center justify-center text-xs font-black text-violet-400">
-                {(u.full_name || u.email || '?')[0].toUpperCase()}
+                {admin.name[0].toUpperCase()}
               </div>
-              <div>
-                <p className="text-xs font-bold text-white">{u.full_name || '—'}</p>
-                <p className="text-[10px] text-white/35">{u.email}</p>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-white">{admin.name}</p>
+                <p className="text-[10px] text-white/35">{admin.email}</p>
               </div>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30">
+                Super Admin
+              </span>
             </div>
           ))}
         </div>
@@ -153,19 +184,7 @@ export default function AdminPanel() {
             <Users className="w-4 h-4 text-primary" />
             <p className="text-xs font-bold text-white/60">Clients ({clients.length})</p>
           </div>
-          <button
-            onClick={async () => {
-              const email = window.prompt('Enter client email to invite:');
-              if (!email) return;
-              await base44.users.inviteUser(email, 'user');
-              alert(`Invitation sent to ${email}`);
-              fetchUsers();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-            style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}
-          >
-            <Plus className="w-3.5 h-3.5" /> הזמן לקוח
-          </button>
+          <InviteButton role="user" label="הזמן לקוח" color="#38bdf8" />
         </div>
 
         {loading ? (
@@ -173,7 +192,10 @@ export default function AdminPanel() {
             <Loader2 className="w-5 h-5 animate-spin text-primary" />
           </div>
         ) : clients.length === 0 ? (
-          <p className="text-xs text-white/30 text-center py-8">No clients yet. They'll appear here after first login.</p>
+          <div className="text-center py-10 space-y-2">
+            <UserPlus className="w-8 h-8 text-white/10 mx-auto" />
+            <p className="text-xs text-white/30">אין לקוחות עדיין. לחץ "הזמן לקוח" להוספה.</p>
+          </div>
         ) : (
           clients.map(u => <UserRow key={u.id} u={u} onSave={fetchUsers} />)
         )}

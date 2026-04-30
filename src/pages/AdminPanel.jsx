@@ -148,24 +148,9 @@ export default function AdminPanel() {
 
       {/* Clients */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
-            <p className="text-xs font-bold text-white/60">Clients ({clients.length})</p>
-          </div>
-          <button
-            onClick={async () => {
-              const email = window.prompt('Enter client email to invite:');
-              if (!email) return;
-              await base44.users.inviteUser(email, 'user');
-              alert(`Invitation sent to ${email}`);
-              fetchUsers();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-            style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8' }}
-          >
-            <Plus className="w-3.5 h-3.5" /> הזמן לקוח
-          </button>
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" />
+          <p className="text-xs font-bold text-white/60">Clients ({clients.length})</p>
         </div>
 
         {loading ? (

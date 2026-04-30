@@ -7,26 +7,27 @@ function generateMockPrice(hour) {
   return Math.round(base * 1000) / 1000;
 }
 
-// Proxy URL — update NOGA_PROXY_URL secret after deploying to Cloud Run
-const NOGA_PROXY_URL = Deno.env.get('NOGA_PROXY_URL') || '';
+async function fetchRealNogaPrice(clientId, clientSecret, apiUrl) {
+  const baseUrl = apiUrl || 'https://noga-iso.co.il';
 
-async function fetchRealNogaPrice(clientId, clientSecret) {
-  if (!NOGA_PROXY_URL) throw new Error('NOGA_PROXY_URL env var not set. Deploy the proxy first.');
-
-  // Step 1: Get token via proxy
-  const tokenRes = await fetch(`${NOGA_PROXY_URL}/token`, {
+  // Step 1: Get OAuth2 token
+  const tokenRes = await fetch(`${baseUrl}/oauth/token`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ client_id: clientId, client_secret: clientSecret }),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
   });
-  if (!tokenRes.ok) throw new Error(`Noga token error via proxy: ${tokenRes.status}`);
+  if (!tokenRes.ok) throw new Error(`Noga token error: ${tokenRes.status}`);
   const { access_token } = await tokenRes.json();
 
-  // Step 2: Fetch current price via proxy
-  const priceRes = await fetch(`${NOGA_PROXY_URL}/prices/current`, {
+  // Step 2: Fetch current price
+  const priceRes = await fetch(`${baseUrl}/api/prices/current`, {
     headers: { Authorization: `Bearer ${access_token}` },
   });
-  if (!priceRes.ok) throw new Error(`Noga price error via proxy: ${priceRes.status}`);
+  if (!priceRes.ok) throw new Error(`Noga price error: ${priceRes.status}`);
   const data = await priceRes.json();
   return data.price;
 }
@@ -46,7 +47,7 @@ Deno.serve(async (req) => {
     let is_mock;
 
     if (liveMode && cfg.noga_client_id && cfg.noga_client_secret) {
-      price = await fetchRealNogaPrice(cfg.noga_client_id, cfg.noga_client_secret);
+      price = await fetchRealNogaPrice(cfg.noga_client_id, cfg.noga_client_secret, cfg.noga_api_url);
       is_mock = false;
     } else {
       price = generateMockPrice(hour);

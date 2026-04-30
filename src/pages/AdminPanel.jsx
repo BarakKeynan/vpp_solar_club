@@ -219,6 +219,16 @@ export default function AdminPanel() {
         </div>
       </div>
 
+      {/* Cloud Connection Status */}
+      <div className="rounded-2xl px-4 py-3 flex items-center gap-3"
+        style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
+        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0" style={{ boxShadow: '0 0 8px rgba(52,211,153,0.8)' }} />
+        <div>
+          <p className="text-xs font-bold text-emerald-400">Cloud Connection: Secure (Static IP via Noga)</p>
+          <p className="text-[10px] text-white/30">Simulation Mode Active · Morning/Grow API pending key</p>
+        </div>
+      </div>
+
       {/* Admins */}
       <div className="rounded-2xl overflow-hidden"
         style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>

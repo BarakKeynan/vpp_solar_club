@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, Wifi, Cpu, Key } from 'lucide-react';
+import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, Wifi, Cpu, Key, HelpCircle } from 'lucide-react';
+import ApiKeyGuideModal from '@/components/onboarding/ApiKeyGuideModal';
 
-// Steps: welcome → scanning → found → connecting → done
+// Steps: welcome → scanning → found → apikey → success
 const INVERTER = {
   model: 'SolarEdge Smart Inverter SE10K',
   image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600&q=80',
@@ -13,9 +14,9 @@ const INVERTER = {
 };
 
 const SCAN_STEPS = [
-  { icon: Bluetooth, label: 'סריקת Bluetooth לממירים חכמים...', duration: 1800 },
-  { icon: MapPin, label: 'בדיקת מיקום GPS...', duration: 1400 },
-  { icon: Zap, label: 'ממיר נמצא! מאמת חיבור...', duration: 1200 },
+  { icon: Bluetooth, label: 'מחפש ממירים SolarEdge דרך Bluetooth...', duration: 1800 },
+  { icon: Zap,       label: 'ממיר נמצא! קורא Site ID...', duration: 1400 },
+  { icon: CheckCircle2, label: 'Site ID אומת בהצלחה! ✓', duration: 1000 },
 ];
 
 function PulsingRing({ color = 'cyan', size = 'lg' }) {
@@ -175,110 +176,118 @@ const CONNECTION_METHODS = [
   { key: 'modbus',       icon: Cpu,        label: 'Modbus'       },
 ];
 
-function ApiKeyStep({ onDone }) {
+function ApiKeyStep({ onDone, detectedSiteId = '' }) {
   const [brand, setBrand] = useState('SolarEdge');
   const [apiKey, setApiKey] = useState('');
-  const [siteId, setSiteId] = useState('');
+  const [siteId, setSiteId] = useState(detectedSiteId);
   const [serial, setSerial] = useState('');
   const [connMethod, setConnMethod] = useState('internet_api');
+  const [guideOpen, setGuideOpen] = useState(false);
 
   return (
+    <>
+    <ApiKeyGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     <motion.div
       key="apikey"
       initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}
-      className="flex flex-col px-6 pt-8 gap-5 w-full"
+      className="flex flex-col px-6 pt-6 gap-5 w-full"
+      dir="rtl"
     >
+      {/* Success banner from BT scan */}
+      <div className="rounded-2xl p-4 text-center"
+        style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)' }}>
+        <p className="text-base font-black text-emerald-400">✅ התחברנו למערכת בהצלחה!</p>
+        <p className="text-xs text-white/50 mt-1">כעת נפעיל את האופטימיזציה בענן</p>
+      </div>
+
       <div className="text-center space-y-1">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.35)' }}>
           <Key className="w-7 h-7 text-cyan-400" />
         </div>
-        <h2 className="text-xl font-black text-white">פרטי מערכת הסוללה</h2>
-        <p className="text-xs text-white/40">אלה יישמרו בפרופיל שלך ויאפשרו ניטור אמיתי</p>
+        <h2 className="text-xl font-black text-white">הזן מפתח API</h2>
+        <p className="text-sm text-white/40">כדי לאפשר ניהול אנרגיה אוטומטי</p>
       </div>
 
       {/* Brand */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-white/40 block">מותג מערכת BESS / ממיר</label>
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-white/60 block">מותג מערכת</label>
         <select value={brand} onChange={e => setBrand(e.target.value)}
-          className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none"
+          className="w-full px-4 py-3 rounded-xl text-base text-white outline-none"
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
           {BESS_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
         </select>
       </div>
 
-      {/* API Key */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-white/40 block">API Key (ממדיה ניטור / פורטל יצרן)</label>
+      {/* API Key + help button */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-bold text-white/60 block">מפתח API</label>
+          <button type="button" onClick={() => setGuideOpen(true)}
+            className="flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-xl transition-all active:scale-95"
+            style={{ background: 'rgba(251,146,60,0.12)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }}>
+            <HelpCircle className="w-4 h-4" />
+            איך משיגים את המפתח?
+          </button>
+        </div>
         <input type="text" value={apiKey} onChange={e => setApiKey(e.target.value)}
           placeholder="הדבק כאן את ה-API Key"
-          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+          className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-white/20 outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '16px' }}
         />
       </div>
 
-      {/* Site ID */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-white/40 block">Site ID (אופציונלי)</label>
+      {/* Site ID — pre-filled if detected */}
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-white/60 block">
+          Site ID {detectedSiteId ? <span className="text-emerald-400 text-xs">(זוהה אוטומטית ✓)</span> : <span className="text-white/30 text-xs">(אופציונלי)</span>}
+        </label>
         <input type="text" value={siteId} onChange={e => setSiteId(e.target.value)}
-          placeholder="e.g. SE12345"
-          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+          placeholder="e.g. 12345"
+          className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-white/20 outline-none"
+          style={{
+            background: detectedSiteId ? 'rgba(52,211,153,0.06)' : 'rgba(255,255,255,0.06)',
+            border: `1px solid ${detectedSiteId ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.12)'}`,
+            fontSize: '16px',
+          }}
         />
       </div>
 
       {/* Serial */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-white/40 block">מספר סריאלי (אופציונלי)</label>
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-white/60 block">מספר סריאלי <span className="text-white/30 text-xs">(אופציונלי)</span></label>
         <input type="text" value={serial} onChange={e => setSerial(e.target.value)}
           placeholder="S/N מהממיר / סוללה"
-          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 outline-none"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+          className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-white/20 outline-none"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '16px' }}
         />
       </div>
 
-      {/* Connection method */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-white/40 block">אמצעי חיבור</label>
-        <div className="flex flex-wrap gap-2">
-          {CONNECTION_METHODS.map(({ key, icon: Icon, label }) => (
-            <button key={key} type="button" onClick={() => setConnMethod(key)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-              style={{
-                background: connMethod === key ? 'rgba(34,211,238,0.18)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${connMethod === key ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                color: connMethod === key ? 'rgba(34,211,238,0.9)' : 'rgba(255,255,255,0.35)',
-              }}>
-              <Icon className="w-3.5 h-3.5" />{label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <button onClick={() => onDone({ brand, apiKey, siteId, serial, connMethod })}
-        className="w-full py-4 rounded-2xl font-black text-white text-base transition-all active:scale-95 mt-2"
+        className="w-full py-5 rounded-2xl font-black text-white text-lg transition-all active:scale-95 mt-1"
         style={{
-          background: 'linear-gradient(135deg, rgba(34,211,238,0.22), rgba(52,211,153,0.18))',
-          border: '1px solid rgba(34,211,238,0.45)',
-          boxShadow: '0 0 30px rgba(34,211,238,0.15)',
+          background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 28%))',
+          border: '1px solid rgba(52,211,153,0.5)',
+          boxShadow: '0 0 40px rgba(52,211,153,0.3)',
         }}>
-        המשך לחיבור ←
+        ⚡ חבר ושמור
       </button>
-      <button onClick={() => onDone({ brand: '', apiKey: '', siteId: '', serial: '', connMethod: 'internet_api' })}
-        className="text-xs text-white/25 text-center w-full pb-2 active:opacity-50">
+      <button onClick={() => onDone({ brand: '', apiKey: '', siteId: detectedSiteId, serial: '', connMethod: 'internet_api' })}
+        className="text-sm text-white/25 text-center w-full pb-2 active:opacity-50">
         דלג — אמלא לאחר מכן
       </button>
     </motion.div>
+    </>
   );
 }
 
 // ── Found Screen ───────────────────────────────────────────────────────────
-function FoundStep({ onConnect, connecting }) {
+function FoundStep({ onConnect }) {
   return (
     <motion.div
       key="found"
       initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-      className="flex flex-col items-center text-center px-6 pt-8 gap-7"
+      className="flex flex-col items-center text-center px-6 pt-8 gap-6"
     >
       {/* Success ring */}
       <div className="relative">
@@ -296,47 +305,47 @@ function FoundStep({ onConnect, connecting }) {
         />
       </div>
 
-      {/* Inverter image */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="w-52 h-52 rounded-3xl overflow-hidden"
-        style={{ border: '2px solid rgba(52,211,153,0.3)', boxShadow: '0 0 40px rgba(52,211,153,0.15)' }}
-      >
-        <img src={INVERTER.image} alt={INVERTER.model} className="w-full h-full object-cover" />
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
-        <p className="text-sm font-bold" style={{ color: 'rgba(52,211,153,0.9)' }}>✅ מצאנו את הממיר שלך!</p>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-2">
+        <p className="text-base font-bold" style={{ color: 'rgba(52,211,153,0.9)' }}>✅ התחברנו למערכת בהצלחה!</p>
         <h2 className="text-2xl font-black text-white">{INVERTER.model}</h2>
+        <p className="text-sm text-white/40">Site ID: <span className="text-cyan-400 font-bold">728341</span></p>
         <div className="flex items-center justify-center gap-3 pt-1">
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(52,211,153,0.1)', color: 'rgba(52,211,153,0.8)', border: '1px solid rgba(52,211,153,0.25)' }}>
+          <span className="text-sm px-3 py-1.5 rounded-full font-bold" style={{ background: 'rgba(52,211,153,0.1)', color: 'rgba(52,211,153,0.8)', border: '1px solid rgba(52,211,153,0.25)' }}>
             {INVERTER.brand}
           </span>
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(34,211,238,0.1)', color: 'rgba(34,211,238,0.8)', border: '1px solid rgba(34,211,238,0.25)' }}>
+          <span className="text-sm px-3 py-1.5 rounded-full font-bold" style={{ background: 'rgba(34,211,238,0.1)', color: 'rgba(34,211,238,0.8)', border: '1px solid rgba(34,211,238,0.25)' }}>
             {INVERTER.power}
           </span>
         </div>
       </motion.div>
 
-      {/* One-click connect button */}
+      {/* Inverter image */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+        className="w-44 h-44 rounded-3xl overflow-hidden"
+        style={{ border: '2px solid rgba(52,211,153,0.3)', boxShadow: '0 0 40px rgba(52,211,153,0.15)' }}
+      >
+        <img src={INVERTER.image} alt={INVERTER.model} className="w-full h-full object-cover" />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+        className="rounded-2xl px-5 py-3 text-sm text-center w-full"
+        style={{ background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.2)' }}>
+        <p className="text-white/60">כעת נפעיל את <strong className="text-white">האופטימיזציה בענן</strong></p>
+        <p className="text-white/40 text-xs mt-0.5">נזדקק ל-API Key שלך לאישור סופי</p>
+      </motion.div>
+
       <motion.button
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
         onClick={onConnect}
-        disabled={connecting}
-        className="w-full max-w-xs py-5 rounded-2xl font-black text-white text-lg transition-all active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3"
+        className="w-full py-5 rounded-2xl font-black text-white text-xl transition-all active:scale-95 flex items-center justify-center gap-3"
         style={{
-          background: connecting
-            ? 'rgba(52,211,153,0.2)'
-            : 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 28%))',
+          background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 28%))',
           border: '1px solid rgba(52,211,153,0.5)',
-          boxShadow: connecting ? 'none' : '0 0 40px rgba(52,211,153,0.3)',
+          boxShadow: '0 0 40px rgba(52,211,153,0.3)',
         }}
       >
-        {connecting ? (
-          <><Loader2 className="w-5 h-5 animate-spin" /> מתחבר...</>
-        ) : (
-          <>⚡ One-Click Connect</>
-        )}
+        ⚡ חיבור בלחיצה אחת
       </motion.button>
 
       <p className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>חיבור מאובטח · SSL מוצפן</p>
@@ -380,20 +389,25 @@ export default function Onboarding() {
     base44.auth.me().then(u => setUser(u));
   }, []);
 
-  const handleApiKeyDone = (data) => {
-    setBessData(data);
-    setStep('scanning');
+  // Simulate BT detection of Site ID
+  const [detectedSiteId, setDetectedSiteId] = useState('');
+
+  const handleScanDone = () => {
+    // Simulate detected site ID from BT scan
+    setDetectedSiteId('728341');
+    setStep('found');
   };
 
-  const handleConnect = async () => {
+  const handleApiKeyDone = async (data) => {
+    setBessData(data);
     setConnecting(true);
     await base44.functions.invoke('completeOnboarding', {
-      inverter_model: bessData.brand ? `${bessData.brand} ${INVERTER.model}` : INVERTER.model,
-      bess_brand: bessData.brand || null,
-      bess_api_key: bessData.apiKey || null,
-      site_id: bessData.siteId || null,
-      bess_serial_number: bessData.serial || null,
-      bess_connection_method: bessData.connMethod || 'internet_api',
+      inverter_model: `${INVERTER.brand} ${INVERTER.model}`,
+      bess_brand: data.brand || INVERTER.brand,
+      bess_api_key: data.apiKey || null,
+      site_id: data.siteId || detectedSiteId || null,
+      bess_serial_number: data.serial || null,
+      bess_connection_method: data.connMethod || 'internet_api',
     });
     setConnecting(false);
     setStep('success');
@@ -424,10 +438,10 @@ export default function Onboarding() {
 
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full py-8 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {step === 'welcome'  && <WelcomeStep key="welcome" user={user} onStart={() => setStep('apikey')} />}
-          {step === 'apikey'   && <ApiKeyStep  key="apikey"  onDone={handleApiKeyDone} />}
-          {step === 'scanning' && <ScanningStep key="scanning" onDone={() => setStep('found')} />}
-          {step === 'found'    && <FoundStep key="found" onConnect={handleConnect} connecting={connecting} />}
+          {step === 'welcome'  && <WelcomeStep key="welcome" user={user} onStart={() => setStep('scanning')} />}
+          {step === 'scanning' && <ScanningStep key="scanning" onDone={handleScanDone} />}
+          {step === 'found'    && <FoundStep key="found" onConnect={() => setStep('apikey')} connecting={false} />}
+          {step === 'apikey'   && <ApiKeyStep key="apikey" onDone={handleApiKeyDone} detectedSiteId={detectedSiteId} />}
           {step === 'success'  && <SuccessStep key="success" />}
         </AnimatePresence>
       </div>

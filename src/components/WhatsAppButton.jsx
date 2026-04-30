@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const waURL = `https://wa.me/972506770772?text=${encodeURIComponent('היי צוות VPP Solar Club ☀️, אני מעוניין להפוך את המערכת הסולארית שלי לחכמה ורווחית יותר. אשמח לשמוע פרטים נוספים על הצטרפות למועדון!')}`;
+const waURL = `https://wa.me/972506770772?text=${encodeURIComponent('היי צוות VPP Solar Club ☀️, אני מעוניין להפוך את המערכת הסולארית שלי לחכמה ורווחית יותר. אשמח לעזרה בחיבור המערכת!')}`;
 
 export default function WhatsAppButton() {
   const [pos, setPos] = useState({ x: 16, y: 96 }); // bottom-right-ish, above nav

@@ -4,6 +4,7 @@ import { Upload, X, CheckCircle2, AlertCircle, Loader2, Download, FileText, Tras
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { useLang } from '@/lib/i18n';
+import RecommendationsPanel from '@/components/audit/RecommendationsPanel';
 
 const CONCURRENCY = 5; // process 5 files at once
 
@@ -288,36 +289,43 @@ export default function BulkAudit() {
           {files.map((f, idx) => (
             <motion.div key={idx}
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }}
-              className="rounded-xl p-3 flex items-center gap-3"
+              className="rounded-xl p-3 flex flex-col gap-2"
               style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: `1px solid ${STATUS_COLOR[f.status]}33`,
               }}>
-              <FileText className="w-4 h-4 text-white/30 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-white truncate">{f.name}</p>
-                {f.status === 'completed' && f.result?.revenue_analysis?.missing_roi_ils > 0 && (
-                  <p className="text-[10px] text-amber-400 mt-0.5">
-                    +₪{Math.round(f.result.revenue_analysis.missing_roi_ils).toLocaleString()} {isHe ? 'ROI שאבד' : 'missing ROI'}
-                  </p>
-                )}
-                {f.status === 'failed' && (
-                  <p className="text-[10px] text-red-400 mt-0.5 truncate">{f.error}</p>
-                )}
+              {/* Top row: icon + name + status */}
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-white/30 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-white truncate">{f.name}</p>
+                  {f.status === 'completed' && f.result?.revenue_analysis?.missing_roi_ils > 0 && (
+                    <p className="text-[10px] text-amber-400 mt-0.5">
+                      +₪{Math.round(f.result.revenue_analysis.missing_roi_ils).toLocaleString()} {isHe ? 'ROI שאבד' : 'missing ROI'}
+                    </p>
+                  )}
+                  {f.status === 'failed' && (
+                    <p className="text-[10px] text-red-400 mt-0.5 truncate">{f.error}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {STATUS_ICON[f.status]}
+                  <span className="text-[10px]" style={{ color: STATUS_COLOR[f.status] }}>
+                    {isHe
+                      ? { queued: 'ממתין', processing: 'מעבד...', completed: 'הושלם', failed: 'נכשל' }[f.status]
+                      : f.status}
+                  </span>
+                  {!running && (
+                    <button onClick={() => removeFile(idx)} className="p-0.5 hover:text-red-400 text-white/20 transition-colors">
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {STATUS_ICON[f.status]}
-                <span className="text-[10px]" style={{ color: STATUS_COLOR[f.status] }}>
-                  {isHe
-                    ? { queued: 'ממתין', processing: 'מעבד...', completed: 'הושלם', failed: 'נכשל' }[f.status]
-                    : f.status}
-                </span>
-                {!running && (
-                  <button onClick={() => removeFile(idx)} className="p-0.5 hover:text-red-400 text-white/20 transition-colors">
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
+              {/* Recommendations panel */}
+              {f.status === 'completed' && f.result?.recommendations?.length > 0 && (
+                <RecommendationsPanel recommendations={f.result.recommendations} fileName={f.name} />
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

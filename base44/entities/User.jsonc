@@ -9,11 +9,15 @@
         "client"
       ],
       "default": "client",
-      "description": "User role: admin (barak@vppsolarclub.com, liav@vppsolarclub.com) or client"
+      "description": "User role: admin or client"
     },
     "profile_picture": {
       "type": "string",
       "description": "URL of the user's profile picture"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Customer mobile phone number"
     },
     "system_connected": {
       "type": "boolean",
@@ -34,11 +38,44 @@
     },
     "site_id": {
       "type": "string",
-      "description": "Customer's SolarEdge site ID \u2014 can be pre-entered by admin, auto-linked on first login"
+      "description": "Customer's SolarEdge site ID \u2014 can be pre-entered by admin"
     },
     "battery_capacity_kwh": {
       "type": "number",
-      "description": "Customer's battery capacity in kWh \u2014 can be pre-entered by admin"
+      "description": "Customer's battery capacity in kWh"
+    },
+    "bess_brand": {
+      "type": "string",
+      "enum": [
+        "SolarEdge",
+        "Tesla Powerwall",
+        "BYD",
+        "LG Energy",
+        "Sungrow",
+        "Huawei",
+        "Other"
+      ],
+      "description": "BESS / Battery brand"
+    },
+    "bess_api_key": {
+      "type": "string",
+      "description": "API key for the BESS/inverter system (e.g. SolarEdge monitoring API key)"
+    },
+    "bess_connection_method": {
+      "type": "string",
+      "enum": [
+        "internet_api",
+        "bluetooth",
+        "gps",
+        "wifi_local",
+        "modbus"
+      ],
+      "default": "internet_api",
+      "description": "Method used to connect to the BESS system"
+    },
+    "bess_serial_number": {
+      "type": "string",
+      "description": "BESS / inverter serial number"
     },
     "billing_token": {
       "type": "string",

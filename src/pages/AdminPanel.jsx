@@ -1,79 +1,174 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Shield, Plus, Save, Loader2, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { Users, Shield, Save, Loader2, CheckCircle2, ChevronLeft, ChevronDown, ChevronUp, Phone, Wifi, Bluetooth, MapPin, Cpu } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
 
+const BESS_BRANDS = ['SolarEdge', 'Tesla Powerwall', 'BYD', 'LG Energy', 'Sungrow', 'Huawei', 'Other'];
+
+const CONNECTION_METHODS = [
+  { key: 'internet_api', icon: Wifi,      label: 'Internet API' },
+  { key: 'bluetooth',    icon: Bluetooth,  label: 'Bluetooth'    },
+  { key: 'gps',          icon: MapPin,     label: 'GPS'          },
+  { key: 'wifi_local',   icon: Wifi,       label: 'WiFi Local'   },
+  { key: 'modbus',       icon: Cpu,        label: 'Modbus'       },
+];
+
+function Field({ label, children }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] text-white/40 font-bold block">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, type = 'text' }) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full px-3 py-2 rounded-lg text-xs text-white outline-none"
+      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+    />
+  );
+}
+
 function UserRow({ u, onSave }) {
-  const [siteId, setSiteId] = useState(u.site_id || '');
-  const [capacity, setCapacity] = useState(u.battery_capacity_kwh || '');
+  const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({
+    phone:                u.phone || '',
+    site_id:              u.site_id || '',
+    battery_capacity_kwh: u.battery_capacity_kwh || '',
+    bess_brand:           u.bess_brand || '',
+    bess_api_key:         u.bess_api_key || '',
+    bess_connection_method: u.bess_connection_method || 'internet_api',
+    bess_serial_number:   u.bess_serial_number || '',
+  });
+
+  const set = k => v => setForm(f => ({ ...f, [k]: v }));
 
   const handleSave = async () => {
     setSaving(true);
     await base44.entities.User.update(u.id, {
-      site_id: siteId,
-      battery_capacity_kwh: capacity ? Number(capacity) : null,
+      phone:                form.phone || null,
+      site_id:              form.site_id || null,
+      battery_capacity_kwh: form.battery_capacity_kwh ? Number(form.battery_capacity_kwh) : null,
+      bess_brand:           form.bess_brand || null,
+      bess_api_key:         form.bess_api_key || null,
+      bess_connection_method: form.bess_connection_method || null,
+      bess_serial_number:   form.bess_serial_number || null,
     });
     setSaving(false);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 2500);
     onSave && onSave();
   };
 
   return (
-    <div className="rounded-xl p-4 space-y-3"
+    <div className="rounded-xl overflow-hidden"
       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-black text-white">{u.full_name || '(No name)'}</p>
-          <p className="text-xs text-white/40">{u.email}</p>
-        </div>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-          u.role === 'admin'
-            ? 'bg-violet-500/15 text-violet-400 border border-violet-500/30'
-            : 'bg-primary/15 text-primary border border-primary/30'
-        }`}>
-          {u.role || 'client'}
-        </span>
-      </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="space-y-1">
-          <label className="text-[10px] text-white/40 font-bold">Site ID</label>
-          <input
-            type="text"
-            value={siteId}
-            onChange={e => setSiteId(e.target.value)}
-            placeholder="e.g. SE12345"
-            className="w-full px-3 py-2 rounded-lg text-xs text-white outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-          />
+      {/* Header row — always visible */}
+      <button onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-black text-primary">
+            {(u.full_name || u.email || '?')[0].toUpperCase()}
+          </div>
+          <div>
+            <p className="text-xs font-black text-white">{u.full_name || '(No name)'}</p>
+            <p className="text-[10px] text-white/35">{u.email}</p>
+            {u.phone && <p className="text-[10px] text-white/30 flex items-center gap-1"><Phone className="w-2.5 h-2.5" />{u.phone}</p>}
+          </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-[10px] text-white/40 font-bold">Battery (kWh)</label>
-          <input
-            type="number"
-            value={capacity}
-            onChange={e => setCapacity(e.target.value)}
-            placeholder="e.g. 10"
-            className="w-full px-3 py-2 rounded-lg text-xs text-white outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-          />
+        <div className="flex items-center gap-2">
+          {u.bess_brand && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
+              {u.bess_brand}
+            </span>
+          )}
+          {expanded ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
         </div>
-      </div>
-
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-        style={{ background: saved ? 'rgba(16,185,129,0.15)' : 'rgba(56,189,248,0.1)', color: saved ? '#34d399' : '#38bdf8', border: `1px solid ${saved ? 'rgba(52,211,153,0.3)' : 'rgba(56,189,248,0.25)'}` }}
-      >
-        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-        {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Customer Data'}
       </button>
+
+      {/* Expanded details */}
+      {expanded && (
+        <div className="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+
+          {/* Contact */}
+          <div className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">📞 Contact</div>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Mobile Phone">
+              <TextInput value={form.phone} onChange={set('phone')} placeholder="050-0000000" type="tel" />
+            </Field>
+            <Field label="Site ID (SolarEdge)">
+              <TextInput value={form.site_id} onChange={set('site_id')} placeholder="SE12345" />
+            </Field>
+          </div>
+
+          {/* BESS System */}
+          <div className="text-[10px] font-black text-white/30 uppercase tracking-widest mt-2 mb-1">🔋 BESS System</div>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Battery Brand">
+              <select value={form.bess_brand} onChange={e => set('bess_brand')(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg text-xs text-white outline-none"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <option value="">בחר מותג</option>
+                {BESS_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </Field>
+            <Field label="Capacity (kWh)">
+              <TextInput value={form.battery_capacity_kwh} onChange={set('battery_capacity_kwh')} placeholder="e.g. 10" type="number" />
+            </Field>
+          </div>
+
+          <Field label="API Key (SolarEdge / BESS)">
+            <TextInput value={form.bess_api_key} onChange={set('bess_api_key')} placeholder="API key from monitoring portal" />
+          </Field>
+
+          <Field label="Serial Number">
+            <TextInput value={form.bess_serial_number} onChange={set('bess_serial_number')} placeholder="Inverter / Battery S/N" />
+          </Field>
+
+          {/* Connection method */}
+          <Field label="אמצעי חיבור למערכת">
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {CONNECTION_METHODS.map(({ key, icon: Icon, label }) => (
+                <button key={key} type="button"
+                  onClick={() => set('bess_connection_method')(key)}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all"
+                  style={{
+                    background: form.bess_connection_method === key ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${form.bess_connection_method === key ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    color: form.bess_connection_method === key ? '#34d399' : 'rgba(255,255,255,0.35)',
+                  }}>
+                  <Icon className="w-3 h-3" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Save */}
+          <button onClick={handleSave} disabled={saving}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 mt-1"
+            style={{
+              background: saved ? 'rgba(16,185,129,0.15)' : 'rgba(56,189,248,0.1)',
+              color: saved ? '#34d399' : '#38bdf8',
+              border: `1px solid ${saved ? 'rgba(52,211,153,0.3)' : 'rgba(56,189,248,0.25)'}`,
+            }}>
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+            {saving ? 'Saving...' : saved ? '✅ Saved!' : 'Save Customer Data'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

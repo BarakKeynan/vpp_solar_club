@@ -95,17 +95,18 @@ export default function VPPHome() {
   const [complianceDone, complianceLoading] = useComplianceDone();
   const [showCompliance, setShowCompliance] = useState(false);
 
-  useEffect(() => {
-    if (!complianceLoading && !complianceDone) {
-      setShowCompliance(true);
-    }
-  }, [complianceDone, complianceLoading]);
   const [user, setUser] = useState(undefined);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => setUser(u)).catch(() => setUser(null));
   }, []);
+
+  useEffect(() => {
+    if (!complianceLoading && !complianceDone) {
+      setShowCompliance(true);
+    }
+  }, [complianceDone, complianceLoading]);
 
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
@@ -168,7 +169,16 @@ export default function VPPHome() {
 
       {/* Compliance Onboarding */}
       <AnimatePresence>
-        {showCompliance && <ComplianceOnboarding onDone={() => setShowCompliance(false)} />}
+        {showCompliance && (
+          <ComplianceOnboarding onDone={async () => {
+            setShowCompliance(false);
+            // After compliance → redirect to onboarding if system not connected yet
+            const u = await base44.auth.me().catch(() => null);
+            if (!u?.site_id && !u?.system_connected) {
+              navigate('/onboarding');
+            }
+          }} />
+        )}
       </AnimatePresence>
 
       {/* Dev Reset Button */}

@@ -94,6 +94,10 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
+
+      // Auto-provision role and link pre-entered customer data on every login
+      base44.functions.invoke('onFirstLogin', {}).catch(() => {});
+
       setIsLoadingAuth(false);
     } catch (error) {
       console.error('User auth check failed:', error);

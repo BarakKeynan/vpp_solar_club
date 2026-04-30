@@ -6,9 +6,10 @@
       "type": "string",
       "enum": [
         "admin",
-        "user"
+        "client"
       ],
-      "default": "user"
+      "default": "client",
+      "description": "User role: admin (barak@vppsolarclub.com, liav@vppsolarclub.com) or client"
     },
     "profile_picture": {
       "type": "string",
@@ -30,6 +31,30 @@
     "onboarding_completed_at": {
       "type": "string",
       "description": "ISO timestamp when onboarding was completed"
+    },
+    "site_id": {
+      "type": "string",
+      "description": "Customer's SolarEdge site ID \u2014 can be pre-entered by admin, auto-linked on first login"
+    },
+    "battery_capacity_kwh": {
+      "type": "number",
+      "description": "Customer's battery capacity in kWh \u2014 can be pre-entered by admin"
+    },
+    "billing_token": {
+      "type": "string",
+      "description": "Morning (Green Invoice) payment tokenization ID"
+    },
+    "billing_last4": {
+      "type": "string",
+      "description": "Last 4 digits of linked card"
+    },
+    "billing_brand": {
+      "type": "string",
+      "description": "Card brand (Visa, Mastercard, etc.)"
+    },
+    "morning_customer_id": {
+      "type": "string",
+      "description": "Morning API customer ID"
     }
   },
   "required": []

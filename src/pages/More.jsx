@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText, Eye } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
+import { useIsAdmin } from '@/lib/useIsAdmin';
 
 export default function More() {
   const { t } = useLang();
+  const { isAdmin } = useIsAdmin();
 
   const items = [
     {
@@ -113,6 +115,16 @@ export default function More() {
       subtitle: 'אישורי API · Simulation / Live Mode',
       color: 'border-primary/30 bg-primary/5',
       accent: 'text-primary',
+      adminOnly: true,
+    },
+    {
+      path: '/admin-panel',
+      emoji: '🛡️',
+      title: 'Admin Panel',
+      subtitle: 'ניהול לקוחות · הגדרות מערכת · הרשאות',
+      color: 'border-violet-400/30 bg-violet-400/5',
+      accent: 'text-violet-400',
+      adminOnly: true,
     },
   ];
 
@@ -122,7 +134,7 @@ export default function More() {
         {t('more_title')}
       </motion.h1>
 
-      {items.map((item, i) => (
+      {items.filter(item => !item.adminOnly || isAdmin).map((item, i) => (
         <motion.div key={item.path} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: i * 0.1 }}>
           <Link to={item.path}
             className={`flex items-center gap-4 p-5 rounded-2xl border ${item.color} block active:scale-[0.98] transition-transform`}>

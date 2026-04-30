@@ -35,6 +35,7 @@ import ProDashboard from './pages/ProDashboard.jsx';
 import BulkAudit from './pages/BulkAudit.jsx';
 import VPPCommandCenter from './pages/VPPCommandCenter.jsx';
 import VPPSettings from './pages/VPPSettings.jsx';
+import AdminPanel from './pages/AdminPanel.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Register from './pages/Register.jsx';
 import Accessibility from './pages/Accessibility.jsx';
@@ -100,6 +101,7 @@ const AuthenticatedApp = () => {
         <Route path="/vpp-command-center" element={<VPPCommandCenter />} />
         <Route path="/vpp-settings" element={<VPPSettings />} />
         <Route path="/accessibility" element={<Accessibility />} />
+        <Route path="/admin-panel" element={<AdminPanel />} />
       </Route>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<PageNotFound />} />

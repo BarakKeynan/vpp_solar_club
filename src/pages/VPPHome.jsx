@@ -1,3 +1,6 @@
+import { motion } from 'framer-motion';
+import { ChevronLeft, Sparkles } from 'lucide-react';
+
 // --- רכיב וואטסאפ אישי עם הנייד שלך ---
 function WhatsAppSection({ lang }) {
   const phoneNumber = "972506770772"; 
@@ -67,5 +70,14 @@ function ContactForm({ lang }) {
         </button>
       </form>
     </motion.div>
+  );
+}
+
+export default function VPPHome({ lang = 'he' }) {
+  return (
+    <div className="space-y-4 pb-4">
+      <WhatsAppSection lang={lang} />
+      <ContactForm lang={lang} />
+    </div>
   );
 }

@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, Wifi, Cpu, Key, HelpCircle } from 'lucide-react';
 import ApiKeyGuideModal from '@/components/onboarding/ApiKeyGuideModal';
+import SmartSummaryStep from '@/components/onboarding/SmartSummaryStep';
 
-// Steps: welcome → scanning → found → apikey → success
+// Steps: welcome → scanning → smart-summary → found → apikey → success
 const INVERTER = {
   model: 'SolarEdge Smart Inverter SE10K',
   image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600&q=80',
@@ -282,7 +283,7 @@ function ApiKeyStep({ onDone, detectedSiteId = '' }) {
 }
 
 // ── Found Screen ───────────────────────────────────────────────────────────
-function FoundStep({ onConnect }) {
+function FoundStep({ onConnect, virtualBESS }) {
   return (
     <motion.div
       key="found"
@@ -328,6 +329,23 @@ function FoundStep({ onConnect }) {
         <img src={INVERTER.image} alt={INVERTER.model} className="w-full h-full object-cover" />
       </motion.div>
 
+      {virtualBESS?.devices?.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="rounded-2xl px-4 py-3 w-full"
+          style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.25)' }}>
+          <p className="text-xs font-black text-emerald-400 mb-2">
+            🔋 {virtualBESS.isVirtualBESS ? 'סוללה וירטואלית' : 'מערך אנרגיה'} · {virtualBESS.totalKwh.toFixed(1)} kWh
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {virtualBESS.devices.map(d => (
+              <span key={d.id} className="text-xs px-2 py-0.5 rounded-full font-bold"
+                style={{ background: 'rgba(52,211,153,0.1)', color: 'rgba(52,211,153,0.8)', border: '1px solid rgba(52,211,153,0.2)' }}>
+                {d.label}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
         className="rounded-2xl px-5 py-3 text-sm text-center w-full"
         style={{ background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.2)' }}>
@@ -354,12 +372,12 @@ function FoundStep({ onConnect }) {
 }
 
 // ── Success Screen ─────────────────────────────────────────────────────────
-function SuccessStep() {
+function SuccessStep({ virtualBESS, userName }) {
   return (
     <motion.div
       key="success"
       initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center text-center px-6 gap-6 min-h-[60vh]"
+      className="flex flex-col items-center justify-center text-center px-6 gap-5 min-h-[60vh]"
     >
       <motion.div
         animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.6 }}
@@ -370,6 +388,16 @@ function SuccessStep() {
       </motion.div>
       <div className="space-y-2">
         <h2 className="text-2xl font-black text-white">המערכת מחוברת! 🎉</h2>
+        {virtualBESS?.isVirtualBESS && virtualBESS.totalKwh > 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className="rounded-xl px-4 py-2.5 mx-auto inline-block"
+            style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)' }}>
+            <p className="text-sm font-black text-emerald-400">
+              🔋 הסוללה הוירטואלית של {userName?.split(' ')[0] || 'המשתמש'}: {virtualBESS.totalKwh.toFixed(1)} kWh
+            </p>
+            <p className="text-xs text-white/40 mt-0.5">{virtualBESS.devices?.length} מכשירים מאוחדים</p>
+          </motion.div>
+        )}
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>מעביר אותך ל-Command Center...</p>
       </div>
       <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
@@ -381,9 +409,10 @@ function SuccessStep() {
 export default function Onboarding() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [step, setStep] = useState('welcome'); // welcome | apikey | scanning | found | success
+  const [step, setStep] = useState('welcome'); // welcome | scanning | smart-summary | found | apikey | success
   const [connecting, setConnecting] = useState(false);
   const [bessData, setBessData] = useState({});
+  const [virtualBESS, setVirtualBESS] = useState(null); // { devices, totalKwh, isVirtualBESS }
 
   useEffect(() => {
     base44.auth.me().then(u => setUser(u));
@@ -393,8 +422,13 @@ export default function Onboarding() {
   const [detectedSiteId, setDetectedSiteId] = useState('');
 
   const handleScanDone = () => {
-    // Simulate detected site ID from BT scan
+    // After BT scan → show Smart Summary (device discovery)
     setDetectedSiteId('728341');
+    setStep('smart-summary');
+  };
+
+  const handleSmartSummaryDone = (data) => {
+    setVirtualBESS(data);
     setStep('found');
   };
 
@@ -403,11 +437,14 @@ export default function Onboarding() {
     setConnecting(true);
     await base44.functions.invoke('completeOnboarding', {
       inverter_model: `${INVERTER.brand} ${INVERTER.model}`,
-      bess_brand: data.brand || INVERTER.brand,
+      bess_brand: virtualBESS?.hasBattery ? (data.brand || INVERTER.brand) : 'Virtual BESS',
       bess_api_key: data.apiKey || null,
       site_id: data.siteId || detectedSiteId || null,
       bess_serial_number: data.serial || null,
       bess_connection_method: data.connMethod || 'internet_api',
+      virtual_bess_kwh: virtualBESS?.totalKwh || null,
+      virtual_bess_devices: virtualBESS?.devices || [],
+      is_virtual_bess: virtualBESS?.isVirtualBESS || false,
     });
     setConnecting(false);
     setStep('success');
@@ -438,11 +475,12 @@ export default function Onboarding() {
 
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full py-8 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {step === 'welcome'  && <WelcomeStep key="welcome" user={user} onStart={() => setStep('scanning')} />}
-          {step === 'scanning' && <ScanningStep key="scanning" onDone={handleScanDone} />}
-          {step === 'found'    && <FoundStep key="found" onConnect={() => setStep('apikey')} connecting={false} />}
-          {step === 'apikey'   && <ApiKeyStep key="apikey" onDone={handleApiKeyDone} detectedSiteId={detectedSiteId} />}
-          {step === 'success'  && <SuccessStep key="success" />}
+          {step === 'welcome'        && <WelcomeStep key="welcome" user={user} onStart={() => setStep('scanning')} />}
+          {step === 'scanning'       && <ScanningStep key="scanning" onDone={handleScanDone} />}
+          {step === 'smart-summary'  && <SmartSummaryStep key="smart-summary" userName={user?.full_name} siteId={detectedSiteId} onConfirm={handleSmartSummaryDone} />}
+          {step === 'found'          && <FoundStep key="found" onConnect={() => setStep('apikey')} connecting={false} virtualBESS={virtualBESS} />}
+          {step === 'apikey'         && <ApiKeyStep key="apikey" onDone={handleApiKeyDone} detectedSiteId={detectedSiteId} />}
+          {step === 'success'        && <SuccessStep key="success" virtualBESS={virtualBESS} userName={user?.full_name} />}
         </AnimatePresence>
       </div>
     </div>

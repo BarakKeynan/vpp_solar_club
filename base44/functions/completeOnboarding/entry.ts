@@ -14,7 +14,8 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { inverter_model, bess_brand, bess_api_key, site_id, bess_serial_number, bess_connection_method } = body;
+    const { inverter_model, bess_brand, bess_api_key, site_id, bess_serial_number, bess_connection_method,
+            virtual_bess_kwh, virtual_bess_devices, is_virtual_bess } = body;
 
     const token = generateMockToken(user.id, inverter_model || 'SolarEdge Smart Inverter');
 
@@ -30,6 +31,9 @@ Deno.serve(async (req) => {
     if (site_id)               updatePayload.site_id               = site_id;
     if (bess_serial_number)    updatePayload.bess_serial_number    = bess_serial_number;
     if (bess_connection_method) updatePayload.bess_connection_method = bess_connection_method;
+    if (is_virtual_bess)        updatePayload.is_virtual_bess        = true;
+    if (virtual_bess_kwh)       updatePayload.virtual_bess_kwh       = virtual_bess_kwh;
+    if (virtual_bess_devices?.length) updatePayload.virtual_bess_devices = virtual_bess_devices;
 
     await base44.auth.updateMe(updatePayload);
 

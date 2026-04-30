@@ -42,7 +42,7 @@
     },
     "battery_capacity_kwh": {
       "type": "number",
-      "description": "Customer's battery capacity in kWh"
+      "description": "Customer's physical battery capacity in kWh"
     },
     "bess_brand": {
       "type": "string",
@@ -53,9 +53,10 @@
         "LG Energy",
         "Sungrow",
         "Huawei",
+        "Virtual BESS",
         "Other"
       ],
-      "description": "BESS / Battery brand"
+      "description": "BESS / Battery brand (or Virtual BESS if no physical battery)"
     },
     "bess_api_key": {
       "type": "string",
@@ -77,6 +78,22 @@
       "type": "string",
       "description": "BESS / inverter serial number"
     },
+    "is_virtual_bess": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if user has no physical battery \u2014 Virtual BESS aggregates smart devices"
+    },
+    "virtual_bess_kwh": {
+      "type": "number",
+      "description": "Total aggregated virtual capacity in kWh (sum of all smart devices)"
+    },
+    "virtual_bess_devices": {
+      "type": "array",
+      "description": "List of smart devices aggregated into the Virtual BESS",
+      "items": {
+        "type": "object"
+      }
+    },
     "billing_token": {
       "type": "string",
       "description": "Morning (Green Invoice) payment tokenization ID"
@@ -92,6 +109,15 @@
     "morning_customer_id": {
       "type": "string",
       "description": "Morning API customer ID"
+    },
+    "compliance_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has signed the compliance agreement"
+    },
+    "compliance_signed_at": {
+      "type": "string",
+      "description": "ISO timestamp when compliance was signed"
     }
   },
   "required": []

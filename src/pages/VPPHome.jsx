@@ -1,96 +1,457 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2, AlertTriangle } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { ClickablePowerNode, ClickableBatteryNode } from '@/components/dashboard/EnergyNodeCard';
+import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
+import CommunitySynergyHub from '@/components/dashboard/CommunitySynergyHub';
+import LiveTradingMetrics from '@/components/dashboard/LiveTradingMetrics';
+import { useNavigate } from 'react-router-dom';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+import { useLang } from '@/lib/i18n';
+import BatteryHealthCard from '@/components/dashboard/BatteryHealthCard';
+import BatterySelectModal from '@/components/dashboard/BatterySelectModal';
+import WeatherWidget from '@/components/dashboard/WeatherWidget';
+import PortfolioAudit from '@/components/dashboard/PortfolioAudit';
+import UnifiedAIAdvisory from '@/components/dashboard/UnifiedAIAdvisory';
+import ComplianceOnboarding, { useComplianceDone } from '@/components/onboarding/ComplianceOnboarding';
+import ConnectedDevices from '@/components/dashboard/ConnectedDevices';
+import PeakSheddingSettings from '@/components/dashboard/PeakSheddingSettings';
+import ProfitGapReport from '@/components/dashboard/ProfitGapReport';
+import SmartEnergyBanner from '@/components/dashboard/SmartEnergyBanner';
+import CommunityImpactCard from '@/components/dashboard/CommunityImpactCard';
+import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
+import GamificationBadge from '@/components/dashboard/GamificationBadge';
+import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
+import BillingStatusCard from '@/components/billing/BillingStatusCard';
 
-// --- רכיב וואטסאפ אישי עם הנייד שלך ---
-function WhatsAppSection({ lang }) {
-  const phoneNumber = "972506770772"; 
-  const message = lang === 'he' 
-    ? "היי ברק, הגעתי מהאתר של ה-Solar Club. אשמח לעזרתך באופטימיזציה של המערכת שלי כדי להפיק ממנה יותר. אני רוצה להצטרף לקהילה! ☀️"
-    : "Hi Barak, I'm reaching out from the Solar Club site. I'd love your help optimizing my system to get more out of it. I'm in! ☀️";
-  
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
+function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
-    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mx-1 mt-6">
-      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" 
-         className="group flex items-center justify-between p-5 rounded-2xl border border-primary/20 bg-card/40 backdrop-blur-md hover:border-primary/50 transition-all shadow-xl shadow-primary/5">
-        <div className="flex items-center gap-4 text-right">
-          <div className="relative">
-             <div className="absolute inset-0 bg-green-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
-             <div className="bg-green-500 p-3 rounded-xl relative">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 0 5.414 0 12.05c0 2.123.553 4.197 1.603 6.02L0 24l6.134-1.61c1.765.961 3.757 1.468 5.79 1.469h.005c6.633 0 12.046-5.414 12.046-12.05 0-3.21-1.248-6.228-3.511-8.493z"/></svg>
-             </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black text-foreground">ייעוץ אישי עם ברק</span>
-            <span className="text-[10px] text-primary font-medium">בוא נראה כמה אפשר לחסוך לך</span>
-          </div>
-        </div>
-        <ChevronLeft className="w-5 h-5 text-green-500" />
-      </a>
-    </motion.div>
-  );
-}
-
-// --- טופס השארת פרטים מורחב לאפיון ליד ---
-function ContactForm({ lang }) {
-  return (
-    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-      className="mx-1 bg-card/60 border border-border/50 rounded-2xl p-6 space-y-4 shadow-2xl shadow-black/20">
-      <div className="flex items-center gap-2 border-b border-border/50 pb-3 text-right">
-        <Sparkles className="w-4 h-4 text-primary" />
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">הצטרפות למועדון ה-VPP</h3>
+    <div className="flex flex-col items-center gap-1">
+      <div className={`p-3 rounded-2xl border-2 ${colorClass}`}>
+        <Icon className="w-5 h-5" />
       </div>
-      
-      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" className="space-y-3 text-right">
-        <div className="grid grid-cols-2 gap-3">
-          <input type="text" name="name" required placeholder="שם מלא" 
-            className="w-full bg-background/40 border border-border/40 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary/30 outline-none text-right" />
-          <input type="tel" name="phone" required placeholder="נייד" 
-            className="w-full bg-background/40 border border-border/40 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary/30 outline-none text-right" />
-        </div>
-        
-        <input type="email" name="email" required placeholder="מייל ליצירת קשר" 
-          className="w-full bg-background/40 border border-border/40 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary/30 outline-none text-right" />
-        
-        <div className="space-y-1">
-          <label className="text-[10px] text-muted-foreground pr-1">סוג ממיר קיים:</label>
-          <select name="inverter_type" required className="w-full bg-background/40 border border-border/40 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary/30 outline-none text-right appearance-none">
-            <option value="solaredge">SolarEdge (נתמך)</option>
-            <option value="other">אחר / לא ידוע</option>
-          </select>
-        </div>
-
-        <textarea name="battery_status" rows="2" placeholder="יש לך סוללה? (אם כן, ציין נפח קוט''ש)" 
-          className="w-full bg-background/40 border border-border/40 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary/30 outline-none resize-none text-right"></textarea>
-        
-        <button type="submit" className="w-full py-4 rounded-xl font-black text-white text-xs flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
-          style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-          שלח בקשת הצטרפות
-        </button>
-      </form>
-    </motion.div>
-  );
-}
-
-// --- רכיב הבית הראשי המאגד את הכל ---
-function VPPHome() {
-  const [lang, setLang] = React.useState('he');
-
-  return (
-    <div className="min-h-screen bg-background text-foreground p-4 font-sans" dir={lang === 'he' ? 'rtl' : 'ltr'}>
-      <header className="text-center mb-10 space-y-2">
-        <h1 className="text-3xl font-black tracking-tighter">VPP Home 🏠</h1>
-        <p className="text-muted-foreground text-sm">ניהול אנרגיה חכם למשפחה שלך</p>
-      </header>
-
-      <main className="max-w-md mx-auto space-y-8">
-        <WhatsAppSection lang={lang} />
-        <ContactForm lang={lang} />
-      </main>
+      <span className="text-[10px] text-muted-foreground">{label}</span>
+      {value && <span className="text-xs font-bold">{value}</span>}
     </div>
   );
 }
 
-export default VPPHome;
+function FlowDots({ active }) {
+  return (
+    <div className="flex items-center gap-0.5 px-1">
+      {[0, 1, 2].map(i => (
+        <motion.div
+          key={i}
+          animate={{ opacity: active ? [0.2, 1, 0.2] : 0.2 }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+          className="w-1.5 h-1.5 rounded-full bg-primary"
+        />
+      ))}
+    </div>
+  );
+}
+
+const getAlerts = (t) => [
+  {
+    id: 'cleaning',
+    icon: '🛠️',
+    type: 'maintenance',
+    title: t('alert_cleaning_title'),
+    desc: t('alert_cleaning_desc'),
+    action: t('alert_cleaning_action'),
+    color: 'border-accent/40 bg-accent/5',
+    tag: t('tag_maintenance'),
+    tagColor: 'bg-accent/20 text-accent',
+  },
+  {
+    id: 'farm',
+    icon: '📈',
+    type: 'investment',
+    title: t('alert_farm_title'),
+    desc: t('alert_farm_desc'),
+    action: t('alert_farm_action'),
+    color: 'border-secondary/40 bg-secondary/5',
+    tag: t('tag_investment'),
+    tagColor: 'bg-secondary/20 text-secondary',
+  },
+  {
+    id: 'inverter',
+    icon: '⚡',
+    type: 'hardware',
+    title: t('alert_inverter_title'),
+    desc: t('alert_inverter_desc'),
+    action: t('alert_inverter_action'),
+    color: 'border-destructive/40 bg-destructive/5',
+    tag: t('tag_hardware'),
+    tagColor: 'bg-destructive/20 text-destructive',
+  },
+];
+
+export default function VPPHome() {
+  const navigate = useNavigate();
+  const { t, lang } = useLang();
+  const [complianceDone, complianceLoading] = useComplianceDone();
+  const [showCompliance, setShowCompliance] = useState(false);
+
+  useEffect(() => {
+    if (!complianceLoading && !complianceDone) {
+      setShowCompliance(true);
+    }
+  }, [complianceDone, complianceLoading]);
+  const [user, setUser] = useState(undefined);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setUser(u)).catch(() => setUser(null));
+  }, []);
+
+  const [autoPilot, setAutoPilot] = useState(false);
+  const [showBatterySelect, setShowBatterySelect] = useState(false);
+  const [selectedBattery, setSelectedBattery] = useState(null);
+  const [tradeCount, setTradeCount] = useState(0);
+  const [surplusProfit, setSurplusProfit] = useState(0);
+  const [dismissedAlerts, setDismissedAlerts] = useState([]);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const alerts = getAlerts(t);
+
+  useEffect(() => {
+    if (!autoPilot) return;
+    const interval = setInterval(() => {
+      setTradeCount(c => c + 1);
+      setSurplusProfit(p => +(p + (Math.random() * 8 + 2)).toFixed(2));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [autoPilot]);
+
+  const handleAutoPilot = (v) => {
+    setAutoPilot(v);
+    if (v) toast.success(t('autopilot_on_msg'));
+    else { toast(t('autopilot_off_msg')); setTradeCount(0); setSurplusProfit(0); }
+  };
+
+  const handleAlertAction = (alert) => {
+    if (alert.type === 'maintenance') navigate('/smart-care');
+    else if (alert.type === 'investment') navigate('/farm-detail');
+    else toast.success(t('alert_technician_sent'));
+    setDismissedAlerts(d => [...d, alert.id]);
+  };
+
+  const activeAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id));
+
+  const handleAutoOptimize = async () => {
+    setIsOptimizing(true);
+    await new Promise(r => setTimeout(r, 1800));
+    setAutoPilot(true);
+    setIsOptimizing(false);
+    toast.success(t('auto_optimized_msg'));
+  };
+
+  const handleOnboardingDone = () => {
+    setShowOnboarding(false);
+    // Refresh user to remove banner
+    base44.auth.me().then(u => setUser(u)).catch(() => {});
+  };
+
+  return (
+    <div className="p-3 space-y-3 pb-28">
+      {/* In-Place Onboarding Modal */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <InPlaceOnboarding
+            onDone={handleOnboardingDone}
+            onClose={() => setShowOnboarding(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Compliance Onboarding */}
+      <AnimatePresence>
+        {showCompliance && <ComplianceOnboarding onDone={() => setShowCompliance(false)} />}
+      </AnimatePresence>
+
+      {/* Dev Reset Button */}
+      {!showCompliance && (
+        <button
+          onClick={() => { localStorage.removeItem('vpp_compliance_done'); setShowCompliance(true); }}
+          className="w-full text-[10px] text-white/20 hover:text-white/50 py-1 transition-colors text-center"
+        >
+          🔄 {lang === 'he' ? 'איפוס אשף ציות (בדיקה)' : 'Reset Compliance Wizard (dev)'}
+        </button>
+      )}
+
+      {/* Not Connected Banner */}
+      {user && !user.system_connected && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.3)' }}
+        >
+          <div className="p-2 rounded-xl flex-shrink-0" style={{ background: 'rgba(245,158,11,0.15)' }}>
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-black text-amber-300">המערכת הסולארית לא מחוברת</p>
+            <p className="text-[10px] text-white/40 mt-0.5">הנתונים הם סימולציה. חבר את המערכת לנתונים אמיתיים.</p>
+          </div>
+          <button
+            onClick={() => setShowOnboarding(true)}
+            className="text-[11px] font-black px-3 py-2 rounded-xl flex-shrink-0 active:scale-95 transition-all"
+            style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)' }}
+          >
+            חבר ←
+          </button>
+        </motion.div>
+      )}
+
+      {/* Billing Status */}
+      <BillingStatusCard />
+
+      {/* Smart Energy Push Banner */}
+      <SmartEnergyBanner />
+
+      {/* Unified AI Advisory */}
+      <UnifiedAIAdvisory />
+
+      {/* Header + Auto-Pilot inline */}
+      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        className={`rounded-2xl border px-4 py-3 flex items-center justify-between transition-all ${autoPilot ? 'border-primary/50 bg-primary/8' : 'border-border bg-card'}`}>
+        <div>
+          <h1 className="text-base font-black text-foreground">{t('vpp_home_title')}</h1>
+          <p className="text-[10px] text-muted-foreground">{t('vpp_home_subtitle')}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {autoPilot && (
+            <div className="flex gap-2 text-center">
+              <div className="bg-primary/10 rounded-lg px-2 py-1">
+                <p className="text-xs font-black text-primary">{tradeCount}</p>
+                <p className="text-[9px] text-muted-foreground">{t('autopilot_auto_trades')}</p>
+              </div>
+              <div className="bg-primary/10 rounded-lg px-2 py-1">
+                <p className="text-xs font-black text-primary">+{surplusProfit.toFixed(0)}₪</p>
+                <p className="text-[9px] text-muted-foreground">{t('autopilot_surplus')}</p>
+              </div>
+            </div>
+          )}
+          {!autoPilot && !isOptimizing && (
+            <button onClick={handleAutoOptimize}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white"
+              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+              <Sparkles className="w-3 h-3" />{t('auto_optimize_btn')}
+            </button>
+          )}
+          {isOptimizing && (
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white opacity-60"
+              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
+              <Loader2 className="w-3 h-3 animate-spin" />{t('auto_optimizing')}
+            </div>
+          )}
+          <Switch checked={autoPilot} onCheckedChange={handleAutoPilot} />
+        </div>
+      </motion.div>
+
+      {/* Savings + Stats compact row */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+        className="grid grid-cols-3 gap-2">
+        <div className="col-span-2 bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 px-4 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-muted-foreground">{t('savings_today')}</p>
+            <p className="text-2xl font-black text-primary">+187 ₪</p>
+          </div>
+          <div className="text-left">
+            <p className="text-[10px] text-muted-foreground">{t('savings_month')}</p>
+            <p className="text-sm font-bold text-foreground">+4,230 ₪</p>
+          </div>
+        </div>
+        <div className="bg-card rounded-2xl border border-border px-3 py-3 flex flex-col justify-center text-center">
+          <p className="text-sm font-black text-accent">18.4</p>
+          <p className="text-[9px] text-muted-foreground">kWh {t('production_today')}</p>
+          <div className="my-1 border-t border-border" />
+          <p className="text-sm font-black text-primary">9.8</p>
+          <p className="text-[9px] text-muted-foreground">kWh {t('sold_to_grid')}</p>
+        </div>
+      </motion.div>
+
+      {/* Power Flow */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
+        className="bg-card rounded-2xl border border-border p-4 space-y-4">
+        <p className="text-xs text-muted-foreground font-medium">{t('energy_flow')}</p>
+        <div className="flex items-center justify-center gap-1">
+          <ClickablePowerNode nodeKey="solar" icon={Sun} label={t('sun')} value="4.2 kW" colorClass="border-accent text-accent" isHe={lang === 'he'} />
+          <FlowDots active />
+          <ClickableBatteryNode label={t('battery')} value="82%" isHe={lang === 'he'} />
+          <FlowDots active />
+          <ClickablePowerNode nodeKey="home" icon={Home} label={t('house')} value="1.8 kW" colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
+        </div>
+        <div className="flex items-center justify-center gap-8">
+          <ClickablePowerNode nodeKey="ev" icon={Car} label={t('ev')} value={t('charging')} colorClass="border-accent text-accent" isHe={lang === 'he'} />
+          <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
+        </div>
+      </motion.div>
+
+      {/* Weather Widget */}
+      <WeatherWidget />
+
+      {/* Simple Savings + Battery Health (user-friendly) */}
+      <SimpleSavingsCard />
+
+      {/* Community Impact */}
+      <CommunityImpactCard />
+
+      {/* Gamification — Rank & National Contribution */}
+      <GamificationBadge />
+
+      {/* Battery Health (technical) */}
+      <BatteryHealthCard />
+
+      {/* Connected Devices */}
+      <ConnectedDevices />
+
+      {/* Peak Shedding Settings */}
+      <PeakSheddingSettings />
+
+      {/* Community Synergy Hub */}
+      <CommunitySynergyHub />
+
+      {/* Live Trading Metrics */}
+      <LiveTradingMetrics />
+
+      {/* Profit Gap Report */}
+      <ProfitGapReport />
+
+      {/* Portfolio Audit */}
+      <PortfolioAudit />
+
+      {/* Provider Insight */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }}>
+        <ProviderInsightCard />
+      </motion.div>
+
+      {/* Manual Approvals – Alerts */}
+      {activeAlerts.length > 0 && (
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }} className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-accent" />
+            <p className="text-xs font-bold text-muted-foreground">{t('alerts_title')}</p>
+          </div>
+          {activeAlerts.map(alert => (
+            <div key={alert.id} className={`rounded-2xl border p-4 ${alert.color}`}>
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{alert.icon}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${alert.tagColor}`}>{alert.tag}</span>
+                  </div>
+                  <p className="text-sm font-bold text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{alert.desc}</p>
+                  <button
+                    onClick={() => handleAlertAction(alert)}
+                    className="mt-2 px-3 py-1.5 bg-card border border-border rounded-xl text-xs font-bold text-foreground hover:border-primary/50 transition-colors active:scale-95">
+                    {alert.action} ←
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Selected Battery Card */}
+      <motion.button
+        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }}
+        onClick={() => setShowBatterySelect(true)}
+        className="w-full bg-card border border-border rounded-2xl p-4 text-right active:scale-[0.98] transition-transform hover:border-primary/40"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            {lang === 'he' ? 'לחץ לשינוי' : 'Tap to change'}
+          </div>
+          <p className="text-xs font-bold text-muted-foreground">
+            {lang === 'he' ? 'סוללה למכירה לרשת' : 'Battery for Grid Sale'}
+          </p>
+        </div>
+        {selectedBattery ? (
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-primary/15 border border-primary/30">
+              <Battery className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-black text-foreground">{selectedBattery.name}</p>
+              <p className="text-[10px] text-muted-foreground">{selectedBattery.model} · {selectedBattery.capacity} kWh</p>
+            </div>
+            <div className="text-left">
+              <p className="text-xl font-black text-primary">{selectedBattery.level}%</p>
+              <p className="text-[10px] text-muted-foreground">
+                {((selectedBattery.level / 100) * selectedBattery.capacity).toFixed(1)} kWh {lang === 'he' ? 'זמין' : 'available'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-muted border border-dashed border-border">
+              <Battery className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-muted-foreground">
+                {lang === 'he' ? 'לא נבחרה סוללה' : 'No battery selected'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {lang === 'he' ? 'לחץ לבחירה ממשק הסוללות' : 'Tap to discover batteries'}
+              </p>
+            </div>
+            <span className="text-xs font-bold text-primary border border-primary/40 rounded-xl px-3 py-1.5">
+              {lang === 'he' ? '+ בחר' : '+ Select'}
+            </span>
+          </div>
+        )}
+        {selectedBattery && (
+          <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${selectedBattery.level > 60 ? 'bg-primary' : selectedBattery.level > 30 ? 'bg-accent' : 'bg-destructive'}`}
+              style={{ width: `${selectedBattery.level}%` }}
+            />
+          </div>
+        )}
+      </motion.button>
+
+      {/* Action Buttons */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
+        className="grid grid-cols-3 gap-3">
+        {[
+          { label: t('charge_battery'), icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
+          { label: selectedBattery ? `${t('sell_grid')}\n${selectedBattery.name}` : t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid', batterySelect: true },
+          { label: t('charge_ev'), icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
+        ].map(({ label, icon: Icon, color, path, batterySelect }) => (
+          <motion.button key={path} whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.04 }}
+            onClick={() => batterySelect ? setShowBatterySelect(true) : navigate(path)}
+            className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}>
+            <Icon className="w-6 h-6" />
+            <span className="leading-tight text-center">{label}</span>
+          </motion.button>
+        ))}
+      </motion.div>
+
+      <BatterySelectModal
+        open={showBatterySelect}
+        onClose={() => setShowBatterySelect(false)}
+        onSelect={(bat) => { setSelectedBattery(bat); navigate('/sell-to-grid'); }}
+      />
+
+      {/* Farm Detail Link */}
+      <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45 }}
+        onClick={() => navigate('/farm-detail')}
+        className="w-full flex items-center justify-between bg-card border border-border rounded-2xl p-4 active:scale-[0.98] transition-transform">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">☀️</span>
+          <div className="text-right">
+            <p className="text-sm font-black text-foreground">{t('my_solar_farm')}</p>
+            <p className="text-xs text-muted-foreground">{t('farm_subtitle')}</p>
+          </div>
+        </div>
+        <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+      </motion.button>
+    </div>
+  );
+}

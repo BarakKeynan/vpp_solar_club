@@ -43,7 +43,6 @@ import Landing from './pages/Landing.jsx';
 import Auth from './pages/Auth.jsx';
 import Terms from './pages/Terms.jsx';
 
-// Guard: only admin emails can access admin routes
 const ADMIN_EMAILS = ['barak@vppsolarclub.com', 'liav@vppsolarclub.com'];
 const AdminRoute = () => {
   const { user, isLoadingAuth } = useAuth();

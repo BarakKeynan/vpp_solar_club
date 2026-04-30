@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate, Outlet } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -42,6 +42,15 @@ import Accessibility from './pages/Accessibility.jsx';
 import Landing from './pages/Landing.jsx';
 import Auth from './pages/Auth.jsx';
 import Terms from './pages/Terms.jsx';
+
+// Guard: only admin emails can access admin routes
+const ADMIN_EMAILS = ['barak@vppsolarclub.com', 'liav@vppsolarclub.com'];
+const AdminRoute = () => {
+  const { user, isLoadingAuth } = useAuth();
+  if (isLoadingAuth) return null;
+  const isAdmin = user?.role === 'admin' || ADMIN_EMAILS.includes(user?.email);
+  return isAdmin ? <Outlet /> : <Navigate to="/more" replace />;
+};
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -99,9 +108,11 @@ const AuthenticatedApp = () => {
         <Route path="/pro-dashboard" element={<ProDashboard />} />
         <Route path="/bulk-audit" element={<BulkAudit />} />
         <Route path="/vpp-command-center" element={<VPPCommandCenter />} />
-        <Route path="/vpp-settings" element={<VPPSettings />} />
         <Route path="/accessibility" element={<Accessibility />} />
-        <Route path="/admin-panel" element={<AdminPanel />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/admin-panel" element={<AdminPanel />} />
+          <Route path="/vpp-settings" element={<VPPSettings />} />
+        </Route>
       </Route>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<PageNotFound />} />

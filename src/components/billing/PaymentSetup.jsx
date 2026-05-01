@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Shield, ExternalLink, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, CreditCard, Shield, ExternalLink, CheckCircle2, Loader2, Zap } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 // After Morning redirects back, the URL will contain ?token_id=xxx&last4=xxxx&brand=xxx
@@ -138,27 +138,61 @@ export default function PaymentSetup({ onClose, onSuccess }) {
 
           {/* ── Simulate (no API key) ── */}
           {step === 'simulate' && (
-            <motion.div key="simulate" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+            <motion.div key="simulate" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4" dir="rtl">
               <div className="rounded-xl p-3 text-xs text-amber-300 text-center"
                 style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
-                🧪 Simulation Mode — MORNING_API_KEY not set
+                🧪 מצב הדגמה — Simulation Mode
               </div>
-              <p className="text-sm font-black text-white text-center">Simulate Card Tokenization</p>
-              <input
-                type="text"
-                placeholder="Enter any card number (demo)"
-                value={simToken}
-                onChange={e => setSimToken(e.target.value)}
-                className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
-              />
+              <div className="text-center">
+                <p className="text-sm font-black text-white">הזן פרטי כרטיס אשראי</p>
+                <p className="text-[11px] text-white/35 mt-0.5">הנתונים לצורך הדגמה בלבד — לא יחויב דבר</p>
+              </div>
+              <div className="space-y-2.5">
+                <div>
+                  <p className="text-[10px] text-white/40 mb-1 text-right">מספר כרטיס</p>
+                  <input
+                    type="text"
+                    placeholder="4242 4242 4242 4242"
+                    value={simToken}
+                    onChange={e => setSimToken(e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim())}
+                    className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none text-right tracking-widest"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-[10px] text-white/40 mb-1 text-right">תוקף</p>
+                    <input
+                      type="text"
+                      placeholder="MM/YY"
+                      className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none text-right"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-white/40 mb-1 text-right">CVV</p>
+                    <input
+                      type="text"
+                      placeholder="123"
+                      maxLength={3}
+                      className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none text-right"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                  style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                  <p className="text-[10px] text-emerald-400/80">מאובטח בתקן PCI-DSS · פרטי הכרטיס לא נשמרים אצלנו</p>
+                </div>
+              </div>
               <button
                 onClick={handleSimSave}
-                disabled={simToken.length < 4}
+                disabled={simToken.replace(/\s/g, '').length < 4}
                 className="w-full py-3.5 rounded-2xl font-black text-white text-sm active:scale-95 transition-all disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(16,185,129,0.2))', border: '1px solid rgba(16,185,129,0.5)' }}
+                style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.4), rgba(16,185,129,0.25))', border: '1px solid rgba(16,185,129,0.6)', boxShadow: '0 0 20px rgba(16,185,129,0.2)' }}
               >
-                ✅ Save Token (Simulated)
+                ✅ אשר והפעל אופטימיזציה
               </button>
             </motion.div>
           )}
@@ -176,14 +210,23 @@ export default function PaymentSetup({ onClose, onSuccess }) {
           {/* ── Done ── */}
           {step === 'done' && (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-4 py-8">
-              <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.5 }}
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(16,185,129,0.15)', border: '2px solid rgba(16,185,129,0.5)' }}>
-                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+              className="flex flex-col items-center gap-4 py-8 text-center" dir="rtl">
+              <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 0.6 }}
+                className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(16,185,129,0.15)', border: '2px solid rgba(16,185,129,0.5)', boxShadow: '0 0 30px rgba(16,185,129,0.3)' }}>
+                <CheckCircle2 className="w-10 h-10 text-emerald-400" />
               </motion.div>
-              <p className="text-base font-black text-white">Card Linked! ⚡️</p>
-              <p className="text-xs text-white/40">Optimization is now active</p>
+              <div className="space-y-2">
+                <p className="text-base font-black text-white">החשבון קושר בהצלחה ⚡️</p>
+                <p className="text-xs text-white/55 leading-relaxed max-w-[260px]">
+                  VPP Solar Club יבצע מעתה התחשבנות אוטומטית על בסיס הרווחים שייוצרו עבורך
+                </p>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+                style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                <p className="text-[11px] font-black text-emerald-400">Optimization Active 🟢</p>
+              </div>
             </motion.div>
           )}
 

@@ -359,7 +359,7 @@ function DischargePriorityModal({ onClose, isHe, tourActiveId, onTourNext }) {
                 reserve={reserves[d.id] ?? 0}
                 onReserve={(v) => setReserve(d.id, v)}
                 tourActive={tourAtReserve && idx === 0}
-                onTourNext={next}
+                onTourNext={onTourNext}
               />
             ))}
           </div>

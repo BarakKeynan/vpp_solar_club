@@ -26,9 +26,7 @@ export default function StormGuardBanner() {
     }).catch(() => {});
   }, []);
 
-  // For demo: show banner even without storm so users can see the (?) feature
-  const showBanner = stormData?.active || true; // remove `|| true` in production
-  if (!showBanner || dismissed) return null;
+  if (dismissed) return null;
 
   return (
     <AnimatePresence>
@@ -62,15 +60,15 @@ export default function StormGuardBanner() {
             <div className="flex items-center gap-2 mt-1.5">
               <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
                 <motion.div
-                  initial={{ width: `${stormData.currentSoc}%` }}
-                  animate={{ width: `${stormData.socTarget}%` }}
+                  initial={{ width: `${stormData?.currentSoc ?? 80}%` }}
+                  animate={{ width: `${stormData?.socTarget ?? 100}%` }}
                   transition={{ duration: 3, ease: 'easeInOut' }}
                   className="h-full rounded-full"
                   style={{ background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' }}
                 />
               </div>
               <span className="text-[9px] font-black text-violet-300 flex-shrink-0">
-                {stormData.currentSoc}% → {stormData.socTarget}%
+                {stormData?.currentSoc ?? 80}% → {stormData?.socTarget ?? 100}%
               </span>
             </div>
           </div>

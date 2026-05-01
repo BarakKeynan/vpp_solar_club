@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Shield, ExternalLink, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-// After Morning redirects back, the URL will contain ?token_id=xxx&last4=xxxx&brand=xxx
+// After yPay redirects back, the URL will contain ?token_id=xxx&last4=xxxx&brand=xxx
 function useTokenFromUrl(onSuccess) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -15,7 +15,7 @@ function useTokenFromUrl(onSuccess) {
     window.history.replaceState({}, '', clean);
 
     // Save token
-    base44.functions.invoke('morningBilling', {
+    base44.functions.invoke('ypayBilling', {
       action: 'save_token',
       token_id,
       last4: params.get('billing_last4') || '****',
@@ -31,7 +31,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
   const [cvv, setCvv] = useState('');
   const [name, setName] = useState('');
 
-  // Check URL params on mount (return from Morning redirect)
+  // Check URL params on mount (return from yPay redirect)
   useTokenFromUrl(onSuccess);
 
   const formatCardNumber = (v) => v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
@@ -45,9 +45,9 @@ export default function PaymentSetup({ onClose, onSuccess }) {
   const handleConfirm = async () => {
     setStep('loading');
     const last4 = cardNumber.replace(/\s/g, '').slice(-4);
-    await base44.functions.invoke('morningBilling', {
+    await base44.functions.invoke('ypayBilling', {
       action: 'save_token',
-      token_id: `sim_tok_${Date.now()}`,
+      token_id: `ypay_tok_${Date.now()}`,
       last4,
       brand: 'Visa',
     });
@@ -90,7 +90,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                   <Lock className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">Checkout מאובטח</p>
+                  <p className="text-sm font-black text-white">Checkout מאובטח — yPay</p>
                   <p className="text-[10px] text-white/35">🧪 Simulation Mode — להדגמה בלבד</p>
                 </div>
               </div>

@@ -9,7 +9,7 @@ export default function BillingStatusCard() {
   const [showSetup, setShowSetup] = useState(false);
 
   const fetchStatus = async () => {
-    const res = await base44.functions.invoke('morningBilling', { action: 'get_status' });
+    const res = await base44.functions.invoke('ypayBilling', { action: 'get_status' });
     setStatus(res.data);
   };
 

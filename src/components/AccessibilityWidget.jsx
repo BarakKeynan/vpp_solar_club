@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Accessibility, Type, Eye, Zap, RotateCcw, X } from 'lucide-react';
+import { Ear, Type, Eye, Zap, RotateCcw, X } from 'lucide-react';
 
 const DEFAULTS = {
   fontSize: 'normal',
@@ -81,7 +81,7 @@ export default function AccessibilityWidget() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <p className="text-sm font-black text-white flex items-center gap-2">
-                <Accessibility className="w-4 h-4 text-orange-400" />
+                <Ear className="w-4 h-4 text-orange-400" />
                 נגישות
               </p>
               <button onClick={() => setOpen(false)}
@@ -185,7 +185,7 @@ export default function AccessibilityWidget() {
         }}
         aria-label="תפריט נגישות"
       >
-        <Accessibility className="w-5 h-5 text-orange-400" />
+        <Ear className="w-5 h-5 text-orange-400" />
       </motion.button>
     </div>
   );

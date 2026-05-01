@@ -224,62 +224,80 @@ export default function VPPHome() {
       {/* Unified AI Advisory */}
       <UnifiedAIAdvisory />
 
-      {/* Header + Auto-Pilot inline */}
+      {/* Header + Auto-Pilot */}
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-        className={`rounded-2xl border px-4 py-3 flex items-center justify-between transition-all ${autoPilot ? 'border-primary/50 bg-primary/8' : 'border-border bg-card'}`}>
-        <div>
-          <h1 className="text-base font-black text-foreground">{t('vpp_home_title')}</h1>
-          <p className="text-[10px] text-muted-foreground">{t('vpp_home_subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {autoPilot && (
-            <div className="flex gap-2 text-center">
-              <div className="bg-primary/10 rounded-lg px-2 py-1">
-                <p className="text-xs font-black text-primary">{tradeCount}</p>
-                <p className="text-[9px] text-muted-foreground">{t('autopilot_auto_trades')}</p>
-              </div>
-              <div className="bg-primary/10 rounded-lg px-2 py-1">
-                <p className="text-xs font-black text-primary">+{surplusProfit.toFixed(0)}₪</p>
-                <p className="text-[9px] text-muted-foreground">{t('autopilot_surplus')}</p>
-              </div>
-            </div>
-          )}
-          {!autoPilot && !isOptimizing && (
-            <button onClick={handleAutoOptimize}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white"
-              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
-              <Sparkles className="w-3 h-3" />{t('auto_optimize_btn')}
-            </button>
-          )}
-          {isOptimizing && (
-            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white opacity-60"
-              style={{ background: 'linear-gradient(135deg,#7C3AED,#8B5CF6)' }}>
-              <Loader2 className="w-3 h-3 animate-spin" />{t('auto_optimizing')}
-            </div>
-          )}
+        className={`rounded-2xl border px-4 py-4 transition-all ${autoPilot ? 'border-primary/40' : 'border-border bg-card'}`}
+        style={autoPilot ? { background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04))' } : {}}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-black text-foreground">{t('vpp_home_title')}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('vpp_home_subtitle')}</p>
+          </div>
           <Switch checked={autoPilot} onCheckedChange={handleAutoPilot} />
         </div>
+        {/* AutoPilot stats row */}
+        {autoPilot && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            className="flex gap-2 mt-3 pt-3 border-t border-primary/20">
+            <div className="flex-1 bg-primary/10 rounded-xl px-3 py-2 text-center">
+              <p className="text-sm font-black text-primary">{tradeCount}</p>
+              <p className="text-[9px] text-muted-foreground">{t('autopilot_auto_trades')}</p>
+            </div>
+            <div className="flex-1 bg-primary/10 rounded-xl px-3 py-2 text-center">
+              <p className="text-sm font-black text-primary">+{surplusProfit.toFixed(0)}₪</p>
+              <p className="text-[9px] text-muted-foreground">{t('autopilot_surplus')}</p>
+            </div>
+            <div className="flex-1 bg-primary/10 rounded-xl px-3 py-2 text-center">
+              <p className="text-sm font-black text-emerald-400">פעיל</p>
+              <p className="text-[9px] text-muted-foreground">AI Pilot</p>
+            </div>
+          </motion.div>
+        )}
+        {!autoPilot && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3">
+            {!isOptimizing ? (
+              <button onClick={handleAutoOptimize}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+                style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.8),rgba(139,92,246,0.6))', border: '1px solid rgba(139,92,246,0.4)' }}>
+                <Sparkles className="w-4 h-4" />{t('auto_optimize_btn')}
+              </button>
+            ) : (
+              <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white/60"
+                style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                <Loader2 className="w-4 h-4 animate-spin" />{t('auto_optimizing')}
+              </div>
+            )}
+          </motion.div>
+        )}
       </motion.div>
 
-      {/* Savings + Stats compact row */}
+      {/* Savings + Stats */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-3 gap-2">
-        <div className="col-span-2 bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] text-muted-foreground">{t('savings_today')}</p>
-            <p className="text-2xl font-black text-primary">+187 ₪</p>
-          </div>
-          <div className="text-left">
-            <p className="text-[10px] text-muted-foreground">{t('savings_month')}</p>
-            <p className="text-sm font-bold text-foreground">+4,230 ₪</p>
+        className="rounded-2xl border border-primary/30 px-5 py-4"
+        style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04))' }}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('savings_today')}</p>
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] text-emerald-400/60 font-bold">Live</span>
           </div>
         </div>
-        <div className="bg-card rounded-2xl border border-border px-3 py-3 flex flex-col justify-center text-center">
-          <p className="text-sm font-black text-accent">18.4</p>
-          <p className="text-[9px] text-muted-foreground">kWh {t('production_today')}</p>
-          <div className="my-1 border-t border-border" />
-          <p className="text-sm font-black text-primary">9.8</p>
-          <p className="text-[9px] text-muted-foreground">kWh {t('sold_to_grid')}</p>
+        <p className="text-4xl font-black text-primary leading-none">+187 ₪</p>
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
+          <div>
+            <p className="text-[10px] text-white/40">{t('savings_month')}</p>
+            <p className="text-base font-black text-white">+4,230 ₪</p>
+          </div>
+          <div className="w-px h-8 bg-white/10" />
+          <div>
+            <p className="text-[10px] text-white/40">{t('production_today')}</p>
+            <p className="text-base font-black text-accent">18.4 kWh</p>
+          </div>
+          <div className="w-px h-8 bg-white/10" />
+          <div>
+            <p className="text-[10px] text-white/40">{t('sold_to_grid')}</p>
+            <p className="text-base font-black text-secondary">9.8 kWh</p>
+          </div>
         </div>
       </motion.div>
 
@@ -430,15 +448,16 @@ export default function VPPHome() {
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
         className="grid grid-cols-3 gap-3">
         {[
-          { label: t('charge_battery'), icon: Battery, color: 'bg-primary text-primary-foreground shadow-primary/30', path: '/charge-battery' },
-          { label: selectedBattery ? `${t('sell_grid')}\n${selectedBattery.name}` : t('sell_grid'), icon: Zap, color: 'bg-secondary text-secondary-foreground shadow-secondary/30', path: '/sell-to-grid', batterySelect: true },
-          { label: t('charge_ev'), icon: Car, color: 'bg-accent text-accent-foreground shadow-accent/30', path: '/charge-ev' },
-        ].map(({ label, icon: Icon, color, path, batterySelect }) => (
-          <motion.button key={path} whileTap={{ scale: 0.93 }} whileHover={{ scale: 1.04 }}
+          { label: t('charge_battery'), icon: Battery, gradient: 'linear-gradient(135deg,#10b981,#059669)', shadow: 'rgba(16,185,129,0.35)', path: '/charge-battery' },
+          { label: t('sell_grid'), icon: Zap, gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)', shadow: 'rgba(59,130,246,0.35)', path: '/sell-to-grid', batterySelect: true },
+          { label: t('charge_ev'), icon: Car, gradient: 'linear-gradient(135deg,#f59e0b,#d97706)', shadow: 'rgba(245,158,11,0.35)', path: '/charge-ev' },
+        ].map(({ label, icon: BtnIcon, gradient, shadow, path, batterySelect }) => (
+          <motion.button key={path} whileTap={{ scale: 0.93 }}
             onClick={() => batterySelect ? setShowBatterySelect(true) : navigate(path)}
-            className={`flex flex-col items-center gap-2 py-5 rounded-2xl font-bold text-xs shadow-lg transition-all ${color}`}>
-            <Icon className="w-6 h-6" />
-            <span className="leading-tight text-center">{label}</span>
+            className="flex flex-col items-center gap-2.5 py-5 rounded-2xl font-bold text-xs text-white transition-all"
+            style={{ background: gradient, boxShadow: `0 4px 20px ${shadow}` }}>
+            <BtnIcon className="w-6 h-6" />
+            <span className="leading-tight text-center text-[11px] font-black">{label}</span>
           </motion.button>
         ))}
       </motion.div>

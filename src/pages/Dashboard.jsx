@@ -11,32 +11,28 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mode Toggle */}
-      <div className="sticky top-0 z-10 px-4 pt-4 pb-3" style={{ background: 'hsl(222 47% 6% / 0.97)', backdropFilter: 'blur(16px)', borderBottom: '1px solid hsl(222 30% 18% / 0.6)' }}>
-        <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'hsl(222 30% 10%)' }}>
+      <div className="sticky top-0 z-10 px-4 pt-4 pb-3" style={{ background: 'hsl(222 47% 6% / 0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'rgba(255,255,255,0.05)' }}>
           <button
             onClick={() => setMode('home')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-              mode === 'home'
-                ? 'text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 py-3 rounded-xl text-sm font-black transition-all duration-200 ${
+              mode === 'home' ? 'text-white' : 'text-white/35 hover:text-white/60'
             }`}
             style={mode === 'home' ? {
-              background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 30%))',
-              boxShadow: '0 2px 12px hsl(160 84% 44% / 0.35)'
+              background: 'linear-gradient(135deg, hsl(160 84% 38%), hsl(160 84% 28%))',
+              boxShadow: '0 2px 16px hsl(160 84% 44% / 0.4)'
             } : {}}
           >
             {t('vpp_mode_home')}
           </button>
           <button
             onClick={() => setMode('club')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-              mode === 'club'
-                ? 'text-secondary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 py-3 rounded-xl text-sm font-black transition-all duration-200 ${
+              mode === 'club' ? 'text-white' : 'text-white/35 hover:text-white/60'
             }`}
             style={mode === 'club' ? {
-              background: 'linear-gradient(135deg, hsl(215 60% 44%), hsl(215 60% 36%))',
-              boxShadow: '0 2px 12px hsl(215 60% 50% / 0.35)'
+              background: 'linear-gradient(135deg, hsl(215 60% 44%), hsl(215 60% 32%))',
+              boxShadow: '0 2px 16px hsl(215 60% 50% / 0.4)'
             } : {}}
           >
             {t('vpp_mode_club')}

@@ -491,46 +491,64 @@ function VirtualBattery({ isHe }) {
     return () => clearInterval(interval);
   }, []);
 
-  const circumference = 2 * Math.PI * 54;
-  const strokeDashoffset = circumference - (percent / 100) * circumference;
+  const batteryColor = percent > 50 ? '#10b981' : percent > 20 ? '#f59e0b' : '#ef4444';
+  const batteryGlow = percent > 50 ? 'rgba(16,185,129,0.4)' : percent > 20 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="rounded-xl border border-primary/30 p-4 space-y-4"
-      style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05))' }}
+      className="rounded-2xl border border-primary/30 p-4 space-y-4"
+      style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))' }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-black text-foreground">{isHe ? 'שלי VPP סוללה וירטואלית' : 'My VPP Virtual Battery'}</h3>
-        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>
-          {isHe ? 'משדרת' : 'Streaming'}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[10px] font-black text-emerald-400/70">{isHe ? 'משדרת' : 'Live'}</span>
+        </div>
+        <h3 className="text-sm font-black text-white">{isHe ? 'סוללה וירטואלית VPP' : 'VPP Virtual Battery'}</h3>
       </div>
 
-      <div className="flex justify-center">
-        <div className="relative w-40 h-40">
-          <svg className="w-full h-full" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-            <motion.circle
-              cx="60"
-              cy="60"
-              r="54"
-              fill="none"
-              stroke="#10b981"
-              strokeWidth="8"
-              strokeDasharray={circumference}
-              animate={{ strokeDashoffset }}
+      {/* Battery + Stats row */}
+      <div className="flex items-center gap-5">
+        {/* Vertical battery shape */}
+        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+          {/* Battery tip */}
+          <div className="w-6 h-2 rounded-t-sm" style={{ background: 'rgba(255,255,255,0.15)' }} />
+          {/* Battery body */}
+          <div className="relative w-14 h-24 rounded-2xl overflow-hidden"
+            style={{ border: `2px solid ${batteryColor}55`, background: 'rgba(255,255,255,0.04)' }}>
+            <motion.div
+              className="absolute bottom-0 left-0 right-0"
+              style={{ background: `linear-gradient(180deg, ${batteryColor}, ${batteryColor}bb)`, boxShadow: `0 0 16px ${batteryGlow}` }}
+              animate={{ height: `${percent}%` }}
               transition={{ duration: 1.5, ease: 'easeOut' }}
-              strokeLinecap="round"
-              style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
             />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <p className="text-3xl font-black text-primary">{Math.round(percent)}%</p>
-            <p className="text-xs text-muted-foreground mt-1">{kWh.toFixed(1)} kWh</p>
+            {/* Segment lines */}
+            {[25, 50, 75].map(s => (
+              <div key={s} className="absolute left-0 right-0 h-px" style={{ bottom: `${s}%`, background: 'rgba(255,255,255,0.1)', zIndex: 2 }} />
+            ))}
+            {/* % label */}
+            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 3 }}>
+              <p className="text-base font-black text-white drop-shadow-lg">{Math.round(percent)}%</p>
+            </div>
           </div>
+          <p className="text-[10px] text-white/40 font-bold">{kWh.toFixed(1)} kWh</p>
+        </div>
+
+        {/* Stats */}
+        <div className="flex-1 space-y-2.5">
+          {[
+            { label: isHe ? 'ייצור היום' : 'Production', value: '18.4 kWh', color: '#f59e0b' },
+            { label: isHe ? 'צריכה' : 'Usage', value: '9.8 kWh', color: '#60a5fa' },
+            { label: isHe ? 'חיסכון' : 'Saved', value: '+₪187', color: '#10b981' },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="text-sm font-black" style={{ color: item.color }}>{item.value}</span>
+              <span className="text-[10px] text-white/40">{item.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 

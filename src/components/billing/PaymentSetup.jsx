@@ -95,10 +95,13 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                 </div>
               </div>
 
-              {/* Simulation badge */}
-              <div className="rounded-xl px-3 py-2 text-[11px] text-amber-300 text-center font-bold"
-                style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
-                🧪 מצב סימולציה — אין חיוב אמיתי
+              {/* Reassurance note */}
+              <div className="rounded-xl px-3 py-2.5 text-right"
+                style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                <p className="text-[11px] text-violet-300 leading-relaxed font-bold">
+                  קישור הכרטיס מאפשר למערכת האוטומטית לפעול עבורך.
+                </p>
+                <p className="text-[10px] text-violet-400/60 mt-0.5">לא יתבצע חיוב בחצי השנה הראשונה.</p>
               </div>
 
               {/* Card Number */}
@@ -206,8 +209,12 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               <div>
                 <p className="text-base font-black text-white mb-2">Optimization Active ⚡️</p>
                 <p className="text-xs text-emerald-400/80 leading-relaxed px-2">
-                  החשבון קושר בהצלחה. VPP Solar Club יבצע מעתה התחשבנות אוטומטית על בסיס הרווחים שייוצרו עבורך.
+                  שירות האופטימיזציה הופעל בהצלחה. תהנה מחצי שנה ללא עמלות ניהול — החיוב יחל רק לאחר 180 יום.
                 </p>
+                <div className="mt-3 rounded-xl px-3 py-2 mx-2"
+                  style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                  <p className="text-[10px] text-violet-300 font-bold">סטטוס: תקופת הטבה פעילה (ללא עמלות ניהול)</p>
+                </div>
               </div>
             </motion.div>
           )}

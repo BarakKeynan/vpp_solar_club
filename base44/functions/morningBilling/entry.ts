@@ -83,13 +83,18 @@ Deno.serve(async (req) => {
       const { token_id, last4, brand } = body;
       if (!token_id) return Response.json({ error: 'Missing token_id' }, { status: 400 });
 
+      // Billing starts 180 days from now (launch benefit period)
+      const billingStartDate = new Date();
+      billingStartDate.setDate(billingStartDate.getDate() + 180);
+
       await base44.auth.updateMe({
         billing_token: token_id,
         billing_last4: last4 || '****',
         billing_brand: brand || 'Card',
+        billing_start_date: billingStartDate.toISOString(),
       });
 
-      return Response.json({ success: true });
+      return Response.json({ success: true, billing_start_date: billingStartDate.toISOString() });
     }
 
     // ── REMOVE TOKEN ───────────────────────────────────────────────────

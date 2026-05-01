@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Home, Car } from 'lucide-react';
+import { Zap, Home, Car, Gift } from 'lucide-react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLang } from '@/lib/i18n';
 
@@ -131,6 +131,34 @@ export default function Savings() {
           </ResponsiveContainer>
         </motion.div>
       </AnimatePresence>
+
+      {/* Monthly Service Summary */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+        className="rounded-2xl overflow-hidden"
+        style={{ border: '1px solid rgba(139,92,246,0.3)' }}>
+        <div className="px-4 py-3 flex items-center gap-2"
+          style={{ background: 'rgba(139,92,246,0.1)' }}>
+          <Gift className="w-4 h-4 text-violet-400 flex-shrink-0" />
+          <p className="text-xs font-black text-violet-300">ריכוז חודשי — שירות ניהול אופטימיזציה</p>
+        </div>
+        <div className="px-4 py-3 space-y-2.5" style={{ background: 'rgba(8,16,36,0.5)' }}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-black text-white">+4,230 ₪</span>
+            <span className="text-xs text-white/45">רווח שנוצר החודש</span>
+          </div>
+          <div className="h-px bg-white/5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-black text-emerald-400">0 ₪</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-violet-300"
+                style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}>
+                הטבת הצטרפות פעילה
+              </span>
+            </div>
+            <span className="text-xs text-white/45">עמלת שירות</span>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Smart Devices */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">

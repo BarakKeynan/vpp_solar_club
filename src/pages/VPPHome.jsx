@@ -25,6 +25,7 @@ import SimpleSavingsCard from '@/components/dashboard/SimpleSavingsCard';
 import GamificationBadge from '@/components/dashboard/GamificationBadge';
 import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
 import BillingStatusCard from '@/components/billing/BillingStatusCard';
+import PhysicalBatteryStatus from '@/components/dashboard/PhysicalBatteryStatus';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -317,6 +318,9 @@ export default function VPPHome() {
           <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
         </div>
       </motion.div>
+
+      {/* Physical Battery Status */}
+      <PhysicalBatteryStatus />
 
       {/* Weather Widget */}
       <WeatherWidget />

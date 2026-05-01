@@ -99,14 +99,14 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               <div className="rounded-xl px-3 py-2.5 text-right"
                 style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)' }}>
                 <p className="text-[11px] text-violet-300 leading-relaxed font-bold">
-                  קישור הכרטיס מאפשר למערכת האוטומטית לפעול עבורך.
+                  Linking your card enables the automatic system to work for you.
                 </p>
-                <p className="text-[10px] text-violet-400/60 mt-0.5">לא יתבצע חיוב בחצי השנה הראשונה.</p>
+                <p className="text-[10px] text-violet-400/60 mt-0.5">No charges during the first 6 months.</p>
               </div>
 
               {/* Card Number */}
               <div className="space-y-1.5">
-                <label className="text-[11px] text-white/45 font-bold">מספר כרטיס</label>
+                <label className="text-[11px] text-white/45 font-bold">Card Number</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -124,10 +124,10 @@ export default function PaymentSetup({ onClose, onSuccess }) {
 
               {/* Name */}
               <div className="space-y-1.5">
-                <label className="text-[11px] text-white/45 font-bold">שם בעל הכרטיס</label>
+                <label className="text-[11px] text-white/45 font-bold">Cardholder Name</label>
                 <input
-                  type="text"
-                  placeholder="ישראל ישראלי"
+                   type="text"
+                   placeholder="John Smith"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none placeholder:text-white/20"
@@ -138,7 +138,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               {/* Expiry + CVV */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[11px] text-white/45 font-bold">תוקף</label>
+                  <label className="text-[11px] text-white/45 font-bold">Expiry</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -188,7 +188,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                 </div>
                 <p className="text-[9px] text-center text-white/25 italic px-2 py-1.5 rounded-lg"
                   style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' }}>
-                  🔒 פרטי האשראי שלך אינם נשמרים במערכת VPP ומאובטחים בתקן המחמיר ביותר על ידי yPay
+                  🔒 Your credit details are not stored in VPP and are secured to the highest standards by yPay
                 </p>
               </div>
             </motion.div>

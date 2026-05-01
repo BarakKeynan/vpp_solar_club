@@ -218,9 +218,6 @@ export default function VPPHome() {
         </motion.div>
       )}
 
-      {/* Storm Guard Banner */}
-      <StormGuardBanner />
-
       {/* Billing Status */}
       <BillingStatusCard />
 
@@ -332,6 +329,9 @@ export default function VPPHome() {
 
       {/* Weather Widget */}
       <WeatherWidget />
+
+      {/* Storm Guard Banner */}
+      <StormGuardBanner />
 
       {/* Simple Savings + Battery Health (user-friendly) */}
       <SimpleSavingsCard />

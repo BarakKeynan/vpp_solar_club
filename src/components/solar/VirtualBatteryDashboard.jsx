@@ -583,9 +583,6 @@ export default function VirtualBatteryDashboard({ isHe }) {
     return () => clearInterval(t);
   }, []);
 
-  const circumference = 2 * Math.PI * 54;
-  const offset = circumference - (percent / 100) * circumference;
-
   return (
     <>
       <motion.button
@@ -603,20 +600,45 @@ export default function VirtualBatteryDashboard({ isHe }) {
         </div>
 
         <div className="flex items-center gap-5">
-          <div className="relative w-24 h-24 flex-shrink-0">
-            <svg className="w-full h-full" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="9" />
-              <motion.circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" strokeWidth="9"
-                strokeDasharray={circumference}
-                animate={{ strokeDashoffset: offset }}
-                transition={{ duration: 1.5, ease: 'easeOut' }}
-                strokeLinecap="round"
-                style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-xl font-black text-primary">{Math.round(percent)}%</p>
-              <p className="text-[10px] text-white/40">{kWh.toFixed(1)} kWh</p>
+          {/* Battery shape indicator */}
+          <div className="flex flex-col items-center gap-1 flex-shrink-0">
+            <div className="relative flex flex-col items-center">
+              {/* Battery tip */}
+              <div className="w-5 h-1.5 rounded-t-sm mb-0.5"
+                style={{ background: 'rgba(255,255,255,0.15)' }} />
+              {/* Battery body */}
+              <div className="relative w-12 h-20 rounded-xl overflow-hidden"
+                style={{ border: '2px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.04)' }}>
+                {/* Fill */}
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 rounded-b-lg"
+                  style={{
+                    background: percent > 50
+                      ? 'linear-gradient(180deg, #10b981, #059669)'
+                      : percent > 20
+                      ? 'linear-gradient(180deg, #f59e0b, #d97706)'
+                      : 'linear-gradient(180deg, #ef4444, #dc2626)',
+                    boxShadow: percent > 50
+                      ? '0 0 12px rgba(16,185,129,0.5)'
+                      : percent > 20
+                      ? '0 0 12px rgba(245,158,11,0.5)'
+                      : '0 0 12px rgba(239,68,68,0.5)',
+                  }}
+                  animate={{ height: `${percent}%` }}
+                  transition={{ duration: 1.5, ease: 'easeOut' }}
+                />
+                {/* Percent label inside battery */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-sm font-black text-white drop-shadow-lg">{Math.round(percent)}%</p>
+                </div>
+                {/* Horizontal lines (battery segments) */}
+                {[25, 50, 75].map(seg => (
+                  <div key={seg} className="absolute left-0 right-0 h-px"
+                    style={{ bottom: `${seg}%`, background: 'rgba(255,255,255,0.08)' }} />
+                ))}
+              </div>
             </div>
+            <p className="text-[10px] text-white/40 font-bold">{kWh.toFixed(1)} kWh</p>
           </div>
 
           <div className="flex-1 space-y-2">

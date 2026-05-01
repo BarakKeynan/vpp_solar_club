@@ -180,26 +180,17 @@ function ReserveDonut({ pct }) {
 // ─── Single priority card with inline slider ───────────────────────────────
 function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
   const [showSlider, setShowSlider] = useState(false);
-  const longPressTimer = useRef(null);
   const Icon = d.icon;
 
   const reserveLabel = reserve === 0
     ? (isHe ? 'פריקה מלאה' : 'Full discharge')
     : (isHe ? `עד ${reserve}% רזרבה` : `Up to ${reserve}% reserve`);
 
-  const startLongPress = () => {
-    longPressTimer.current = setTimeout(() => setShowSlider(true), 500);
-  };
-  const cancelLongPress = () => clearTimeout(longPressTimer.current);
-
   return (
     <div className="rounded-xl overflow-hidden"
       style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
       {/* Main row */}
-      <div className="flex items-center justify-between px-3 py-3"
-        onPointerDown={startLongPress}
-        onPointerUp={cancelLongPress}
-        onPointerLeave={cancelLongPress}>
+      <div className="flex items-center justify-between px-3 py-3">
         {/* Up/down arrows */}
         <div className="flex flex-col gap-0.5">
           <button onClick={() => onMove(idx, -1)} disabled={idx === 0}
@@ -212,50 +203,46 @@ function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
           </button>
         </div>
 
-        {/* Label */}
-        <div className="flex-1 px-3 text-right">
+        {/* Label — tap to toggle slider */}
+        <button className="flex-1 px-3 text-right" onClick={() => setShowSlider(v => !v)}>
           <p className="text-sm font-black text-white">{isHe ? d.label : d.labelEn}</p>
-          <p className="text-[10px] text-white/35 mt-0.5">{reserveLabel}</p>
-        </div>
+          <p className="text-[10px] mt-0.5" style={{ color: showSlider ? '#38bdf8' : 'rgba(255,255,255,0.35)' }}>
+            {reserveLabel}
+          </p>
+        </button>
 
-        {/* Donut + icon */}
-        <div className="flex items-center gap-2">
+        {/* Donut — also toggles slider */}
+        <button onClick={() => setShowSlider(v => !v)} className="flex items-center gap-2">
           <ReserveDonut pct={reserve} />
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)' }}>
             <Icon className="w-3.5 h-3.5 text-sky-400" />
           </div>
-        </div>
+        </button>
 
-        <span className="text-base font-black text-white/12 mr-1">#{idx + 1}</span>
+        <span className="text-base font-black text-white/10 mr-1">#{idx + 1}</span>
       </div>
 
-      {/* Inline slider (revealed on long-press or tap "עריכה") */}
+      {/* Inline slider */}
       <AnimatePresence>
         {showSlider && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
             className="px-4 pb-3 border-t border-white/5 overflow-hidden">
-            <div className="flex items-center justify-between pt-2 mb-1">
-              <span className="text-[10px] font-bold text-sky-400">{reserve}%</span>
+            <div className="flex items-center justify-between pt-2 mb-2">
+              <span className="text-sm font-black text-sky-400">{reserve}%</span>
               <span className="text-[10px] text-white/40">{isHe ? 'רזרבה מינימלית' : 'Min reserve'}</span>
             </div>
             <input type="range" min={0} max={50} step={5} value={reserve}
               onChange={e => onReserve(Number(e.target.value))}
-              className="w-full accent-sky-400 h-1.5 rounded-full cursor-pointer" />
-            <div className="flex justify-between text-[9px] text-white/20 mt-0.5">
-              <span>{isHe ? 'פריקה מלאה' : 'Full'}</span>
-              <span>50%</span>
+              className="w-full accent-sky-400 cursor-pointer" />
+            <div className="flex justify-between text-[9px] text-white/20 mt-1">
+              <span>{isHe ? 'פריקה מלאה' : 'Full discharge'}</span>
+              <span>50% {isHe ? 'רזרבה' : 'reserve'}</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Long-press hint / toggle */}
-      <button onClick={() => setShowSlider(v => !v)}
-        className="w-full text-center text-[9px] text-white/15 pb-1.5 active:text-white/40 transition-colors">
-        {showSlider ? '▲' : (isHe ? 'לחץ לכוונון רזרבה' : 'Tap to set reserve')}
-      </button>
     </div>
   );
 }

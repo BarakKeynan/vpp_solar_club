@@ -83,6 +83,10 @@ Deno.serve(async (req) => {
 
     // ── SAVE TOKEN (called after redirect back from yPay) ───────────
     if (action === 'save_token') {
+      // Admin-only - prevents unauthorized token modifications
+      if (user.role !== 'admin') {
+        return Response.json({ error: 'Admin access required' }, { status: 403 });
+      }
       const { token_id, last4, brand } = body;
       if (!token_id) return Response.json({ error: 'Missing token_id' }, { status: 400 });
 

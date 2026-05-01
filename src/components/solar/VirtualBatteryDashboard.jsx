@@ -659,7 +659,7 @@ export default function VirtualBatteryDashboard({ isHe }) {
             <div className="flex-1 space-y-2">
               {[
                 { label: isHe ? 'חיסכון החודש' : 'Saved', value: '₪187', color: '#10b981' },
-                { label: isHe ? 'מכשירים' : 'Devices', value: '3 פעילים', color: '#38bdf8' },
+                { label: isHe ? 'מכשירים' : 'Devices', value: isHe ? '3 פעילים' : '3 Active', color: '#38bdf8' },
                 { label: isHe ? 'מונה חכם' : 'Meter', value: isHe ? 'תקין ✓' : 'OK ✓', color: '#a78bfa' },
               ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between">

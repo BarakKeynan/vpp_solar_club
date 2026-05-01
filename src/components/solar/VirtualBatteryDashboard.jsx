@@ -97,11 +97,66 @@ function FlowIndicator({ mode, isHe }) {
 }
 
 // ─── Main Dashboard Sheet ──────────────────────────────────────────────────
+const ADD_DEVICE_OPTIONS = [
+  { id: 'ac2',    icon: Wind,     label: 'מזגן חכם',        kwh: 2   },
+  { id: 'washer', icon: Cpu,      label: 'מכונת כביסה',     kwh: 1.5 },
+  { id: 'fridge', icon: Droplets, label: 'מקרר חכם',        kwh: 0.5 },
+  { id: 'ev2',    icon: Car,      label: 'EV Charger 2',    kwh: 40  },
+];
+
+function AddDeviceModal({ onClose, onAdd, isHe, existingIds }) {
+  const available = ADD_DEVICE_OPTIONS.filter(d => !existingIds.includes(d.id));
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 flex items-end z-[60]"
+      style={{ backdropFilter: 'blur(4px)' }}
+      onClick={onClose}>
+      <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="w-full rounded-t-3xl p-5 pb-10 space-y-4"
+        style={{ background: '#0f1e30', border: '1px solid rgba(139,92,246,0.3)' }}
+        onClick={e => e.stopPropagation()}
+        dir="rtl">
+        <div className="flex justify-center pt-1 pb-2">
+          <div className="w-10 h-1 rounded-full bg-white/15" />
+        </div>
+        <div className="flex items-center justify-between">
+          <button onClick={onClose}><X className="w-5 h-5 text-white/30" /></button>
+          <h3 className="text-sm font-black text-white">{isHe ? '➕ הוסף מכשיר' : '➕ Add Device'}</h3>
+          <div className="w-5" />
+        </div>
+        <p className="text-xs text-white/40 text-center">
+          {isHe ? 'בחר מכשיר להוספה לסוללה הוירטואלית' : 'Select a device to add to your Virtual Battery'}
+        </p>
+        <div className="space-y-2">
+          {available.length === 0 ? (
+            <p className="text-xs text-white/30 text-center py-4">{isHe ? 'כל המכשירים כבר מחוברים ✓' : 'All devices already added ✓'}</p>
+          ) : available.map(d => {
+            const Icon = d.icon;
+            return (
+              <button key={d.id} onClick={() => { onAdd(d); onClose(); }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all active:scale-[0.98]"
+                style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                <span className="text-xs font-bold text-violet-400">{d.kwh} kWh</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white">{d.label}</span>
+                  <Icon className="w-4 h-4 text-violet-400" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function VirtualBatterySheet({ onClose, isHe }) {
   const [data] = useState(MOCK);
   const [scanning, setScanning] = useState(false);
   const [scanDone, setScanDone] = useState(false);
   const [devices, setDevices] = useState(MOCK.devices);
+  const [showAddDevice, setShowAddDevice] = useState(false);
 
   const runScan = () => {
     setScanning(true);
@@ -111,6 +166,9 @@ function VirtualBatterySheet({ onClose, isHe }) {
 
   const toggleDevice = (id) =>
     setDevices(prev => prev.map(d => d.id === id ? { ...d, active: !d.active } : d));
+
+  const addDevice = (device) =>
+    setDevices(prev => [...prev, { ...device, active: true }]);
 
   const totalVirtualKwh = devices.filter(d => d.active).reduce((s, d) => s + d.kwh, 0);
   const deviation = data.inverter.deviation;
@@ -124,7 +182,7 @@ function VirtualBatterySheet({ onClose, isHe }) {
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full rounded-t-3xl pb-10 max-h-[92vh] overflow-y-auto"
+        className="w-full rounded-t-3xl pb-28 max-h-[92vh] overflow-y-auto"
         style={{ background: '#0b1525', border: '1px solid rgba(52,211,153,0.2)' }}
         onClick={e => e.stopPropagation()}
         dir="rtl"
@@ -271,7 +329,8 @@ function VirtualBatterySheet({ onClose, isHe }) {
           {/* ③ Smart Devices */}
           <section>
             <div className="flex items-center justify-between mb-2">
-              <button className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95"
+              <button onClick={() => setShowAddDevice(true)}
+                className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95"
                 style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
                 <Plus className="w-3 h-3" />
                 {isHe ? 'הוסף מכשיר' : 'Add Device'}
@@ -303,6 +362,17 @@ function VirtualBatterySheet({ onClose, isHe }) {
           )}
 
         </div>
+
+        <AnimatePresence>
+          {showAddDevice && (
+            <AddDeviceModal
+              onClose={() => setShowAddDevice(false)}
+              onAdd={addDevice}
+              isHe={isHe}
+              existingIds={devices.map(d => d.id)}
+            />
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );

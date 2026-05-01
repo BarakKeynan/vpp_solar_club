@@ -26,6 +26,8 @@ import GamificationBadge from '@/components/dashboard/GamificationBadge';
 import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
 import BillingStatusCard from '@/components/billing/BillingStatusCard';
 import PhysicalBatteryStatus from '@/components/dashboard/PhysicalBatteryStatus';
+import StormGuardBanner from '@/components/dashboard/StormGuardBanner';
+import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -216,6 +218,9 @@ export default function VPPHome() {
         </motion.div>
       )}
 
+      {/* Storm Guard Banner */}
+      <StormGuardBanner />
+
       {/* Billing Status */}
       <BillingStatusCard />
 
@@ -321,6 +326,9 @@ export default function VPPHome() {
 
       {/* Physical Battery Status */}
       <PhysicalBatteryStatus />
+
+      {/* Eco-Profit Mode */}
+      <EcoProfitMode />
 
       {/* Weather Widget */}
       <WeatherWidget />

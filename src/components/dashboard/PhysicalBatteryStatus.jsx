@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, Thermometer, Zap, CheckCircle2, PlusCircle, Wifi } from 'lucide-react';
+import { Battery, Thermometer, Zap, CheckCircle2, PlusCircle, Wifi, CloudLightning } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useNavigate } from 'react-router-dom';
 
@@ -76,7 +76,13 @@ export default function PhysicalBatteryStatus() {
             <Battery className="w-3.5 h-3.5 text-emerald-400" />
             <span className="text-xs font-black text-white">{bat.brand}</span>
           </div>
-          <span className="text-sm font-black text-white">{bat.soc}%</span>
+          <div className="flex items-center gap-1.5">
+            {/* Storm guard icon — shown when storm mode is active */}
+            <motion.div title="Storm Guard Active" animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity }}>
+              <CloudLightning className="w-3.5 h-3.5 text-violet-400" />
+            </motion.div>
+            <span className="text-sm font-black text-white">{bat.soc}%</span>
+          </div>
         </div>
 
         {/* SoC bar */}

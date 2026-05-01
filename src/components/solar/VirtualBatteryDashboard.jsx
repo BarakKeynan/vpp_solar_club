@@ -277,14 +277,13 @@ function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve, tourAct
 }
 
 // ─── Discharge Priority Modal (portalled) ─────────────────────────────────
-function DischargePriorityModal({ onClose, isHe }) {
+function DischargePriorityModal({ onClose, isHe, tourActiveId, onTourNext }) {
   const [order, setOrder] = useState(DISCHARGE_OPTIONS.map(d => d.id));
   const [reserves, setReserves] = useState({ home: 15, grid: 5, ev: 0 });
   const [priorityPopover, setPriorityPopover] = useState(false);
   const priorityBtnRef = useRef(null);
-  const { activeId, next } = useInfoTour(TOUR_IDS);
-  const tourAtPriority = activeId === 'discharge_priority';
-  const tourAtReserve  = activeId === 'reserve_safety';
+  const tourAtPriority = tourActiveId === 'discharge_priority';
+  const tourAtReserve  = tourActiveId === 'reserve_safety';
 
   // Auto-open on tour
   useEffect(() => {
@@ -292,11 +291,11 @@ function DischargePriorityModal({ onClose, isHe }) {
   }, [tourAtPriority]);
 
   const move = (idx, dir) => {
-    const next = [...order];
+    const reordered = [...order];
     const swap = idx + dir;
-    if (swap < 0 || swap >= next.length) return;
-    [next[idx], next[swap]] = [next[swap], next[idx]];
-    setOrder(next);
+    if (swap < 0 || swap >= reordered.length) return;
+    [reordered[idx], reordered[swap]] = [reordered[swap], reordered[idx]];
+    setOrder(reordered);
   };
 
   const setReserve = (id, val) => setReserves(r => ({ ...r, [id]: val }));
@@ -340,7 +339,7 @@ function DischargePriorityModal({ onClose, isHe }) {
               />
               <InfoPopover
                 open={priorityPopover}
-                onClose={() => { setPriorityPopover(false); if (tourAtPriority) next(); }}
+                onClose={() => { setPriorityPopover(false); if (tourAtPriority) onTourNext?.(); }}
                 position="bottom"
                 anchorRef={priorityBtnRef}
                 content={isHe
@@ -387,7 +386,7 @@ function DischargePriorityModal({ onClose, isHe }) {
 }
 
 // ─── Main Dashboard Sheet ──────────────────────────────────────────────────
-function VirtualBatterySheet({ onClose, isHe }) {
+function VirtualBatterySheet({ onClose, isHe, activeId, next }) {
   const [data] = useState(MOCK);
   const [scanning, setScanning] = useState(false);
   const [scanDone, setScanDone] = useState(false);
@@ -576,7 +575,7 @@ function VirtualBatterySheet({ onClose, isHe }) {
       </AnimatePresence>
       <AnimatePresence>
         {showDischarge && (
-          <DischargePriorityModal onClose={() => setShowDischarge(false)} isHe={isHe} />
+          <DischargePriorityModal onClose={() => setShowDischarge(false)} isHe={isHe} tourActiveId={activeId} onTourNext={next} />
         )}
       </AnimatePresence>
     </>
@@ -590,7 +589,7 @@ export default function VirtualBatteryDashboard({ isHe }) {
   const [kWh, setKwh] = useState(42.5);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const vbBtnRef = useRef(null);
-  const { activeId, next } = useInfoTour(TOUR_IDS);
+  const { activeId, next, isDone, resetTour } = useInfoTour(TOUR_IDS);
   const tourHere = activeId === 'virtual_battery';
 
   // Auto-open popover on first tour step
@@ -608,6 +607,14 @@ export default function VirtualBatteryDashboard({ isHe }) {
 
   return (
     <>
+      {isDone && (
+        <button
+          onClick={resetTour}
+          className="w-full text-[10px] text-white/15 hover:text-white/40 py-0.5 transition-colors text-left px-1 mb-1"
+        >
+          🔄 {isHe ? 'הצג הדרכה מחדש' : 'Show tour again'}
+        </button>
+      )}
       <div className="relative">
         <motion.button
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -697,7 +704,7 @@ export default function VirtualBatteryDashboard({ isHe }) {
       </div>
 
       <AnimatePresence>
-        {open && <VirtualBatterySheet onClose={() => setOpen(false)} isHe={isHe} />}
+        {open && <VirtualBatterySheet onClose={() => setOpen(false)} isHe={isHe} activeId={activeId} next={next} />}
       </AnimatePresence>
     </>
   );

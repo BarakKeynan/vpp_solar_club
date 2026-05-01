@@ -181,9 +181,15 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                 <Shield className="w-4 h-4" /> אשר והפעל אופטימיזציה
               </button>
 
-              <div className="flex items-center justify-center gap-1.5">
-                <Lock className="w-3 h-3 text-white/20" />
-                <p className="text-[10px] text-center text-white/20">פרטי הכרטיס מוצפנים ולא נשמרים בשרתינו</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-1.5">
+                  <Lock className="w-3 h-3 text-white/20" />
+                  <p className="text-[10px] text-center text-white/20">פרטי הכרטיס מוצפנים ולא נשמרים בשרתינו</p>
+                </div>
+                <p className="text-[9px] text-center text-white/25 italic px-2 py-1.5 rounded-lg"
+                  style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                  🔒 פרטי האשראי שלך אינם נשמרים במערכת VPP ומאובטחים בתקן המחמיר ביותר על ידי yPay
+                </p>
               </div>
             </motion.div>
           )}

@@ -26,6 +26,10 @@ Deno.serve(async (req) => {
 
     // ── CREATE TOKENIZATION LINK ───────────────────────────────────────
     if (action === 'create_tokenization_link') {
+      // Admin-only for critical billing operations
+      if (user.role !== 'admin') {
+        return Response.json({ error: 'Admin access required' }, { status: 403 });
+      }
       if (SIMULATE) {
         // Simulation: return a fake redirect URL
         const simulatedUrl = `https://checkout.ypay.co.il/tokenize/demo?email=${encodeURIComponent(user.email)}&redirect=${encodeURIComponent(body.redirect_url || '')}`;
@@ -98,6 +102,10 @@ Deno.serve(async (req) => {
 
     // ── REMOVE TOKEN ───────────────────────────────────────────────────
     if (action === 'remove_token') {
+      // Admin-only for billing modifications
+      if (user.role !== 'admin') {
+        return Response.json({ error: 'Admin access required' }, { status: 403 });
+      }
       await base44.auth.updateMe({
         billing_token: null,
         billing_last4: null,

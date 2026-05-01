@@ -1,22 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
-/**
- * InfoPopover — a small (?) trigger that opens a frosted-glass explanation bubble.
- *
- * Props:
- *  id          – unique string used for the onboarding tour
- *  content     – string or JSX explanation text
- *  open        – controlled open state
- *  onOpen      – called when user taps (?)
- *  onClose     – called when bubble should close
- *  position    – 'top' | 'bottom' (default 'bottom')
- *  highlight   – if true, pulse the (?) button (used by tour)
- */
-export function InfoButton({ id, onOpen, highlight }) {
+export function InfoButton({ id, onOpen, highlight, buttonRef }) {
   return (
     <motion.button
+      ref={buttonRef}
       data-info-id={id}
       onClick={(e) => { e.stopPropagation(); onOpen(); }}
       animate={highlight ? { scale: [1, 1.3, 1] } : { scale: 1 }}
@@ -34,10 +24,31 @@ export function InfoButton({ id, onOpen, highlight }) {
   );
 }
 
-export default function InfoPopover({ open, onClose, content, position = 'bottom' }) {
+export default function InfoPopover({ open, onClose, content, position = 'bottom', anchorRef }) {
   const ref = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const POPOVER_WIDTH = 256; // w-64
 
-  // One-tap outside close
+  // Calculate position from anchor element
+  useEffect(() => {
+    if (!open || !anchorRef?.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
+    const margin = 8;
+    const viewportWidth = window.innerWidth;
+
+    // Try to align right edge of popover with right edge of button
+    let left = rect.right - POPOVER_WIDTH;
+    // Clamp so it doesn't go off-screen on either side
+    left = Math.max(margin, Math.min(left, viewportWidth - POPOVER_WIDTH - margin));
+
+    const top = position === 'bottom'
+      ? rect.bottom + margin
+      : rect.top - margin; // will be adjusted below with transform
+
+    setCoords({ top, left });
+  }, [open, anchorRef, position]);
+
+  // Click-outside close
   useEffect(() => {
     if (!open) return;
     const handler = (e) => {
@@ -47,37 +58,28 @@ export default function InfoPopover({ open, onClose, content, position = 'bottom
     return () => document.removeEventListener('pointerdown', handler, true);
   }, [open, onClose]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, scale: 0.85, y: position === 'bottom' ? -6 : 6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.85, y: position === 'bottom' ? -6 : 6 }}
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.85 }}
           transition={{ type: 'spring', damping: 22, stiffness: 320 }}
           onClick={(e) => e.stopPropagation()}
-          className="absolute z-50 w-64 rounded-2xl p-4 shadow-2xl"
+          className="fixed z-[9999] rounded-2xl p-4 shadow-2xl"
           style={{
-            background: 'rgba(15,25,42,0.82)',
+            width: POPOVER_WIDTH,
+            top: coords.top,
+            left: coords.left,
+            ...(position === 'top' ? { transform: 'translateY(-100%)' } : {}),
+            background: 'rgba(15,25,42,0.92)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
             border: '1px solid rgba(139,92,246,0.35)',
-            ...(position === 'bottom' ? { top: 'calc(100% + 8px)', right: 0 } : { bottom: 'calc(100% + 8px)', right: 0 }),
           }}
         >
-          {/* Arrow */}
-          <div
-            className="absolute w-2.5 h-2.5 rotate-45"
-            style={{
-              background: 'rgba(15,25,42,0.9)',
-              border: '1px solid rgba(139,92,246,0.35)',
-              ...(position === 'bottom'
-                ? { top: -6, right: 14, borderBottom: 'none', borderRight: 'none' }
-                : { bottom: -6, right: 14, borderTop: 'none', borderLeft: 'none' }),
-            }}
-          />
-
           <button
             onClick={onClose}
             className="absolute top-2.5 left-3 text-white/25 hover:text-white/60 transition-colors"
@@ -90,6 +92,7 @@ export default function InfoPopover({ open, onClose, content, position = 'bottom
           </p>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

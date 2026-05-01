@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CloudLightning, X } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
@@ -12,6 +12,7 @@ export default function StormGuardBanner() {
   const [dismissed, setDismissed] = useState(false);
   const [stormData, setStormData] = useState(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const btnRef = useRef(null);
 
   useEffect(() => {
     // Check if user has storm guard active (set by backend stormGuard function)
@@ -80,11 +81,13 @@ export default function StormGuardBanner() {
                 id="storm_guard"
                 onOpen={() => setPopoverOpen(true)}
                 highlight={false}
+                buttonRef={btnRef}
               />
               <InfoPopover
                 open={popoverOpen}
                 onClose={() => setPopoverOpen(false)}
                 position="bottom"
+                anchorRef={btnRef}
                 content={isHe
                   ? 'כשהשמיים מתקדרים, המערכת נכנסת למצב הגנה. היא ממלאת את הסוללה בבית ל-100% כדי שגם אם הרשת תיפול בסופה – אצלך האור יישאר דולק.'
                   : 'When storms approach, the system enters protection mode. It charges your battery to 100% so that even if the grid goes down — your lights stay on.'}

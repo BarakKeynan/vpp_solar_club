@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -185,6 +185,7 @@ function ReserveDonut({ pct }) {
 function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve, tourActive, onTourNext }) {
   const [showSlider, setShowSlider] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const btnRef = useRef(null);
   const Icon = d.icon;
 
   // Open popover automatically when tour reaches reserve_safety
@@ -237,11 +238,13 @@ function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve, tourAct
             id="reserve_safety"
             onOpen={() => { setPopoverOpen(true); }}
             highlight={tourActive && idx === 0}
+            buttonRef={btnRef}
           />
           <InfoPopover
             open={popoverOpen}
             onClose={() => { setPopoverOpen(false); if (tourActive) onTourNext?.(); }}
             position="bottom"
+            anchorRef={btnRef}
             content={isHe
               ? 'זה הגבול האדום שלך. המערכת לעולם לא תרד מתחת לאחוז הזה, כדי שתמיד יישאר לך חשמל לחירום.'
               : 'This is your red line. The system will never go below this percentage — so you always have emergency power.'}
@@ -278,6 +281,7 @@ function DischargePriorityModal({ onClose, isHe }) {
   const [order, setOrder] = useState(DISCHARGE_OPTIONS.map(d => d.id));
   const [reserves, setReserves] = useState({ home: 15, grid: 5, ev: 0 });
   const [priorityPopover, setPriorityPopover] = useState(false);
+  const priorityBtnRef = useRef(null);
   const { activeId, next } = useInfoTour(TOUR_IDS);
   const tourAtPriority = activeId === 'discharge_priority';
   const tourAtReserve  = activeId === 'reserve_safety';
@@ -332,11 +336,13 @@ function DischargePriorityModal({ onClose, isHe }) {
                 id="discharge_priority"
                 onOpen={() => setPriorityPopover(true)}
                 highlight={tourAtPriority}
+                buttonRef={priorityBtnRef}
               />
               <InfoPopover
                 open={priorityPopover}
                 onClose={() => { setPriorityPopover(false); if (tourAtPriority) next(); }}
                 position="bottom"
+                anchorRef={priorityBtnRef}
                 content={isHe
                   ? 'גרור את הכרטיסיות כדי להחליט מי מקבל חשמל קודם. טיפ: שים את "הבית" בראש כדי למקסם את החיסכון בחשבון החשמל.'
                   : 'Drag cards to decide who gets power first. Tip: put "Home" at the top to maximize your electricity bill savings.'}
@@ -583,6 +589,7 @@ export default function VirtualBatteryDashboard({ isHe }) {
   const [percent, setPercent] = useState(72);
   const [kWh, setKwh] = useState(42.5);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const vbBtnRef = useRef(null);
   const { activeId, next } = useInfoTour(TOUR_IDS);
   const tourHere = activeId === 'virtual_battery';
 
@@ -668,11 +675,13 @@ export default function VirtualBatteryDashboard({ isHe }) {
                   id="virtual_battery"
                   onOpen={() => setPopoverOpen(true)}
                   highlight={tourHere}
+                  buttonRef={vbBtnRef}
                 />
                 <InfoPopover
                   open={popoverOpen}
                   onClose={() => { setPopoverOpen(false); if (tourHere) next(); }}
                   position="bottom"
+                  anchorRef={vbBtnRef}
                   content={isHe
                     ? "זהו 'חשבון הבנק' האנרגי שלך. כאן נצבר החשמל ששלחת לרשת בצהריים כדי שתוכל להשתמש בו בחינם בלילה."
                     : "This is your energy 'bank account'. Here accumulates the electricity you sent to the grid at noon so you can use it for free at night."}

@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Wifi, AlertTriangle, CheckCircle2,
   RefreshCw, Plus, ChevronRight, Car, Droplets, Wind, Cpu, Home, Zap, ArrowUpDown
 } from 'lucide-react';
+import InfoPopover, { InfoButton } from '@/components/ui/InfoPopover';
+import { useInfoTour } from '@/lib/useInfoTour';
+
+const TOUR_IDS = ['virtual_battery', 'discharge_priority', 'reserve_safety'];
 
 // ─── Mock data ─────────────────────────────────────────────────────────────
 const MOCK = {
@@ -178,16 +182,24 @@ function ReserveDonut({ pct }) {
 }
 
 // ─── Single priority card with inline slider ───────────────────────────────
-function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
+function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve, tourActive, onTourNext }) {
   const [showSlider, setShowSlider] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const Icon = d.icon;
+
+  // Open popover automatically when tour reaches reserve_safety
+  useEffect(() => {
+    if (tourActive && idx === 0) {
+      setPopoverOpen(true);
+    }
+  }, [tourActive, idx]);
 
   const reserveLabel = reserve === 0
     ? (isHe ? 'פריקה מלאה' : 'Full discharge')
     : (isHe ? `עד ${reserve}% רזרבה` : `Up to ${reserve}% reserve`);
 
   return (
-    <div className="rounded-xl overflow-hidden"
+    <div className="rounded-xl overflow-hidden relative"
       style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
       {/* Main row */}
       <div className="flex items-center justify-between px-3 py-3">
@@ -220,7 +232,21 @@ function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
           </div>
         </button>
 
-        <span className="text-base font-black text-white/10 mr-1">#{idx + 1}</span>
+        <div className="relative ml-1 flex-shrink-0">
+          <InfoButton
+            id="reserve_safety"
+            onOpen={() => { setPopoverOpen(true); }}
+            highlight={tourActive && idx === 0}
+          />
+          <InfoPopover
+            open={popoverOpen}
+            onClose={() => { setPopoverOpen(false); if (tourActive) onTourNext?.(); }}
+            position="bottom"
+            content={isHe
+              ? 'זה הגבול האדום שלך. המערכת לעולם לא תרד מתחת לאחוז הזה, כדי שתמיד יישאר לך חשמל לחירום.'
+              : 'This is your red line. The system will never go below this percentage — so you always have emergency power.'}
+          />
+        </div>
       </div>
 
       {/* Inline slider */}
@@ -251,6 +277,15 @@ function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
 function DischargePriorityModal({ onClose, isHe }) {
   const [order, setOrder] = useState(DISCHARGE_OPTIONS.map(d => d.id));
   const [reserves, setReserves] = useState({ home: 15, grid: 5, ev: 0 });
+  const [priorityPopover, setPriorityPopover] = useState(false);
+  const { activeId, next } = useInfoTour(TOUR_IDS);
+  const tourAtPriority = activeId === 'discharge_priority';
+  const tourAtReserve  = activeId === 'reserve_safety';
+
+  // Auto-open on tour
+  useEffect(() => {
+    if (tourAtPriority) setPriorityPopover(true);
+  }, [tourAtPriority]);
 
   const move = (idx, dir) => {
     const next = [...order];
@@ -261,12 +296,9 @@ function DischargePriorityModal({ onClose, isHe }) {
   };
 
   const setReserve = (id, val) => setReserves(r => ({ ...r, [id]: val }));
-
   const ordered = order.map(id => DISCHARGE_OPTIONS.find(d => d.id === id));
-
-  // Security summary: use the reserve of the first-priority target (home)
   const primaryReserve = reserves[order[0]] ?? 15;
-  const backupHours = Math.round((primaryReserve / 100) * 13.5 * 10) / 10; // ~13.5 kWh avg battery
+  const backupHours = Math.round((primaryReserve / 100) * 13.5 * 10) / 10;
 
   return (
     <PortalModal>
@@ -294,7 +326,22 @@ function DischargePriorityModal({ onClose, isHe }) {
                 {isHe ? 'לחץ על כרטיסייה לכוונון רזרבה' : 'Tap card to set reserve level'}
               </p>
             </div>
-            <div className="w-5" />
+            {/* (?) for priority */}
+            <div className="relative">
+              <InfoButton
+                id="discharge_priority"
+                onOpen={() => setPriorityPopover(true)}
+                highlight={tourAtPriority}
+              />
+              <InfoPopover
+                open={priorityPopover}
+                onClose={() => { setPriorityPopover(false); if (tourAtPriority) next(); }}
+                position="bottom"
+                content={isHe
+                  ? 'גרור את הכרטיסיות כדי להחליט מי מקבל חשמל קודם. טיפ: שים את "הבית" בראש כדי למקסם את החיסכון בחשבון החשמל.'
+                  : 'Drag cards to decide who gets power first. Tip: put "Home" at the top to maximize your electricity bill savings.'}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -306,18 +353,18 @@ function DischargePriorityModal({ onClose, isHe }) {
                 isHe={isHe}
                 reserve={reserves[d.id] ?? 0}
                 onReserve={(v) => setReserve(d.id, v)}
+                tourActive={tourAtReserve && idx === 0}
+                onTourNext={next}
               />
             ))}
           </div>
 
-          {/* Save button */}
           <button onClick={onClose}
             className="w-full py-3 rounded-2xl text-sm font-black text-white transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.1))', border: '1px solid rgba(56,189,248,0.35)' }}>
             {isHe ? '✓ שמור עדיפות' : '✓ Save Priority'}
           </button>
 
-          {/* Security summary */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
             style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)' }}>
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
@@ -393,7 +440,6 @@ function VirtualBatterySheet({ onClose, isHe }) {
           </div>
 
           <div className="px-5 pt-4 space-y-5">
-            {/* Scan success banner */}
             <AnimatePresence>
               {scanDone && (
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -405,7 +451,6 @@ function VirtualBatterySheet({ onClose, isHe }) {
               )}
             </AnimatePresence>
 
-            {/* Deviation warning */}
             {deviationWarn && (
               <div className="flex items-start gap-2.5 px-3 py-3 rounded-xl"
                 style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
@@ -425,35 +470,11 @@ function VirtualBatterySheet({ onClose, isHe }) {
               </p>
               <div className="rounded-2xl overflow-hidden"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <StatusRow
-                  label={isHe ? 'יתרה וירטואלית' : 'Virtual Balance'}
-                  value={`${totalVirtualKwh.toFixed(1)} kWh`}
-                  status="ok"
-                  action={isHe ? 'היסטוריה' : 'History'}
-                  onAction={() => {}}
-                />
-                <StatusRow
-                  label={isHe ? 'חיסכון החודש' : 'Saved this month'}
-                  value={`₪${data.savedThisMonth}`}
-                  status="ok"
-                />
-                <StatusRow
-                  label={isHe ? 'מונה חכם' : 'Smart Meter'}
-                  value={data.smartMeterOk ? `${isHe ? 'תקין' : 'OK'} · ${data.smartMeterLastSync}` : (isHe ? 'שגיאה' : 'Error')}
-                  status={data.smartMeterOk ? 'ok' : 'error'}
-                  action={isHe ? 'סנכרן' : 'Sync'}
-                  onAction={runScan}
-                />
-                <StatusRow
-                  label={isHe ? 'ממיר (API)' : 'Inverter (API)'}
-                  value={`${isHe ? 'מחובר' : 'Connected'} · S/N ${data.inverter.sn}`}
-                  status={deviationWarn ? 'warn' : 'ok'}
-                />
-                <StatusRow
-                  label={isHe ? 'תעו"ז (תעריף)' : 'ToU Tariff'}
-                  value={data.tariffOk ? (isHe ? 'מוגדר נכון ✓' : 'Configured ✓') : (isHe ? 'לא מוגדר' : 'Not set')}
-                  status={data.tariffOk ? 'ok' : 'warn'}
-                />
+                <StatusRow label={isHe ? 'יתרה וירטואלית' : 'Virtual Balance'} value={`${totalVirtualKwh.toFixed(1)} kWh`} status="ok" action={isHe ? 'היסטוריה' : 'History'} onAction={() => {}} />
+                <StatusRow label={isHe ? 'חיסכון החודש' : 'Saved this month'} value={`₪${data.savedThisMonth}`} status="ok" />
+                <StatusRow label={isHe ? 'מונה חכם' : 'Smart Meter'} value={data.smartMeterOk ? `${isHe ? 'תקין' : 'OK'} · ${data.smartMeterLastSync}` : (isHe ? 'שגיאה' : 'Error')} status={data.smartMeterOk ? 'ok' : 'error'} action={isHe ? 'סנכרן' : 'Sync'} onAction={runScan} />
+                <StatusRow label={isHe ? 'ממיר (API)' : 'Inverter (API)'} value={`${isHe ? 'מחובר' : 'Connected'} · S/N ${data.inverter.sn}`} status={deviationWarn ? 'warn' : 'ok'} />
+                <StatusRow label={isHe ? 'תעו"ז (תעריף)' : 'ToU Tariff'} value={data.tariffOk ? (isHe ? 'מוגדר נכון ✓' : 'Configured ✓') : (isHe ? 'לא מוגדר' : 'Not set')} status={data.tariffOk ? 'ok' : 'warn'} />
               </div>
             </section>
 
@@ -476,8 +497,7 @@ function VirtualBatterySheet({ onClose, isHe }) {
                     </div>
                     <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                       <motion.div initial={{ width: 0 }} animate={{ width: `${data.physicalBattery.soc}%` }}
-                        transition={{ duration: 1 }}
-                        className="h-full rounded-full bg-emerald-400" />
+                        transition={{ duration: 1 }} className="h-full rounded-full bg-emerald-400" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -493,11 +513,8 @@ function VirtualBatterySheet({ onClose, isHe }) {
                   <FlowIndicator mode={data.physicalBattery.flowMode} isHe={isHe} />
                 </div>
               ) : (
-                <div className="rounded-2xl p-4"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-xs text-white/40 text-center mb-3">
-                    {isHe ? 'לא זוהתה סוללה פיזית' : 'No physical battery detected'}
-                  </p>
+                <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className="text-xs text-white/40 text-center mb-3">{isHe ? 'לא זוהתה סוללה פיזית' : 'No physical battery detected'}</p>
                   <button className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
                     style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)' }}>
                     <Plus className="w-3.5 h-3.5" />
@@ -546,23 +563,14 @@ function VirtualBatterySheet({ onClose, isHe }) {
         </motion.div>
       </motion.div>
 
-      {/* Portalled modals — rendered above everything */}
       <AnimatePresence>
         {showAddDevice && (
-          <AddDeviceModal
-            onClose={() => setShowAddDevice(false)}
-            onAdd={addDevice}
-            isHe={isHe}
-            existingIds={devices.map(d => d.id)}
-          />
+          <AddDeviceModal onClose={() => setShowAddDevice(false)} onAdd={addDevice} isHe={isHe} existingIds={devices.map(d => d.id)} />
         )}
       </AnimatePresence>
       <AnimatePresence>
         {showDischarge && (
-          <DischargePriorityModal
-            onClose={() => setShowDischarge(false)}
-            isHe={isHe}
-          />
+          <DischargePriorityModal onClose={() => setShowDischarge(false)} isHe={isHe} />
         )}
       </AnimatePresence>
     </>
@@ -574,6 +582,14 @@ export default function VirtualBatteryDashboard({ isHe }) {
   const [open, setOpen] = useState(false);
   const [percent, setPercent] = useState(72);
   const [kWh, setKwh] = useState(42.5);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const { activeId, next } = useInfoTour(TOUR_IDS);
+  const tourHere = activeId === 'virtual_battery';
+
+  // Auto-open popover on first tour step
+  useEffect(() => {
+    if (tourHere) setPopoverOpen(true);
+  }, [tourHere]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -585,87 +601,91 @@ export default function VirtualBatteryDashboard({ isHe }) {
 
   return (
     <>
-      <motion.button
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        onClick={() => setOpen(true)}
-        className="w-full rounded-2xl border border-primary/25 p-4 text-right active:scale-[0.98] transition-transform"
-        style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.09), rgba(16,185,129,0.04))' }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-black text-emerald-400/70">{isHe ? 'משדרת' : 'Live'}</span>
+      <div className="relative">
+        <motion.button
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          onClick={() => setOpen(true)}
+          className="w-full rounded-2xl border border-primary/25 p-4 text-right active:scale-[0.98] transition-transform"
+          style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.09), rgba(16,185,129,0.04))' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-black text-emerald-400/70">{isHe ? 'משדרת' : 'Live'}</span>
+            </div>
+            <h3 className="text-sm font-black text-white">{isHe ? 'סוללה וירטואלית VPP' : 'VPP Virtual Battery'}</h3>
           </div>
-          <h3 className="text-sm font-black text-white">{isHe ? 'סוללה וירטואלית VPP' : 'VPP Virtual Battery'}</h3>
-        </div>
 
-        <div className="flex items-center gap-5">
-          {/* Battery shape indicator */}
-          <div className="flex flex-col items-center gap-1 flex-shrink-0">
-            <div className="relative flex flex-col items-center">
-              {/* Battery tip */}
-              <div className="w-5 h-1.5 rounded-t-sm mb-0.5"
-                style={{ background: 'rgba(255,255,255,0.15)' }} />
-              {/* Battery body */}
-              <div className="relative w-12 h-20 rounded-xl overflow-hidden"
-                style={{ border: '2px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.04)' }}>
-                {/* Fill */}
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 rounded-b-lg"
-                  style={{
-                    background: percent > 50
-                      ? 'linear-gradient(180deg, #10b981, #059669)'
-                      : percent > 20
-                      ? 'linear-gradient(180deg, #f59e0b, #d97706)'
-                      : 'linear-gradient(180deg, #ef4444, #dc2626)',
-                    boxShadow: percent > 50
-                      ? '0 0 12px rgba(16,185,129,0.5)'
-                      : percent > 20
-                      ? '0 0 12px rgba(245,158,11,0.5)'
-                      : '0 0 12px rgba(239,68,68,0.5)',
-                  }}
-                  animate={{ height: `${percent}%` }}
-                  transition={{ duration: 1.5, ease: 'easeOut' }}
-                />
-                {/* Percent label inside battery */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-sm font-black text-white drop-shadow-lg">{Math.round(percent)}%</p>
+          <div className="flex items-center gap-5">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
+              <div className="relative flex flex-col items-center">
+                <div className="w-5 h-1.5 rounded-t-sm mb-0.5" style={{ background: 'rgba(255,255,255,0.15)' }} />
+                <div className="relative w-12 h-20 rounded-xl overflow-hidden"
+                  style={{ border: '2px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.04)' }}>
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 rounded-b-lg"
+                    style={{
+                      background: percent > 50 ? 'linear-gradient(180deg, #10b981, #059669)' : percent > 20 ? 'linear-gradient(180deg, #f59e0b, #d97706)' : 'linear-gradient(180deg, #ef4444, #dc2626)',
+                      boxShadow: percent > 50 ? '0 0 12px rgba(16,185,129,0.5)' : percent > 20 ? '0 0 12px rgba(245,158,11,0.5)' : '0 0 12px rgba(239,68,68,0.5)',
+                    }}
+                    animate={{ height: `${percent}%` }}
+                    transition={{ duration: 1.5, ease: 'easeOut' }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-sm font-black text-white drop-shadow-lg">{Math.round(percent)}%</p>
+                  </div>
+                  {[25, 50, 75].map(seg => (
+                    <div key={seg} className="absolute left-0 right-0 h-px" style={{ bottom: `${seg}%`, background: 'rgba(255,255,255,0.08)' }} />
+                  ))}
                 </div>
-                {/* Horizontal lines (battery segments) */}
-                {[25, 50, 75].map(seg => (
-                  <div key={seg} className="absolute left-0 right-0 h-px"
-                    style={{ bottom: `${seg}%`, background: 'rgba(255,255,255,0.08)' }} />
-                ))}
+              </div>
+              <p className="text-[10px] text-white/40 font-bold">{kWh.toFixed(1)} kWh</p>
+            </div>
+
+            <div className="flex-1 space-y-2">
+              {[
+                { label: isHe ? 'חיסכון החודש' : 'Saved', value: '₪187', color: '#10b981' },
+                { label: isHe ? 'מכשירים' : 'Devices', value: '3 פעילים', color: '#38bdf8' },
+                { label: isHe ? 'מונה חכם' : 'Meter', value: isHe ? 'תקין ✓' : 'OK ✓', color: '#a78bfa' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-xs font-bold" style={{ color: item.color }}>{item.value}</span>
+                  <span className="text-[10px] text-white/35">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+            <div className="flex items-center gap-1 text-[11px] font-bold text-sky-400">
+              <ChevronRight className="w-3.5 h-3.5" style={{ transform: 'rotate(180deg)' }} />
+              {isHe ? 'לחץ לתמונת מצב מלאה' : 'Tap for full snapshot'}
+            </div>
+            <div className="flex items-center gap-2">
+              {/* (?) button */}
+              <div onClick={e => e.stopPropagation()} className="relative">
+                <InfoButton
+                  id="virtual_battery"
+                  onOpen={() => setPopoverOpen(true)}
+                  highlight={tourHere}
+                />
+                <InfoPopover
+                  open={popoverOpen}
+                  onClose={() => { setPopoverOpen(false); if (tourHere) next(); }}
+                  position="bottom"
+                  content={isHe
+                    ? "זהו 'חשבון הבנק' האנרגי שלך. כאן נצבר החשמל ששלחת לרשת בצהריים כדי שתוכל להשתמש בו בחינם בלילה."
+                    : "This is your energy 'bank account'. Here accumulates the electricity you sent to the grid at noon so you can use it for free at night."}
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <Wifi className="w-3 h-3 text-emerald-400" />
+                <span className="text-[10px] text-emerald-400/60">API ✓</span>
               </div>
             </div>
-            <p className="text-[10px] text-white/40 font-bold">{kWh.toFixed(1)} kWh</p>
           </div>
-
-          <div className="flex-1 space-y-2">
-            {[
-              { label: isHe ? 'חיסכון החודש' : 'Saved', value: '₪187', color: '#10b981' },
-              { label: isHe ? 'מכשירים' : 'Devices', value: '3 פעילים', color: '#38bdf8' },
-              { label: isHe ? 'מונה חכם' : 'Meter', value: isHe ? 'תקין ✓' : 'OK ✓', color: '#a78bfa' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <span className="text-xs font-bold" style={{ color: item.color }}>{item.value}</span>
-                <span className="text-[10px] text-white/35">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
-          <div className="flex items-center gap-1 text-[11px] font-bold text-sky-400">
-            <ChevronRight className="w-3.5 h-3.5" style={{ transform: 'rotate(180deg)' }} />
-            {isHe ? 'לחץ לתמונת מצב מלאה' : 'Tap for full snapshot'}
-          </div>
-          <div className="flex items-center gap-1">
-            <Wifi className="w-3 h-3 text-emerald-400" />
-            <span className="text-[10px] text-emerald-400/60">API ✓</span>
-          </div>
-        </div>
-      </motion.button>
+        </motion.button>
+      </div>
 
       <AnimatePresence>
         {open && <VirtualBatterySheet onClose={() => setOpen(false)} isHe={isHe} />}

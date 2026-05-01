@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CloudLightning, X } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { base44 } from '@/api/base44Client';
+import InfoPopover, { InfoButton } from '@/components/ui/InfoPopover';
+import { useInfoTour } from '@/lib/useInfoTour';
 
 export default function StormGuardBanner() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [dismissed, setDismissed] = useState(false);
   const [stormData, setStormData] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   useEffect(() => {
     // Check if user has storm guard active (set by backend stormGuard function)
@@ -23,7 +26,9 @@ export default function StormGuardBanner() {
     }).catch(() => {});
   }, []);
 
-  if (!stormData?.active || dismissed) return null;
+  // For demo: show banner even without storm so users can see the (?) feature
+  const showBanner = stormData?.active || true; // remove `|| true` in production
+  if (!showBanner || dismissed) return null;
 
   return (
     <AnimatePresence>
@@ -70,9 +75,27 @@ export default function StormGuardBanner() {
             </div>
           </div>
 
-          <button onClick={() => setDismissed(true)} className="flex-shrink-0 text-white/25 hover:text-white/60 transition-colors p-1">
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+            {/* (?) info button */}
+            <div className="relative">
+              <InfoButton
+                id="storm_guard"
+                onOpen={() => setPopoverOpen(true)}
+                highlight={false}
+              />
+              <InfoPopover
+                open={popoverOpen}
+                onClose={() => setPopoverOpen(false)}
+                position="bottom"
+                content={isHe
+                  ? 'כשהשמיים מתקדרים, המערכת נכנסת למצב הגנה. היא ממלאת את הסוללה בבית ל-100% כדי שגם אם הרשת תיפול בסופה – אצלך האור יישאר דולק.'
+                  : 'When storms approach, the system enters protection mode. It charges your battery to 100% so that even if the grid goes down — your lights stay on.'}
+              />
+            </div>
+            <button onClick={() => setDismissed(true)} className="text-white/25 hover:text-white/60 transition-colors p-0.5">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <p className="text-[10px] text-violet-400/60 text-center mt-1.5 font-bold px-2">

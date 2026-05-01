@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -160,9 +160,110 @@ function AddDeviceModal({ onClose, onAdd, isHe, existingIds }) {
   );
 }
 
+// ─── Tiny Donut for reserve % ─────────────────────────────────────────────
+function ReserveDonut({ pct }) {
+  const r = 14;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return (
+    <svg width="36" height="36" viewBox="0 0 36 36" className="flex-shrink-0">
+      <circle cx="18" cy="18" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+      <circle cx="18" cy="18" r={r} fill="none" stroke="#38bdf8" strokeWidth="4"
+        strokeDasharray={`${dash} ${circ}`}
+        strokeDashoffset={circ / 4}
+        strokeLinecap="round" />
+      <text x="18" y="22" textAnchor="middle" fontSize="8" fontWeight="900" fill="#38bdf8">{pct}%</text>
+    </svg>
+  );
+}
+
+// ─── Single priority card with inline slider ───────────────────────────────
+function PriorityCard({ d, idx, total, onMove, isHe, reserve, onReserve }) {
+  const [showSlider, setShowSlider] = useState(false);
+  const longPressTimer = useRef(null);
+  const Icon = d.icon;
+
+  const reserveLabel = reserve === 0
+    ? (isHe ? 'פריקה מלאה' : 'Full discharge')
+    : (isHe ? `עד ${reserve}% רזרבה` : `Up to ${reserve}% reserve`);
+
+  const startLongPress = () => {
+    longPressTimer.current = setTimeout(() => setShowSlider(true), 500);
+  };
+  const cancelLongPress = () => clearTimeout(longPressTimer.current);
+
+  return (
+    <div className="rounded-xl overflow-hidden"
+      style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
+      {/* Main row */}
+      <div className="flex items-center justify-between px-3 py-3"
+        onPointerDown={startLongPress}
+        onPointerUp={cancelLongPress}
+        onPointerLeave={cancelLongPress}>
+        {/* Up/down arrows */}
+        <div className="flex flex-col gap-0.5">
+          <button onClick={() => onMove(idx, -1)} disabled={idx === 0}
+            className="text-white/30 disabled:opacity-20 active:scale-95 transition-all p-0.5">
+            <ChevronRight className="w-4 h-4 -rotate-90" />
+          </button>
+          <button onClick={() => onMove(idx, 1)} disabled={idx === total - 1}
+            className="text-white/30 disabled:opacity-20 active:scale-95 transition-all p-0.5">
+            <ChevronRight className="w-4 h-4 rotate-90" />
+          </button>
+        </div>
+
+        {/* Label */}
+        <div className="flex-1 px-3 text-right">
+          <p className="text-sm font-black text-white">{isHe ? d.label : d.labelEn}</p>
+          <p className="text-[10px] text-white/35 mt-0.5">{reserveLabel}</p>
+        </div>
+
+        {/* Donut + icon */}
+        <div className="flex items-center gap-2">
+          <ReserveDonut pct={reserve} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)' }}>
+            <Icon className="w-3.5 h-3.5 text-sky-400" />
+          </div>
+        </div>
+
+        <span className="text-base font-black text-white/12 mr-1">#{idx + 1}</span>
+      </div>
+
+      {/* Inline slider (revealed on long-press or tap "עריכה") */}
+      <AnimatePresence>
+        {showSlider && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
+            className="px-4 pb-3 border-t border-white/5 overflow-hidden">
+            <div className="flex items-center justify-between pt-2 mb-1">
+              <span className="text-[10px] font-bold text-sky-400">{reserve}%</span>
+              <span className="text-[10px] text-white/40">{isHe ? 'רזרבה מינימלית' : 'Min reserve'}</span>
+            </div>
+            <input type="range" min={0} max={50} step={5} value={reserve}
+              onChange={e => onReserve(Number(e.target.value))}
+              className="w-full accent-sky-400 h-1.5 rounded-full cursor-pointer" />
+            <div className="flex justify-between text-[9px] text-white/20 mt-0.5">
+              <span>{isHe ? 'פריקה מלאה' : 'Full'}</span>
+              <span>50%</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Long-press hint / toggle */}
+      <button onClick={() => setShowSlider(v => !v)}
+        className="w-full text-center text-[9px] text-white/15 pb-1.5 active:text-white/40 transition-colors">
+        {showSlider ? '▲' : (isHe ? 'לחץ לכוונון רזרבה' : 'Tap to set reserve')}
+      </button>
+    </div>
+  );
+}
+
 // ─── Discharge Priority Modal (portalled) ─────────────────────────────────
 function DischargePriorityModal({ onClose, isHe }) {
   const [order, setOrder] = useState(DISCHARGE_OPTIONS.map(d => d.id));
+  const [reserves, setReserves] = useState({ home: 15, grid: 5, ev: 0 });
 
   const move = (idx, dir) => {
     const next = [...order];
@@ -172,7 +273,13 @@ function DischargePriorityModal({ onClose, isHe }) {
     setOrder(next);
   };
 
+  const setReserve = (id, val) => setReserves(r => ({ ...r, [id]: val }));
+
   const ordered = order.map(id => DISCHARGE_OPTIONS.find(d => d.id === id));
+
+  // Security summary: use the reserve of the first-priority target (home)
+  const primaryReserve = reserves[order[0]] ?? 15;
+  const backupHours = Math.round((primaryReserve / 100) * 13.5 * 10) / 10; // ~13.5 kWh avg battery
 
   return (
     <PortalModal>
@@ -182,7 +289,7 @@ function DischargePriorityModal({ onClose, isHe }) {
         onClick={onClose}>
         <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="w-full rounded-t-3xl p-5 pb-12 space-y-4"
+          className="w-full rounded-t-3xl p-5 pb-12 space-y-4 max-h-[90vh] overflow-y-auto"
           style={{ background: '#0f1d2e', border: '1px solid rgba(56,189,248,0.3)' }}
           onClick={e => e.stopPropagation()}
           dir="rtl">
@@ -194,55 +301,45 @@ function DischargePriorityModal({ onClose, isHe }) {
             <div className="text-center">
               <h3 className="text-sm font-black text-white flex items-center gap-2 justify-center">
                 <ArrowUpDown className="w-4 h-4 text-sky-400" />
-                {isHe ? 'עדיפות פריקה' : 'Discharge Priority'}
+                {isHe ? 'עדיפות פריקה + עומק' : 'Discharge Priority + Depth'}
               </h3>
-              <p className="text-[10px] text-white/30 mt-0.5">{isHe ? 'גרור או לחץ להזזה' : 'Tap arrows to reorder'}</p>
+              <p className="text-[10px] text-white/30 mt-0.5">
+                {isHe ? 'לחץ על כרטיסייה לכוונון רזרבה' : 'Tap card to set reserve level'}
+              </p>
             </div>
             <div className="w-5" />
           </div>
 
           <div className="space-y-2">
-            {ordered.map((d, idx) => {
-              const Icon = d.icon;
-              return (
-                <div key={d.id}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl"
-                  style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
-                  <div className="flex flex-col gap-1">
-                    <button onClick={() => move(idx, -1)} disabled={idx === 0}
-                      className="text-white/30 disabled:opacity-20 active:scale-95 transition-all">
-                      <ChevronRight className="w-4 h-4 rotate-[-90deg]" />
-                    </button>
-                    <button onClick={() => move(idx, 1)} disabled={idx === ordered.length - 1}
-                      className="text-white/30 disabled:opacity-20 active:scale-95 transition-all">
-                      <ChevronRight className="w-4 h-4 rotate-90" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="text-sm font-black text-white text-right">
-                        {isHe ? d.label : d.labelEn}
-                      </p>
-                      <p className="text-[10px] text-white/30 text-right">
-                        {isHe ? `עדיפות ${idx + 1}` : `Priority ${idx + 1}`}
-                      </p>
-                    </div>
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)' }}>
-                      <Icon className="w-4 h-4 text-sky-400" />
-                    </div>
-                  </div>
-                  <span className="text-lg font-black text-white/15">#{idx + 1}</span>
-                </div>
-              );
-            })}
+            {ordered.map((d, idx) => (
+              <PriorityCard
+                key={d.id}
+                d={d} idx={idx} total={ordered.length}
+                onMove={move}
+                isHe={isHe}
+                reserve={reserves[d.id] ?? 0}
+                onReserve={(v) => setReserve(d.id, v)}
+              />
+            ))}
           </div>
 
+          {/* Save button */}
           <button onClick={onClose}
             className="w-full py-3 rounded-2xl text-sm font-black text-white transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.1))', border: '1px solid rgba(56,189,248,0.35)' }}>
             {isHe ? '✓ שמור עדיפות' : '✓ Save Priority'}
           </button>
+
+          {/* Security summary */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+            style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)' }}>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+            <p className="text-[11px] text-emerald-400/80 font-bold">
+              {isHe
+                ? `חיווי בטחון: מוגדרת רזרבה של ${primaryReserve}% (מספיק ל-${backupHours} שעות גיבוי בממוצע)`
+                : `Safety: ${primaryReserve}% reserve set — ~${backupHours}h backup capacity`}
+            </p>
+          </div>
         </motion.div>
       </motion.div>
     </PortalModal>

@@ -5,6 +5,7 @@ import WhatsAppButton from '../WhatsAppButton';
 import LangToggle from '../LangToggle';
 import AIAssistant from '../AIAssistant';
 import ProfileMenu from './ProfileMenu';
+import AccessibilityWidget from '../AccessibilityWidget';
 import { useLang } from '@/lib/i18n';
 
 export default function AppLayout() {
@@ -23,6 +24,7 @@ export default function AppLayout() {
       </main>
       <BottomNav />
       <AIAssistant />
+      <AccessibilityWidget />
       <WhatsAppButton />
     </div>
   );

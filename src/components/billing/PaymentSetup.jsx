@@ -90,8 +90,8 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                   <Lock className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">Checkout מאובטח — yPay</p>
-                  <p className="text-[10px] text-white/35">🧪 Simulation Mode — להדגמה בלבד</p>
+                  <p className="text-sm font-black text-white">Secure Checkout — yPay</p>
+                  <p className="text-[10px] text-white/35">🧪 Simulation Mode — Demo Only</p>
                 </div>
               </div>
 
@@ -178,13 +178,13 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                   boxShadow: isValid ? '0 0 30px rgba(16,185,129,0.2)' : 'none',
                 }}
               >
-                <Shield className="w-4 h-4" /> אשר והפעל אופטימיזציה
+                <Shield className="w-4 h-4" /> Confirm & Activate
               </button>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-1.5">
                   <Lock className="w-3 h-3 text-white/20" />
-                  <p className="text-[10px] text-center text-white/20">פרטי הכרטיס מוצפנים ולא נשמרים בשרתינו</p>
+                  <p className="text-[10px] text-center text-white/20">Card details are encrypted and not stored on our servers</p>
                 </div>
                 <p className="text-[9px] text-center text-white/25 italic px-2 py-1.5 rounded-lg"
                   style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' }}>
@@ -199,7 +199,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-4 py-10">
               <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-              <p className="text-sm text-white/50">מקשר את הכרטיס...</p>
+              <p className="text-sm text-white/50">Linking card...</p>
             </motion.div>
           )}
 
@@ -215,11 +215,11 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               <div>
                 <p className="text-base font-black text-white mb-2">Optimization Active ⚡️</p>
                 <p className="text-xs text-emerald-400/80 leading-relaxed px-2">
-                  שירות האופטימיזציה הופעל בהצלחה. תהנה מחצי שנה ללא עמלות ניהול — החיוב יחל רק לאחר 180 יום.
+                  Optimization service activated successfully. Enjoy 6 months fee-free — billing starts after 180 days.
                 </p>
                 <div className="mt-3 rounded-xl px-3 py-2 mx-2"
                   style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
-                  <p className="text-[10px] text-violet-300 font-bold">סטטוס: תקופת הטבה פעילה (ללא עמלות ניהול)</p>
+                  <p className="text-[10px] text-violet-300 font-bold">Status: Benefit period active (fee-free)</p>
                 </div>
               </div>
             </motion.div>

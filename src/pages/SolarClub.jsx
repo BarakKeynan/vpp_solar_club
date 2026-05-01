@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Battery, Zap, Car, AlertTriangle, ChevronLeft, Cloud, X, ChevronRight, Wifi, Thermometer, CheckCircle2 } from 'lucide-react';
+import VirtualBatteryDashboard from '@/components/solar/VirtualBatteryDashboard';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SegmentModal from '@/components/dashboard/SegmentModal';
@@ -595,7 +596,7 @@ function MemberDashboard() {
         </div>
       </div>
 
-      <VirtualBattery isHe={isHe} />
+      <VirtualBatteryDashboard isHe={isHe} />
 
       <div className="bg-gradient-to-l from-primary/20 via-primary/10 to-card rounded-2xl border border-primary/30 p-5">
         <div className="flex items-center justify-between">

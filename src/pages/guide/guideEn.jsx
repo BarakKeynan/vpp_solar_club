@@ -20,20 +20,23 @@ export const GUIDE_EN = {
     {
       icon: '☀️',
       title: 'Connect SolarEdge API',
-      body: 'Log in to the SolarEdge portal > Account > API Access > Create an API Key. Enter it in VPP Settings along with your Site ID(s).',
+      body: 'Log in to the SolarEdge portal > Account > API Access > Create an API Key. Enter it here along with your Site ID.',
       note: 'This allows the app to see in real-time how much electricity your panels produce and what the physical battery status is.',
+      isSolarEdge: true,
     },
     {
       icon: '⚡',
       title: 'Noga Energy API Credentials',
-      body: 'To obtain a Noga ISO Client ID + Secret, contact the VPP Solar Club team. This provides access to real-time electricity prices.',
+      body: 'To maximize your profits from your rooftop, the system needs digital access credentials for Noga — Client ID and Secret. These allow the app to receive real-time electricity prices.',
       note: 'Without this connection the app runs in Simulation Mode — everything works, but with simulated price data.',
+      isNoga: true,
     },
     {
       icon: '📱',
       title: 'Set Up Payment Method',
-      body: 'Go to Profile > Payment Management and add a credit card. Required to receive payments for energy sold to the grid.',
+      body: 'Required to receive payments for energy sold to the grid. Add a credit card by tapping the button.',
       note: 'You can start in simulation mode without payment — but real income requires a connection.',
+      isPayment: true,
     },
   ],
 
@@ -86,8 +89,9 @@ export const GUIDE_EN = {
     'Check the dashboard every morning — 30 seconds is enough to decide for the day.',
     'Schedule sales for 20:00–23:00 on weekdays — IEC peak hours.',
     'Charge battery 10:00–16:00 when panels produce maximum output.',
-    'Enable ECO Profit Mode for full automation with zero intervention.',
     'Watch alerts — the app notifies you about production anomalies.',
     'In winter, sunshine is weaker — rely more on community farms.',
   ],
+  ecoTip: 'Enable ECO Profit Mode for full automation with zero intervention.',
+  ecoTipLink: '/Dashboard',
 };

@@ -17,32 +17,48 @@
     },
     "phone": {
       "type": "string",
-      "description": "Customer mobile phone number"
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df \u05e0\u05d9\u05d9\u05d3 \u05e9\u05dc \u05d4\u05dc\u05e7\u05d5\u05d7"
     },
-    "system_connected": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the user has completed onboarding and connected their solar system"
-    },
-    "inverter_model": {
+    "system_address": {
       "type": "string",
-      "description": "Discovered inverter model name"
+      "description": "\u05db\u05ea\u05d5\u05d1\u05ea \u05d4\u05de\u05e2\u05e8\u05db\u05ea (\u05dc\u05e6\u05d5\u05e8\u05da \u05d7\u05d9\u05d6\u05d5\u05d9 \u05de\u05d6\u05d2 \u05d0\u05d5\u05d5\u05d9\u05e8 \u05de\u05e7\u05d5\u05de\u05d9)"
     },
-    "inverter_token": {
+    "iec_contract_number": {
       "type": "string",
-      "description": "Simulated OAuth token for the connected inverter"
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d5\u05d6\u05d4/\u05de\u05d5\u05e0\u05d4 \u05de\u05d5\u05dc \u05d7\u05d7\"\u05d9"
     },
-    "onboarding_completed_at": {
+    "noga_client_id": {
       "type": "string",
-      "description": "ISO timestamp when onboarding was completed"
+      "description": "Noga ISO API Client ID \u2014 \u05e0\u05db\u05e0\u05e1 \u05e2\u05dc \u05d9\u05d3\u05d9 \u05d4\u05de\u05e9\u05ea\u05de\u05e9, \u05d2\u05dc\u05d5\u05d9 \u05dc\u05d0\u05d3\u05de\u05d9\u05e0\u05d9\u05dd"
+    },
+    "noga_client_secret": {
+      "type": "string",
+      "description": "Noga ISO API Client Secret \u2014 sensitive, \u05d2\u05dc\u05d5\u05d9 \u05dc\u05d0\u05d3\u05de\u05d9\u05e0\u05d9\u05dd \u05d1\u05dc\u05d1\u05d3"
     },
     "site_id": {
       "type": "string",
-      "description": "Customer's SolarEdge site ID \u2014 can be pre-entered by admin"
+      "description": "SolarEdge Site ID \u05e9\u05dc \u05d4\u05dc\u05e7\u05d5\u05d7"
+    },
+    "bess_api_key": {
+      "type": "string",
+      "description": "API Key \u05dc\u05de\u05d4\u05e4\u05da/\u05e1\u05d5\u05dc\u05dc\u05d4 (\u05db\u05d2\u05d5\u05df SolarEdge Monitoring API Key)"
     },
     "battery_capacity_kwh": {
       "type": "number",
-      "description": "Customer's physical battery capacity in kWh"
+      "description": "\u05e7\u05d9\u05d1\u05d5\u05dc\u05ea \u05e1\u05d5\u05dc\u05dc\u05d4 \u05e4\u05d9\u05d6\u05d9\u05ea \u05d1-kWh"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "\u05e7\u05d5\u05d3 \u05d4\u05e4\u05e0\u05d9\u05d4 \u05d0\u05d9\u05e9\u05d9 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9 \u05e9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9"
+    },
+    "referred_by": {
+      "type": "string",
+      "description": "\u05d4-ID \u05e9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d4\u05d6\u05de\u05d9\u05df (\u05d7\u05d1\u05e8 \u05de\u05d1\u05d9\u05d0 \u05d7\u05d1\u05e8)"
+    },
+    "referral_count": {
+      "type": "number",
+      "default": 0,
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05dc\u05e7\u05d5\u05d7\u05d5\u05ea \u05e9\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5 \u05d3\u05e8\u05da \u05d4\u05d4\u05e4\u05e0\u05d9\u05d4 \u05e9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d4\u05d6\u05d4"
     },
     "bess_brand": {
       "type": "string",
@@ -56,11 +72,7 @@
         "Virtual BESS",
         "Other"
       ],
-      "description": "BESS / Battery brand (or Virtual BESS if no physical battery)"
-    },
-    "bess_api_key": {
-      "type": "string",
-      "description": "API key for the BESS/inverter system (e.g. SolarEdge monitoring API key)"
+      "description": "\u05d9\u05e6\u05e8\u05df \u05d4\u05e1\u05d5\u05dc\u05dc\u05d4/\u05d4\u05de\u05d4\u05e4\u05da"
     },
     "bess_connection_method": {
       "type": "string",
@@ -72,60 +84,69 @@
         "modbus"
       ],
       "default": "internet_api",
-      "description": "Method used to connect to the BESS system"
+      "description": "\u05e9\u05d9\u05d8\u05ea \u05d7\u05d9\u05d1\u05d5\u05e8 \u05dc\u05de\u05e2\u05e8\u05db\u05ea \u05d4\u05e1\u05d5\u05dc\u05dc\u05d4"
     },
     "bess_serial_number": {
       "type": "string",
-      "description": "BESS / inverter serial number"
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05e1\u05d9\u05d3\u05d5\u05e8\u05d9 \u05e9\u05dc \u05d4\u05e1\u05d5\u05dc\u05dc\u05d4/\u05de\u05d4\u05e4\u05da"
     },
     "is_virtual_bess": {
       "type": "boolean",
       "default": false,
-      "description": "True if user has no physical battery \u2014 Virtual BESS aggregates smart devices"
+      "description": "\u05d4\u05d0\u05dd \u05dc\u05de\u05e9\u05ea\u05de\u05e9 \u05d0\u05d9\u05df \u05e1\u05d5\u05dc\u05dc\u05d4 \u05e4\u05d9\u05d6\u05d9\u05ea \u2014 Virtual BESS \u05de\u05d0\u05d2\u05d3 \u05de\u05db\u05e9\u05d9\u05e8\u05d9\u05dd \u05d7\u05db\u05de\u05d9\u05dd"
     },
     "virtual_bess_kwh": {
       "type": "number",
-      "description": "Total aggregated virtual capacity in kWh (sum of all smart devices)"
+      "description": "\u05e7\u05d9\u05d1\u05d5\u05dc\u05ea \u05d5\u05d9\u05e8\u05d8\u05d5\u05d0\u05dc\u05d9\u05ea \u05db\u05d5\u05dc\u05dc\u05ea \u05d1-kWh (\u05e1\u05db\u05d5\u05dd \u05db\u05dc \u05d4\u05de\u05db\u05e9\u05d9\u05e8\u05d9\u05dd \u05d4\u05d7\u05db\u05de\u05d9\u05dd)"
     },
     "virtual_bess_devices": {
       "type": "array",
-      "description": "List of smart devices aggregated into the Virtual BESS",
+      "description": "\u05e8\u05e9\u05d9\u05de\u05ea \u05de\u05db\u05e9\u05d9\u05e8\u05d9\u05dd \u05d7\u05db\u05de\u05d9\u05dd \u05d4\u05de\u05d0\u05d5\u05d2\u05d3\u05d9\u05dd \u05d1-Virtual BESS",
       "items": {
         "type": "object"
       }
     },
+    "inverter_model": {
+      "type": "string",
+      "description": "\u05d3\u05d2\u05dd \u05d4\u05de\u05d4\u05e4\u05da \u05e9\u05d6\u05d5\u05d4\u05d4"
+    },
+    "inverter_token": {
+      "type": "string",
+      "description": "OAuth token \u05e1\u05d9\u05de\u05d5\u05dc\u05e6\u05d9\u05d4 \u05e2\u05d1\u05d5\u05e8 \u05d4\u05de\u05d4\u05e4\u05da \u05d4\u05de\u05d7\u05d5\u05d1\u05e8"
+    },
+    "system_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d4\u05e9\u05dc\u05d9\u05dd \u05d0\u05d5\u05e0\u05d1\u05d5\u05e8\u05d3\u05d9\u05e0\u05d2 \u05d5\u05d7\u05d9\u05d1\u05e8 \u05d0\u05ea \u05de\u05e2\u05e8\u05db\u05ea \u05d4\u05e1\u05d5\u05dc\u05d0\u05e8\u05d9\u05ea"
+    },
+    "onboarding_completed_at": {
+      "type": "string",
+      "description": "\u05d7\u05d5\u05ea\u05de\u05ea \u05d6\u05de\u05df ISO \u05e9\u05dc \u05d4\u05e9\u05dc\u05de\u05ea \u05d0\u05d5\u05e0\u05d1\u05d5\u05e8\u05d3\u05d9\u05e0\u05d2"
+    },
     "billing_token": {
       "type": "string",
-      "description": "Morning (Green Invoice) payment tokenization ID"
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d8\u05d5\u05e7\u05df \u05ea\u05e9\u05dc\u05d5\u05dd (Morning/Green Invoice)"
     },
     "billing_last4": {
       "type": "string",
-      "description": "Last 4 digits of linked card"
+      "description": "4 \u05e1\u05e4\u05e8\u05d5\u05ea \u05d0\u05d7\u05e8\u05d5\u05e0\u05d5\u05ea \u05e9\u05dc \u05db\u05e8\u05d8\u05d9\u05e1 \u05d4\u05d0\u05e9\u05e8\u05d0\u05d9 \u05d4\u05de\u05e7\u05d5\u05e9\u05e8"
     },
     "billing_brand": {
       "type": "string",
-      "description": "Card brand (Visa, Mastercard, etc.)"
+      "description": "\u05e1\u05d5\u05d2 \u05db\u05e8\u05d8\u05d9\u05e1 \u05d4\u05d0\u05e9\u05e8\u05d0\u05d9 (Visa, Mastercard \u05d5\u05db\u05d5')"
     },
     "morning_customer_id": {
       "type": "string",
-      "description": "Morning API customer ID"
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05dc\u05e7\u05d5\u05d7 \u05d1-Morning API"
     },
     "compliance_signed": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the user has signed the compliance agreement"
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d7\u05ea\u05dd \u05e2\u05dc \u05d4\u05e1\u05db\u05dd \u05ea\u05d0\u05d9\u05de\u05d5\u05ea"
     },
     "compliance_signed_at": {
       "type": "string",
-      "description": "ISO timestamp when compliance was signed"
-    },
-    "noga_client_id": {
-      "type": "string",
-      "description": "Noga ISO API Client ID \u2014 entered by user, visible to admins"
-    },
-    "noga_client_secret": {
-      "type": "string",
-      "description": "Noga ISO API Client Secret \u2014 entered by user, visible to admins only"
+      "description": "\u05d7\u05d5\u05ea\u05de\u05ea \u05d6\u05de\u05df ISO \u05e9\u05dc \u05d7\u05ea\u05d9\u05de\u05ea \u05d4\u05d4\u05e1\u05db\u05dd"
     }
   },
   "required": []

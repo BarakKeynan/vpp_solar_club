@@ -20,8 +20,9 @@ export const GUIDE_HE = {
     {
       icon: '☀️',
       title: 'חיבור SolarEdge API',
-      body: 'כנסו לפורטל SolarEdge > Account > API Access > צרו API Key. הזינו אותו ב-VPP Settings יחד עם מספר/י ה-Site ID שלכם.',
+      body: 'כנסו לפורטל SolarEdge > Account > API Access > צרו API Key. הזינו אותו כאן יחד עם ה-Site ID שלכם.',
       note: 'זה מאפשר לאפליקציה לראות בזמן אמת כמה חשמל הפאנלים מייצרים ומה מצב הסוללה הפיזית.',
+      isSolarEdge: true,
     },
     {
       icon: '⚡',

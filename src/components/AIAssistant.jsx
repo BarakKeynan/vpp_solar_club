@@ -77,8 +77,12 @@ export default function AIAssistant() {
   useEffect(() => {
     if (open && messages.length === 0) {
       const hour = new Date().getHours();
-      const greeting = hour < 12 ? '☀️ בוקר טוב' : hour < 17 ? '🌤️ צהריים טובים' : '🌙 ערב טוב';
-      const welcome = `${greeting}! אני **האסיסטנט האנרגטי** של VPP Solar Club 🌱\n\nאני כאן לעזור לך למקסם את הרווחים מהמערכת הסולארית שלך.\n\nתוכל לשאול אותי:\n• 💰 מתי כדאי למכור חשמל לרשת?\n• 🔋 איך לטעון את הסוללה בחכמה?\n• 📊 מה הסטטוס של המערכת שלי?`;
+      const greeting = lang === 'he'
+        ? (hour < 12 ? '☀️ בוקר טוב' : hour < 17 ? '🌤️ צהריים טובים' : '🌙 ערב טוב')
+        : (hour < 12 ? '☀️ Good morning' : hour < 17 ? '🌤️ Good afternoon' : '🌙 Good evening');
+      const welcome = lang === 'he'
+        ? `${greeting}! אני **האסיסטנט האנרגטי** של VPP Solar Club 🌱\n\nאני כאן לעזור לך למקסם את הרווחים מהמערכת הסולארית שלך.\n\nתוכל לשאול אותי:\n• 💰 מתי כדאי למכור חשמל לרשת?\n• 🔋 איך לטעון את הסוללה בחכמה?\n• 📊 מה הסטטוס של המערכת שלי?`
+        : `${greeting}! I'm the **Energy Assistant** of VPP Solar Club 🌱\n\nI'm here to help you maximize your solar system's profits.\n\nYou can ask me:\n• 💰 When should I sell electricity to the grid?\n• 🔋 How to charge the battery smartly?\n• 📊 What's my system status?`;
       setMessages([{ role: 'assistant', content: welcome }]);
     }
   }, [open]);
@@ -136,7 +140,7 @@ export default function AIAssistant() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        setInput(prev => prev + ' [הקלטת קול אינה נתמכת בדפדפן זה]');
+        setInput(prev => prev + (lang === 'he' ? ' [הקלטת קול אינה נתמכת בדפדפן זה]' : ' [Voice recording not supported in this browser]'));
         stream.getTracks().forEach(t => t.stop());
         return;
       }
@@ -227,7 +231,7 @@ export default function AIAssistant() {
                     <button onClick={stopSpeaking}
                       className="p-2 rounded-xl text-[10px] font-bold flex items-center gap-1 animate-pulse"
                       style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
-                      <span>🔊</span><span>עצור</span>
+                      <span>🔊</span><span>{lang === 'he' ? 'עצור' : 'Stop'}</span>
                     </button>
                   )}
                   <button onClick={() => { setOpen(false); stopSpeaking(); }} className="p-2 rounded-xl bg-muted">
@@ -298,7 +302,7 @@ export default function AIAssistant() {
                       background: recording ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)',
                       border: `1px solid ${recording ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.1)'}`,
                     }}
-                    title={recording ? 'עצור הקלטה' : 'דבר עם הסוכן'}
+                    title={recording ? (lang === 'he' ? 'עצור הקלטה' : 'Stop recording') : (lang === 'he' ? 'דבר עם הסוכן' : 'Speak to assistant')}
                   >
                     {recording
                       ? <MicOff className="w-3.5 h-3.5 text-red-400 animate-pulse" />
@@ -308,7 +312,7 @@ export default function AIAssistant() {
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                    placeholder={recording ? '🎙️ מאזין...' : t('ai_input_placeholder')}
+                    placeholder={recording ? (lang === 'he' ? '🎙️ מאזין...' : '🎙️ Listening...') : t('ai_input_placeholder')}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     disabled={loading}
                   />
@@ -321,7 +325,7 @@ export default function AIAssistant() {
                   </button>
                 </div>
                 {recording && (
-                  <p className="text-[10px] text-red-400 text-center mt-1 animate-pulse">● מקליט... לחץ על המיקרופון כדי לעצור</p>
+                  <p className="text-[10px] text-red-400 text-center mt-1 animate-pulse">{lang === 'he' ? '● מקליט... לחץ על המיקרופון כדי לעצור' : '● Recording... tap mic to stop'}</p>
                 )}
               </div>
             </motion.div>

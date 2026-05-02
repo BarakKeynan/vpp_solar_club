@@ -76,6 +76,8 @@ async function buildPDF(g, userName) {
     const response = await base44.functions.invoke('generateUserGuidePDF', { lang: g.lang });
     const { pdf, filename } = response.data;
     
+    if (!pdf) throw new Error('PDF data not received');
+    
     const binaryString = atob(pdf);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
@@ -86,13 +88,14 @@ async function buildPDF(g, userName) {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename;
+    link.download = filename || 'VPP-Solar-Club-Guide.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('PDF download error:', error);
+    alert('שגיאה בהורדת PDF - נסה שוב');
   }
 }
 

@@ -163,20 +163,15 @@ export default function AIAssistant() {
 
   return (
     <>
-      {/* FAB Button – Upgraded AI Assistant icon */}
-      <div
-        ref={dragRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        className="fixed z-40 flex items-center gap-2 rounded-full shadow-xl px-3 py-2.5 select-none"
+      {/* FAB Button – fixed bottom-right above nav bar */}
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="fixed z-50 flex items-center gap-2 rounded-full shadow-xl px-4 py-3 select-none"
         style={{
-          left: pos.x,
-          top: pos.y,
-          cursor: dragging ? 'grabbing' : 'grab',
+          right: 16,
+          bottom: 88,
           background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #10B981 100%)',
           boxShadow: '0 4px 24px rgba(59,130,246,0.45), 0 0 12px rgba(16,185,129,0.3)',
-          touchAction: 'none',
         }}
       >
         <div className="relative">
@@ -187,10 +182,10 @@ export default function AIAssistant() {
             className="absolute inset-0 rounded-full bg-white/30"
           />
         </div>
-        <span className="text-white text-[11px] font-bold whitespace-nowrap pointer-events-none">
+        <span className="text-white text-[11px] font-bold whitespace-nowrap">
           {t('ai_assistant_title')}
         </span>
-      </div>
+      </button>
 
       {/* Chat Panel */}
       <AnimatePresence>

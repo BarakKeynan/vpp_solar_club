@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery, Camera, Loader2 } from 'lucide-react';
+import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery, Camera, Loader2, ChevronRight } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 import BluetoothScanner from '@/components/profile/BluetoothScanner';
@@ -261,16 +261,16 @@ export default function Profile() {
       >
         <p className="text-xs font-bold text-muted-foreground">{t('documents')}</p>
         {[
-          { label: t('doc_terms'), icon: FileText },
-          { label: t('doc_revenue'), icon: ExternalLink },
+          { label: t('doc_terms'), icon: FileText, href: '/terms' },
+          { label: t('doc_revenue'), icon: ExternalLink, href: '#' },
         ].map(doc => (
-          <button key={doc.label} className="w-full flex items-center gap-3 py-2 text-right group">
+          <a key={doc.label} href={doc.href} className="w-full flex items-center gap-3 py-2 text-right group hover:opacity-80 transition-opacity active:scale-95">
             <div className="p-2 rounded-lg bg-muted">
               <doc.icon className="w-4 h-4 text-muted-foreground" />
             </div>
             <span className="text-sm text-foreground group-hover:text-primary transition-colors">{doc.label}</span>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground mr-auto" />
-          </button>
+            <ChevronRight className="w-4 h-4 text-muted-foreground mr-auto" />
+          </a>
         ))}
       </motion.div>
 
@@ -283,13 +283,5 @@ export default function Profile() {
         {t('logout')}
       </button>
     </div>
-  );
-}
-
-function ChevronLeft({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m15 18-6-6 6-6"/>
-    </svg>
   );
 }

@@ -230,6 +230,16 @@ export default function UserGuide() {
                 <p className="text-xs text-white/70 leading-relaxed">{tip}</p>
               </div>
             ))}
+            {g.ecoTip && (
+              <div className="flex items-start gap-2 py-2">
+                <span className="text-primary font-black text-xs mt-0.5">✦</span>
+                <p className="text-xs text-white/70 leading-relaxed">
+                  {g.ecoTip.split('ECO Profit Mode')[0]}
+                  <Link to={g.ecoTipLink} className="font-black text-primary underline underline-offset-2">ECO Profit Mode</Link>
+                  {g.ecoTip.split('ECO Profit Mode')[1]}
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

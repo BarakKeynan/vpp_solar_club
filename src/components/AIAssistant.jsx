@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Bot, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, Bot, Loader2, Sparkles, Mic, MicOff } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 import ReactMarkdown from 'react-markdown';
@@ -14,6 +14,8 @@ export default function AIAssistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
   const bottomRef = useRef(null);
   const dragRef = useRef(null);
   const [pos, setPos] = useState({ x: 16, y: null });
@@ -56,9 +58,12 @@ export default function AIAssistant() {
   // Initialize with welcome message when opened
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([{ role: 'assistant', content: t('ai_welcome') }]);
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? '☀️ בוקר טוב' : hour < 17 ? '🌤️ צהריים טובים' : '🌙 ערב טוב';
+      const welcome = `${greeting}! אני **האסיסטנט האנרגטי** של VPP Solar Club 🌱\n\nאני כאן לעזור לך למקסם את הרווחים מהמערכת הסולארית שלך.\n\nתוכל לשאול אותי:\n• 💰 מתי כדאי למכור חשמל לרשת?\n• 🔋 איך לטעון את הסוללה בחכמה?\n• 📊 מה הסטטוס של המערכת שלי?`;
+      setMessages([{ role: 'assistant', content: welcome }]);
     }
-  }, [open, t]);
+  }, [open]);
 
   // Subscribe to conversation updates
   useEffect(() => {
@@ -97,6 +102,38 @@ export default function AIAssistant() {
       await base44.agents.addMessage(conv, { role: 'user', content: userMsg });
     } catch (e) {
       setLoading(false);
+    }
+  };
+
+  const toggleMic = async () => {
+    if (recording) {
+      mediaRecorderRef.current?.stop();
+      setRecording(false);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        setInput(prev => prev + ' [הקלטת קול אינה נתמכת בדפדפן זה]');
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = lang === 'he' ? 'he-IL' : 'en-US';
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        setInput(prev => (prev ? prev + ' ' : '') + transcript);
+      };
+      rec.onend = () => { setRecording(false); stream.getTracks().forEach(t => t.stop()); };
+      rec.onerror = () => { setRecording(false); stream.getTracks().forEach(t => t.stop()); };
+      mediaRecorderRef.current = rec;
+      rec.start();
+      setRecording(true);
+    } catch {
+      setRecording(false);
     }
   };
 
@@ -226,23 +263,41 @@ export default function AIAssistant() {
 
               {/* Input */}
               <div className="px-4 pb-6 pt-2 border-t border-border shrink-0">
-                <div className="flex items-center gap-2 bg-card border border-border rounded-2xl px-3 py-2">
+                <div className="flex items-center gap-2 bg-card border border-border rounded-2xl px-3 py-2"
+                  style={{ borderColor: recording ? 'rgba(239,68,68,0.5)' : undefined }}>
+                  {/* Mic button */}
+                  <button
+                    onClick={toggleMic}
+                    className="p-1.5 rounded-xl transition-all active:scale-95 shrink-0"
+                    style={{
+                      background: recording ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${recording ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                    }}
+                    title={recording ? 'עצור הקלטה' : 'דבר עם הסוכן'}
+                  >
+                    {recording
+                      ? <MicOff className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+                      : <Mic className="w-3.5 h-3.5 text-muted-foreground" />}
+                  </button>
                   <input
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                    placeholder={t('ai_input_placeholder')}
+                    placeholder={recording ? '🎙️ מאזין...' : t('ai_input_placeholder')}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     disabled={loading}
                   />
                   <button
                     onClick={() => sendMessage()}
                     disabled={!input.trim() || loading}
-                    className="p-1.5 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 active:scale-95 transition-all"
+                    className="p-1.5 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 active:scale-95 transition-all shrink-0"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
+                {recording && (
+                  <p className="text-[10px] text-red-400 text-center mt-1 animate-pulse">● מקליט... לחץ על המיקרופון כדי לעצור</p>
+                )}
               </div>
             </motion.div>
           </>

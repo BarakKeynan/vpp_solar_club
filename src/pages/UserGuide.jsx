@@ -7,6 +7,7 @@ import { GUIDE_HE } from './guide/guideHe';
 import { GUIDE_EN } from './guide/guideEn';
 import NogaConnectCard from '@/components/noga/NogaConnectCard';
 import SolarEdgeConnectCard from '@/components/solaredge/SolarEdgeConnectCard';
+import PaymentSetupCard from '@/components/billing/PaymentSetupCard';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -193,7 +194,7 @@ export default function UserGuide() {
           <div className="space-y-3">
             {g.prereqs.map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                {item.isNoga ? <NogaConnectCard /> : item.isSolarEdge ? <SolarEdgeConnectCard /> : <PrereqCard item={item} />}
+                {item.isNoga ? <NogaConnectCard /> : item.isSolarEdge ? <SolarEdgeConnectCard /> : item.isPayment ? <PaymentSetupCard /> : <PrereqCard item={item} />}
               </motion.div>
             ))}
           </div>

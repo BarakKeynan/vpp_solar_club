@@ -179,13 +179,13 @@ export default function UserGuide() {
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-primary" />
           <span className="text-sm font-black text-foreground">{g.pageTitle}</span>
+          <button onClick={() => buildPDF(g, userName)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all active:scale-95 ml-2"
+            style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#34d399' }}>
+            <Download className="w-3.5 h-3.5" />
+            {g.downloadBtn}
+          </button>
         </div>
-        <button onClick={() => buildPDF(g, userName)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all active:scale-95"
-          style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#34d399' }}>
-          <Download className="w-3.5 h-3.5" />
-          {g.downloadBtn}
-        </button>
       </div>
 
       {/* Hero */}

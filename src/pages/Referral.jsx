@@ -103,9 +103,10 @@ export default function Referral() {
       toast.error(isHe ? 'נא להזין מספר טלפון תקין' : 'Please enter a valid phone number');
       return;
     }
+    const appLink = `${window.location.origin}/register?ref=${REFERRAL_CODE}`;
     const message = isHe
-      ? `היי! הזמנתי אותך להצטרף ל-VPP Solar Club. ☀️\nהמערכת תעזור לך למקסם את הרווחים מהגג הסולארי שלך.\nעם הקוד שלי תקבל חודש ראשון ללא דמי הצלחה!\n\nקוד ההזמנה: ${REFERRAL_CODE}\nלהרשמה: https://vppsolarclub.com`
-      : `Hey! I invited you to join VPP Solar Club. ☀️\nThe system will help you maximize your solar rooftop earnings.\nWith my code you get the first month with zero success fee!\n\nInvite code: ${REFERRAL_CODE}\nSign up: https://vppsolarclub.com`;
+      ? `היי! הזמנתי אותך להצטרף ל-VPP Solar Club. ☀️\nהמערכת תעזור לך למקסם את הרווחים מהגג הסולארי שלך.\nעם הקוד שלי תקבל חודש ראשון ללא דמי הצלחה!\n\nקוד ההזמנה: ${REFERRAL_CODE}\nלהרשמה לאפליקציה: ${appLink}`
+      : `Hey! I invited you to join VPP Solar Club. ☀️\nThe system will help you maximize your solar rooftop earnings.\nWith my code you get the first month with zero success fee!\n\nInvite code: ${REFERRAL_CODE}\nDownload & register: ${appLink}`;
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 

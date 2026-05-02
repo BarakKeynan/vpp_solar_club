@@ -162,6 +162,9 @@ export default function Register() {
   const [lang, setLang] = useState('he');
   const t = LANG[lang];
   const [regMode, setRegMode] = useState('phone'); // 'phone' | 'email'
+
+  // Detect referral code from URL
+  const refCode = new URLSearchParams(window.location.search).get('ref') || '';
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [twoFA, setTwoFA] = useState(false);
   const [verifyMethod, setVerifyMethod] = useState('sms'); // 'sms' | 'email'
@@ -277,6 +280,33 @@ export default function Register() {
 
       <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
         className="w-full max-w-md relative z-10">
+
+        {/* Referral Welcome Banner */}
+        {refCode && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-5 rounded-2xl p-4 text-right"
+            style={{ background: 'linear-gradient(135deg, rgba(37,211,102,0.12), rgba(37,211,102,0.06))', border: '1px solid rgba(37,211,102,0.35)' }}
+          >
+            <p className="text-base font-black text-white mb-1">
+              ☀️ {lang === 'he' ? 'ברוכים הבאים ל-VPP Solar Club!' : 'Welcome to VPP Solar Club!'}
+            </p>
+            <p className="text-xs text-white/65 leading-relaxed mb-2">
+              {lang === 'he'
+                ? 'חבר הזמין אותך להצטרף לקהילת האנרגיה החכמה שלנו. אתה מוזמן להתחיל את המסע הסולארי שלך — ותהנה מחודש ראשון ללא דמי הצלחה!'
+                : 'A friend invited you to join our smart energy community. Start your solar journey — enjoy your first month with zero success fee!'}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(37,211,102,0.15)', color: '#25d366', border: '1px solid rgba(37,211,102,0.4)' }}>
+                🎁 {lang === 'he' ? 'קוד הזמנה:' : 'Invite code:'} {refCode}
+              </span>
+              <span className="text-[10px] text-white/35">
+                {lang === 'he' ? '← מוחל אוטומטית בהרשמה' : '← applied automatically'}
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Logo / Header */}
         <div className="text-center mb-6">

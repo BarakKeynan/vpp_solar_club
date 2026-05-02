@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, ArrowRight, Sun, Zap, CheckCircle2, Leaf, TrendingUp, Clock } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Leaf, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SOURCES = [
@@ -56,6 +56,25 @@ const BATTERIES = [
   { id: 2, name: 'סוללה שניונית', model: 'BYD HVM 11.0', capacity: 11.0, level: 61 },
 ];
 
+// AI logic: pick best source + target based on current "conditions"
+function calcAiRecommendation(battery) {
+  const hour = new Date().getHours();
+  const gridPrice = 0.61;
+  const solarAvailable = hour >= 7 && hour <= 18;
+  const peakHour = hour >= 17 && hour <= 21;
+  const offPeak = hour >= 23 || hour <= 6;
+
+  if (solarAvailable) {
+    return { source: 'solar', target: 95, reason: `שמש זמינה (${hour}:00) — טעינה חינמית. מומלץ לטעון עד 95% לפני שעת שיא ב-${peakHour ? 'עכשיו' : '20:00'}.` };
+  } else if (offPeak) {
+    return { source: 'grid', target: 80, reason: `שעות שפל (${hour}:00) — מחיר רשת נמוך 0.28 ₪/kWh. כדאי לטעון עד 80%.` };
+  } else if (peakHour) {
+    return { source: 'farm', target: 70, reason: `שעת שיא — השתמש באנרגיית החווה בלבד. הימנע מרשת (${gridPrice} ₪/kWh).` };
+  } else {
+    return { source: 'farm', target: 85, reason: 'אין שמש כעת. אנרגיית החווה היא האופציה הזולה — מומלץ לטעון עד 85%.' };
+  }
+}
+
 export default function ChargeBattery() {
   const navigate = useNavigate();
   const [charging, setCharging] = useState(false);
@@ -64,6 +83,16 @@ export default function ChargeBattery() {
   const [targetPct, setTargetPct] = useState(95);
   const [progress, setProgress] = useState(selectedBattery.level);
   const [done, setDone] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
+
+  const aiRec = calcAiRecommendation(selectedBattery);
+
+  const applyAiRecommendation = () => {
+    setSelectedSource(aiRec.source);
+    setTargetPct(aiRec.target);
+    setAiApplied(true);
+    setTimeout(() => setAiApplied(false), 3000);
+  };
 
   useEffect(() => {
     if (!charging) return;
@@ -206,19 +235,39 @@ export default function ChargeBattery() {
         </div>
 
         {/* AI Tip */}
-        <div className="rounded-2xl p-4 flex gap-3"
+        <div className="rounded-2xl p-4 space-y-3"
           style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.25)' }}>
-          <span className="text-xl">🤖</span>
-          <div>
-            <p className="text-xs font-black text-violet-300 mb-0.5">המלצת AI</p>
-            <p className="text-[11px] text-white/60 leading-relaxed">
-              {selectedSource === 'solar'
-                ? 'תנאי שמש מעולים עכשיו. מומלץ לטעון עד 95% — תספיקי עד הלילה ועוד תמכור עודף לרשת בשעת שיא ב-20:00.'
-                : selectedSource === 'farm'
-                  ? 'האנרגיה מהחווה זמינה עד 17:00. טעני עכשיו לחיסכון מקסימלי לפני כניסת שעת שיא.'
-                  : 'מחיר הרשת גבוה כעת. שקלי להמתין לשעות הלילה (23:00-06:00) שבהן המחיר יורד ל-0.28 ₪/kWh.'}
-            </p>
+          <div className="flex gap-3">
+            <span className="text-xl">🤖</span>
+            <div className="flex-1">
+              <p className="text-xs font-black text-violet-300 mb-0.5">המלצת AI</p>
+              <p className="text-[11px] text-white/60 leading-relaxed">{aiRec.reason}</p>
+              <div className="flex items-center gap-2 mt-2 text-[10px] text-white/35">
+                <span>מקור מומלץ: <span className="text-violet-300 font-bold">{SOURCES.find(s=>s.key===aiRec.source)?.title}</span></span>
+                <span>·</span>
+                <span>יעד: <span className="text-violet-300 font-bold">{aiRec.target}%</span></span>
+              </div>
+            </div>
           </div>
+          <AnimatePresence mode="wait">
+            {aiApplied ? (
+              <motion.div key="applied"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2"
+                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)' }}>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-black text-emerald-400">ההמלצה יושמה!</span>
+              </motion.div>
+            ) : (
+              <motion.button key="apply" whileTap={{ scale: 0.96 }}
+                onClick={applyAiRecommendation}
+                className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all"
+                style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(167,139,250,0.2))', border: '1px solid rgba(167,139,250,0.5)', boxShadow: '0 0 20px rgba(139,92,246,0.2)' }}>
+                <span className="text-sm">✨</span>
+                <span className="text-xs font-black text-violet-200">יישם המלצה</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Savings summary */}

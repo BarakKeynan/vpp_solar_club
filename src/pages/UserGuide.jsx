@@ -72,7 +72,7 @@ function StepCard({ step }) {
 
 // ─── PDF generator ────────────────────────────────────────────────────────────
 
-async function buildPDF(g, userName) {
+function buildPDF(g, userName) {
   try {
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -195,9 +195,16 @@ async function buildPDF(g, userName) {
     doc.setTextColor(100, 100, 100);
     doc.text('VPP Solar Club © 2026 · support@vppsolarclub.com', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-    // Download PDF
-    const filename = `VPP_Solar_Club_${g.lang === 'he' ? 'מדריך' : 'Guide'}.pdf`;
-    doc.save(filename);
+    // Create blob and download
+    const pdfBlob = doc.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `VPP_Solar_Club_${g.lang === 'he' ? 'מדריך' : 'Guide'}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   } catch (error) {
     console.error('PDF error:', error);
   }

@@ -3,26 +3,29 @@ import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Save, Eye, EyeOff, Wifi, WifiOff, CheckCircle2, AlertCircle, Loader2, X, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import BatteryCommandCenter from '@/components/vpp/BatteryCommandCenter';
 
 const CONFIG_KEY = 'vpp_settings';
 
 const FIELD_DEFS = [
   {
     group: 'Noga Energy API',
-    desc: 'אישורי OAuth2 לגישה למחירי חשמל בזמן אמת',
+    desc: 'אישורי OAuth2 לגישה למחירי חשמל בזמן אמת ושליחת פקודות VPP',
     fields: [
       { key: 'noga_client_id', label: 'Client ID', placeholder: 'noga-client-xxxxx', secret: false },
       { key: 'noga_client_secret', label: 'Client Secret', placeholder: '••••••••••••••••', secret: true },
       { key: 'noga_api_url', label: 'API Base URL', placeholder: 'https://noga-iso.co.il', secret: false },
     ],
+    guide: 'הרשמה ב-api.noga-iso.co.il → My Account → API Credentials',
   },
   {
-    group: 'SolarEdge Monitoring',
-    desc: 'מפתח API לניטור צי הסוללות',
+    group: 'SolarEdge — סוללה פיזית',
+    desc: 'מפתח API לניטור + שליחת פקודות טעינה/פריקה לסוללה הפיזית',
     fields: [
       { key: 'solaredge_api_key', label: 'API Key', placeholder: 'XXXXXXXXXXXXXXXXXXXX', secret: true },
-      { key: 'solaredge_site_ids', label: 'Site IDs (comma-separated)', placeholder: 'site-001,site-002,site-003', secret: false },
+      { key: 'solaredge_site_ids', label: 'Site IDs (מופרדים בפסיקים)', placeholder: 'site-001,site-002,site-003', secret: false },
     ],
+    guide: 'monitoring.solaredge.com → Admin → Site Access → API Access → Generate Key',
   },
 ];
 
@@ -225,6 +228,13 @@ export default function VPPSettings() {
               </span>
             )}
           </div>
+          {group.guide && (
+            <div className="flex items-start gap-2 rounded-xl px-3 py-2.5 text-xs"
+              style={{ background: 'rgba(96,165,250,0.07)', border: '1px solid rgba(96,165,250,0.2)', color: '#93c5fd' }}>
+              <span className="mt-0.5">📋</span>
+              <span>{group.guide}</span>
+            </div>
+          )}
           {group.fields.map(f => (
             <div key={f.key} className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground">{f.label}</label>
@@ -255,6 +265,14 @@ export default function VPPSettings() {
         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
         {saving ? 'שומר...' : savedMsg ? '✓ נשמר!' : 'שמור הגדרות'}
       </motion.button>
+
+      {/* Battery Command Center */}
+      <motion.div
+        initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+        className="rounded-2xl border border-border bg-card p-5"
+      >
+        <BatteryCommandCenter />
+      </motion.div>
     </div>
   );
 }

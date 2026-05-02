@@ -2,8 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
 import { GUIDE_HE } from './guide/guideHe';
@@ -72,141 +71,28 @@ function StepCard({ step }) {
 
 // ─── PDF generator ────────────────────────────────────────────────────────────
 
-function buildPDF(g, userName) {
+async function buildPDF(g, userName) {
   try {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    let yPosition = 15;
-
-    // Hero section
-    doc.setFillColor(16, 185, 129);
-    doc.rect(10, yPosition, pageWidth - 20, 30, 'F');
+    const response = await base44.functions.invoke('generateUserGuidePDF', { lang: g.lang });
+    const { pdf, filename } = response.data;
     
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont(undefined, 'bold');
-    doc.text('VPP Solar Club', pageWidth / 2, yPosition + 12, { align: 'center' });
+    const binaryString = atob(pdf);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
     
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    doc.text(`${g.welcomePrefix} ${userName} 👋`, pageWidth / 2, yPosition + 21, { align: 'center' });
-
-    yPosition += 40;
-
-    // Prerequisites
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(13);
-    doc.setFont(undefined, 'bold');
-    doc.text(g.prereqTitle, 15, yPosition);
-    yPosition += 8;
-
-    g.prereqs.filter(p => !p.isNoga && !p.isSolarEdge && !p.isPayment).forEach(p => {
-      if (yPosition > pageHeight - 30) {
-        doc.addPage();
-        yPosition = 15;
-      }
-
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'bold');
-      doc.text(`${p.icon} ${p.title}`, 15, yPosition);
-      yPosition += 5;
-
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'normal');
-      const bodyLines = doc.splitTextToSize(p.body, pageWidth - 30);
-      doc.text(bodyLines, 20, yPosition);
-      yPosition += bodyLines.length * 3.5 + 2;
-
-      doc.setFontSize(8);
-      doc.setTextColor(52, 211, 153);
-      const noteLines = doc.splitTextToSize(`💡 ${p.note}`, pageWidth - 30);
-      doc.text(noteLines, 20, yPosition);
-      yPosition += noteLines.length * 3 + 3;
-      doc.setTextColor(0, 0, 0);
-    });
-
-    // Steps
-    yPosition += 3;
-    if (yPosition > pageHeight - 40) {
-      doc.addPage();
-      yPosition = 15;
-    }
-
-    doc.setFontSize(13);
-    doc.setFont(undefined, 'bold');
-    doc.text(g.stepsTitle, 15, yPosition);
-    yPosition += 8;
-
-    g.steps.forEach((s, idx) => {
-      if (yPosition > pageHeight - 25) {
-        doc.addPage();
-        yPosition = 15;
-      }
-
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'bold');
-      doc.text(`${idx + 1}. ${s.icon} ${s.title}`, 15, yPosition);
-      yPosition += 5;
-
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'normal');
-      const descLines = doc.splitTextToSize(s.desc, pageWidth - 30);
-      doc.text(descLines, 20, yPosition);
-      yPosition += descLines.length * 3.5 + 2;
-
-      doc.setFontSize(8);
-      const whyLines = doc.splitTextToSize(s.why, pageWidth - 30);
-      doc.text(whyLines, 20, yPosition);
-      yPosition += whyLines.length * 3 + 3;
-    });
-
-    // Tips
-    yPosition += 3;
-    if (yPosition > pageHeight - 35) {
-      doc.addPage();
-      yPosition = 15;
-    }
-
-    doc.setFontSize(13);
-    doc.setFont(undefined, 'bold');
-    doc.text(g.tipsTitle, 15, yPosition);
-    yPosition += 8;
-
-    doc.setFontSize(9);
-    doc.setFont(undefined, 'normal');
-    g.tips.forEach(tip => {
-      if (yPosition > pageHeight - 15) {
-        doc.addPage();
-        yPosition = 15;
-      }
-      const tipLines = doc.splitTextToSize(`✦ ${tip}`, pageWidth - 30);
-      doc.text(tipLines, 20, yPosition);
-      yPosition += tipLines.length * 3.5 + 2;
-    });
-
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('VPP Solar Club © 2026 · support@vppsolarclub.com', pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-    // Create blob and download
-    const pdfBlob = doc.output('blob');
-    const url = URL.createObjectURL(pdfBlob);
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `VPP_Solar_Club_${g.lang === 'he' ? 'מדריך' : 'Guide'}.pdf`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('PDF error:', error);
+    console.error('PDF download error:', error);
   }
 }
 

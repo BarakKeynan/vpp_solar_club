@@ -440,6 +440,13 @@ export const translations = {
     ai_suggested_4: 'איך לשפר את יעילות הפאנלים?',
     ai_welcome: 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?',
 
+    // Billing Status Card
+    billing_active_label: 'אופטימיזציה פעילה ⚡️',
+    billing_active_status: 'סטטוס: תקופת הטבה פעילה (ללא עמלות)',
+    billing_welcome: '🎉 הצטרף לעילית: הפעל אופטימיזציה היום ותיהנה מ-6 חודשי שירות ללא עמלות.',
+    billing_activate_btn: 'הפעל וקשר אמצעי תשלום',
+    billing_inactive: 'אופטימיזציה לא פעילה',
+
     // Payment Setup
     payment_header: 'תשלום מאובטח — yPay',
     payment_sim: '🧪 מצב הדגמה — Demo Only',
@@ -990,6 +997,13 @@ export const translations = {
     payment_done_title: 'Optimization Active ⚡️',
     payment_done_body: 'Optimization service activated successfully. Enjoy 6 months fee-free — billing starts after 180 days.',
     payment_done_status: 'Status: Benefit period active (fee-free)',
+
+    // Billing Status Card
+    billing_active_label: 'Optimization Active ⚡️',
+    billing_active_status: 'Status: Benefit period active (fee-free)',
+    billing_welcome: '🎉 Join the elite: Activate optimization today and enjoy 6 months of full service fee-free.',
+    billing_activate_btn: 'Activate & Link Payment Method',
+    billing_inactive: 'Optimization inactive',
 
     // Auto Optimization
     auto_optimize_btn: 'Apply Auto Optimization',

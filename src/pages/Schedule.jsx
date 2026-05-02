@@ -183,36 +183,43 @@ export default function Schedule() {
         </div>
       </motion.div>
 
-      {/* AI Row */}
-      <motion.button
-        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.12 }}
-        onClick={() => setShowAI(true)}
-        className="w-full rounded-2xl border p-4 flex items-center justify-between text-left transition-all active:scale-[0.98]"
-        style={{ background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.3)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(139,92,246,0.18)' }}>
-            <Sparkles className="w-4 h-4 text-violet-400" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white">המלצות AI לתזמון</p>
-            <p className="text-xs text-white/45">לחץ לצפייה ואישור המלצות מותאמות אישית</p>
-          </div>
-        </div>
-        <div className="text-[10px] font-black px-2.5 py-1 rounded-full"
-          style={{ background: 'rgba(139,92,246,0.2)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.35)' }}>
-          3 המלצות
-        </div>
-      </motion.button>
+      {/* AI Row + Auto Toggle — merged card */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.12 }}
+        className="rounded-2xl overflow-hidden"
+        style={{ border: '1px solid rgba(139,92,246,0.3)' }}>
 
-      {/* Auto Toggle */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-        className={`rounded-2xl border p-4 flex items-center justify-between transition-colors ${auto ? 'border-primary/50 bg-primary/10' : 'border-border bg-card'}`}>
-        <div>
-          <p className="text-sm font-bold text-foreground">{t('auto_mode')}</p>
-          <p className="text-xs text-muted-foreground">{t('auto_mode_sub')}</p>
+        {/* AI Row */}
+        <button
+          onClick={() => setShowAI(true)}
+          className="w-full p-4 flex items-center justify-between text-left transition-all active:scale-[0.98]"
+          style={{ background: 'rgba(139,92,246,0.07)' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(139,92,246,0.18)' }}>
+              <Sparkles className="w-4 h-4 text-violet-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">המלצות AI לתזמון</p>
+              <p className="text-xs text-white/45">לחץ לצפייה ואישור המלצות מותאמות אישית</p>
+            </div>
+          </div>
+          <div className="text-[10px] font-black px-2.5 py-1 rounded-full"
+            style={{ background: 'rgba(139,92,246,0.2)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.35)' }}>
+            3 המלצות
+          </div>
+        </button>
+
+        {/* Divider */}
+        <div style={{ height: '1px', background: 'rgba(139,92,246,0.2)' }} />
+
+        {/* Auto Toggle */}
+        <div className={`p-4 flex items-center justify-between transition-colors ${auto ? 'bg-primary/10' : 'bg-card'}`}>
+          <div>
+            <p className="text-sm font-bold text-foreground">{t('auto_mode')}</p>
+            <p className="text-xs text-muted-foreground">{t('auto_mode_sub')}</p>
+          </div>
+          <Switch checked={auto} onCheckedChange={handleAuto} />
         </div>
-        <Switch checked={auto} onCheckedChange={handleAuto} />
       </motion.div>
 
       {/* Charge Schedule */}

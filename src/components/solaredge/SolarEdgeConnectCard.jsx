@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Sun, Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLang } from '@/lib/i18n';
 
 export default function SolarEdgeConnectCard() {
   const { user } = useAuth();
+  const { lang } = useLang();
   const [apiKey, setApiKey] = useState('');
   const [siteId, setSiteId] = useState('');
   const [showKey, setShowKey] = useState(false);
@@ -38,18 +40,22 @@ export default function SolarEdgeConnectCard() {
         <span className="text-2xl flex-shrink-0">☀️</span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-black text-white">חיבור SolarEdge API</p>
-            {isConnected && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
-                ✓ מחובר
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-white/60 leading-relaxed mt-1">
-            כנסו לפורטל <span className="text-white/80 font-bold">SolarEdge › Account › API Access</span> וצרו API Key.
-            הזינו אותו כאן יחד עם ה-Site ID שלכם — ותוכלו לראות בזמן אמת כמה חשמל הפאנלים מייצרים ומה מצב הסוללה הפיזית.
-          </p>
+             <p className="text-sm font-black text-white">
+               {lang === 'he' ? 'חיבור SolarEdge API' : 'Connect SolarEdge API'}
+             </p>
+             {isConnected && (
+               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                 style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
+                 {lang === 'he' ? '✓ מחובר' : '✓ Connected'}
+               </span>
+             )}
+           </div>
+           <p className="text-xs text-white/60 leading-relaxed mt-1">
+             {lang === 'he' 
+               ? <>כנסו לפורטל <span className="text-white/80 font-bold">SolarEdge › Account › API Access</span> וצרו API Key. הזינו אותו כאן יחד עם ה-Site ID שלכם — ותוכלו לראות בזמן אמת כמה חשמל הפאנלים מייצרים ומה מצב הסוללה הפיזית.</>
+               : <>Log in to the SolarEdge portal <span className="text-white/80 font-bold">› Account › API Access</span> and create an API Key. Enter it here along with your Site ID — you'll see in real-time how much electricity your panels produce and the physical battery status.</>
+             }
+           </p>
         </div>
       </div>
 
@@ -61,7 +67,7 @@ export default function SolarEdgeConnectCard() {
             type="text"
             value={siteId}
             onChange={e => setSiteId(e.target.value)}
-            placeholder="לדוגמה: 1234567"
+            placeholder={lang === 'he' ? 'לדוגמה: 1234567' : 'e.g. 1234567'}
             className="w-full px-3 py-2.5 rounded-xl text-xs text-white outline-none font-mono"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
             dir="ltr"
@@ -91,7 +97,9 @@ export default function SolarEdgeConnectCard() {
       <div className="rounded-xl px-3 py-2"
         style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
         <p className="text-[11px] text-emerald-400 leading-relaxed">
-          💡 זה מאפשר לאפליקציה לראות בזמן אמת כמה חשמל הפאנלים מייצרים ומה מצב הסוללה הפיזית.
+          {lang === 'he'
+            ? '💡 זה מאפשר לאפליקציה לראות בזמן אמת כמה חשמל הפאנלים מייצרים ומה מצב הסוללה הפיזית.'
+            : '💡 This allows the app to see in real-time how much electricity your panels produce and the physical battery status.'}
         </p>
       </div>
 
@@ -108,7 +116,9 @@ export default function SolarEdgeConnectCard() {
         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
          saved ? <CheckCircle2 className="w-3.5 h-3.5" /> :
          <Sun className="w-3.5 h-3.5" />}
-        {saving ? 'שומר...' : saved ? '✓ נשמר!' : 'שמור וחבר'}
+        {saving ? (lang === 'he' ? 'שומר...' : 'Saving...') : 
+         saved ? (lang === 'he' ? '✓ נשמר!' : '✓ Saved!') : 
+         (lang === 'he' ? 'שמור וחבר' : 'Save & Connect')}
       </button>
     </div>
   );

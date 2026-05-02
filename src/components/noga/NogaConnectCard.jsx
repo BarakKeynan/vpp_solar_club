@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Copy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLang } from '@/lib/i18n';
 
-const TEMPLATE_TEXT = 'שלום צוות נגה, אני מעוניין לקבל גישת API לנתוני המערכת שלי עבור אפליקציית ניהול האנרגיה VPP Solar Club. אודה לקבלת Client ID ו-Secret Key עבור המונה שלי.';
+const TEMPLATE_TEXT_HE = 'שלום צוות נגה, אני מעוניין לקבל גישת API לנתוני המערכת שלי עבור אפליקציית ניהול האנרגיה VPP Solar Club. אודה לקבלת Client ID ו-Secret Key עבור המונה שלי.';
+const TEMPLATE_TEXT_EN = 'Hello Noga team, I would like to obtain API access to my system data for the VPP Solar Club energy management application. I would appreciate receiving Client ID and Secret Key for my meter.';
 
-function CopyTemplate() {
+function CopyTemplate({ lang }) {
   const [copied, setCopied] = useState(false);
+  const templateText = lang === 'he' ? TEMPLATE_TEXT_HE : TEMPLATE_TEXT_EN;
   const handleCopy = () => {
-    navigator.clipboard.writeText(TEMPLATE_TEXT);
+    navigator.clipboard.writeText(templateText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
   return (
     <div className="rounded-xl p-3 space-y-2"
       style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)' }}>
-      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">נוסח מומלץ לפנייה (להעתקה)</p>
-      <p className="text-[11px] text-white/55 leading-relaxed">{TEMPLATE_TEXT}</p>
+      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">
+        {lang === 'he' ? 'נוסח מומלץ לפנייה (להעתקה)' : 'Suggested Template (Copy)'}
+      </p>
+      <p className="text-[11px] text-white/55 leading-relaxed">{templateText}</p>
       <button onClick={handleCopy}
         className="flex items-center gap-1.5 text-[11px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95"
         style={{
@@ -25,17 +30,19 @@ function CopyTemplate() {
           color: copied ? '#34d399' : '#6ee7b7',
         }}>
         {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-        {copied ? 'הועתק!' : 'העתק טקסט'}
+        {copied ? (lang === 'he' ? 'הועתק!' : 'Copied!') : (lang === 'he' ? 'העתק טקסט' : 'Copy Text')}
       </button>
     </div>
   );
 }
 
-const WHATSAPP_SUPPORT = '972526000000'; // ← replace with Barak's number
-const SUPPORT_MSG = 'היי ברק, אני צריך עזרה בהוצאת ה-API מול נגה';
+const WHATSAPP_SUPPORT = '972526000000';
+const SUPPORT_MSG_HE = 'היי ברק, אני צריך עזרה בהוצאת ה-API מול נגה';
+const SUPPORT_MSG_EN = 'Hi Barak, I need help getting the API from Noga';
 
 export default function NogaConnectCard() {
   const { user } = useAuth();
+  const { lang } = useLang();
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [showSecret, setShowSecret] = useState(false);
@@ -65,8 +72,9 @@ export default function NogaConnectCard() {
   };
 
   const handleHelpWhatsApp = () => {
+    const supportMsg = lang === 'he' ? SUPPORT_MSG_HE : SUPPORT_MSG_EN;
     window.open(
-      `https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent(SUPPORT_MSG)}`,
+      `https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent(supportMsg)}`,
       '_blank'
     );
   };
@@ -78,36 +86,53 @@ export default function NogaConnectCard() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Zap className="w-4 h-4 text-amber-400" />
-        <p className="text-sm font-black text-white">חיבור לנתוני אמת (Noga ISO)</p>
+        <p className="text-sm font-black text-white">
+          {lang === 'he' ? 'חיבור לנתוני אמת (Noga ISO)' : 'Live Data Connection (Noga ISO)'}
+        </p>
         {isConnected && !saving && (
           <span className="mr-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
             style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
-            ✓ מחובר
+            {lang === 'he' ? '✓ מחובר' : '✓ Connected'}
           </span>
         )}
       </div>
 
       {/* Description */}
       <p className="text-xs text-white/55 leading-relaxed">
-        כדי שהמערכת תוכל למקסם את הרווחים שלך, יש לחבר את נתוני המונה האישיים שלך מול <strong className="text-white/80">נגה - ניהול מערכת החשמל</strong>.
+        {lang === 'he'
+          ? <>כדי שהמערכת תוכל למקסם את הרווחים שלך, יש לחבר את נתוני המונה האישיים שלך מול <strong className="text-white/80">נגה - ניהול מערכת החשמל</strong>.</>
+          : <>To maximize your profits, connect your personal meter data with <strong className="text-white/80">Noga — Power System Operator</strong>.</>
+        }
       </p>
 
       {/* How to get keys */}
       <div className="rounded-xl px-3 py-2.5 space-y-1.5"
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <p className="text-[11px] font-black text-white/60 mb-1">איך משיגים את הקודים?</p>
-        <p className="text-[11px] text-white/50 leading-relaxed">1. לחצו על הכפתור מטה למעבר לפורטל נגה.</p>
-        <p className="text-[11px] text-white/50 leading-relaxed">2. הגישו בקשה לגישת API (SMP Price) עבור המונה שלכם.</p>
-        <p className="text-[11px] text-white/50 leading-relaxed">3. העתיקו והדביקו כאן את ה-Client ID וה-Secret שתקבלו במייל.</p>
+        <p className="text-[11px] font-black text-white/60 mb-1">
+          {lang === 'he' ? 'איך משיגים את הקודים?' : 'How to get the credentials?'}
+        </p>
+        {lang === 'he' ? (
+          <>
+            <p className="text-[11px] text-white/50 leading-relaxed">1. לחצו על הכפתור מטה למעבר לפורטל נגה.</p>
+            <p className="text-[11px] text-white/50 leading-relaxed">2. הגישו בקשה לגישת API (SMP Price) עבור המונה שלכם.</p>
+            <p className="text-[11px] text-white/50 leading-relaxed">3. העתיקו והדביקו כאן את ה-Client ID וה-Secret שתקבלו במייל.</p>
+          </>
+        ) : (
+          <>
+            <p className="text-[11px] text-white/50 leading-relaxed">1. Click the button below to go to Noga portal.</p>
+            <p className="text-[11px] text-white/50 leading-relaxed">2. Request API access (SMP Price) for your meter.</p>
+            <p className="text-[11px] text-white/50 leading-relaxed">3. Copy & paste the Client ID and Secret here when you receive them by email.</p>
+          </>
+        )}
         <a href="https://www.noga-iso.co.il/" target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all active:scale-95"
           style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}>
-          ⚡ מעבר לפורטל נגה
+          ⚡ {lang === 'he' ? 'מעבור לפורטל נגה' : 'Go to Noga Portal'}
         </a>
       </div>
 
       {/* Copy template */}
-      <CopyTemplate />
+      <CopyTemplate lang={lang} />
 
       {/* Inputs */}
       <div className="space-y-2">
@@ -158,7 +183,9 @@ export default function NogaConnectCard() {
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
            saved ? <CheckCircle2 className="w-3.5 h-3.5" /> :
            <Zap className="w-3.5 h-3.5" />}
-          {saving ? 'מאמת...' : saved ? '✓ נשמר!' : 'אימות וחיבור'}
+          {saving ? (lang === 'he' ? 'מאמת...' : 'Verifying...') :
+           saved ? (lang === 'he' ? '✓ נשמר!' : '✓ Saved!') :
+           (lang === 'he' ? 'אימות וחיבור' : 'Verify & Connect')}
         </button>
 
         {/* Secondary: WhatsApp help */}
@@ -167,7 +194,7 @@ export default function NogaConnectCard() {
           className="px-3 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all active:scale-95"
           style={{ background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)', color: '#25d366' }}>
           <MessageCircle className="w-3.5 h-3.5" />
-          עזרה בחיבור
+          {lang === 'he' ? 'עזרה בחיבור' : 'Help'}
         </button>
       </div>
     </div>

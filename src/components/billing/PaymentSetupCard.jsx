@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, CheckCircle2, Loader2, AlertCircle, Zap } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useLang } from '@/lib/i18n';
 import PaymentSetup from './PaymentSetup';
 
 export default function PaymentSetupCard() {
+  const { lang } = useLang();
   const [status, setStatus] = useState(null);
   const [showSetup, setShowSetup] = useState(false);
 
@@ -26,16 +28,20 @@ export default function PaymentSetupCard() {
           <span className="text-2xl flex-shrink-0">📱</span>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-black text-white">הגדרת אמצעי תשלום</p>
+              <p className="text-sm font-black text-white">
+                {lang === 'he' ? 'הגדרת אמצעי תשלום' : 'Set Up Payment Method'}
+              </p>
               {isActive && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                   style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
-                  ✓ פעיל
+                  {lang === 'he' ? '✓ פעיל' : '✓ Active'}
                 </span>
               )}
             </div>
             <p className="text-xs text-white/60 leading-relaxed mt-1">
-              נדרש לקבלת תשלומים על אנרגיה שנמכרת לרשת. הוסיפו כרטיס אשראי בלחיצה על הכפתור.
+              {lang === 'he'
+                ? 'נדרש לקבלת תשלומים על אנרגיה שנמכרת לרשת. הוסיפו כרטיס אשראי בלחיצה על הכפתור.'
+                : 'Required to receive payments for energy sold to the grid. Add a credit card by tapping the button.'}
             </p>
           </div>
         </div>
@@ -47,20 +53,26 @@ export default function PaymentSetupCard() {
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
             <div>
               <p className="text-[11px] text-emerald-400 font-bold">
-                {status.billing_brand && status.billing_last4
-                  ? `${status.billing_brand} ···${status.billing_last4} — פעיל`
-                  : 'אמצעי תשלום מחובר ופעיל'}
-              </p>
-              <p className="text-[10px] text-white/40 mt-0.5">מוכנים לקבל תשלומים על מכירות אנרגיה</p>
+                  {status.billing_brand && status.billing_last4
+                    ? (lang === 'he'
+                      ? `${status.billing_brand} ···${status.billing_last4} — פעיל`
+                      : `${status.billing_brand} ···${status.billing_last4} — Active`)
+                    : (lang === 'he' ? 'אמצעי תשלום מחובר ופעיל' : 'Payment method connected & active')}
+                </p>
+                <p className="text-[10px] text-white/40 mt-0.5">
+                  {lang === 'he' ? 'מוכנים לקבל תשלומים על מכירות אנרגיה' : 'Ready to receive payments for energy sales'}
+                </p>
             </div>
           </div>
         ) : (
           <div className="rounded-xl px-3 py-2"
             style={{ background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
             <p className="text-[11px] text-violet-300 leading-relaxed flex items-start gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-              ניתן להתחיל בסימולציה ללא תשלום — אך לקבלת הכנסות אמיתיות נדרש חיבור.
-            </p>
+               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+               {lang === 'he'
+                 ? 'ניתן להתחיל בסימולציה ללא תשלום — אך לקבלת הכנסות אמיתיות נדרש חיבור.'
+                 : 'You can start in simulation mode without payment — but real income requires a connection.'}
+             </p>
           </div>
         )}
 
@@ -75,7 +87,9 @@ export default function PaymentSetupCard() {
               color: isActive ? '#34d399' : '#c4b5fd',
             }}>
             <CreditCard className="w-3.5 h-3.5" />
-            {isActive ? 'עדכון אמצעי תשלום' : 'הוספת כרטיס אשראי'}
+            {isActive
+              ? (lang === 'he' ? 'עדכון אמצעי תשלום' : 'Update Payment Method')
+              : (lang === 'he' ? 'הוספת כרטיס אשראי' : 'Add Credit Card')}
           </button>
         )}
 

@@ -11,15 +11,33 @@ export default function Profile() {
   const [name, setName] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef(null);
+  const [editingSystem, setEditingSystem] = useState(false);
+  const [systemCapacity, setSystemCapacity] = useState('');
+  const [systemBrand, setSystemBrand] = useState('');
 
   useEffect(() => {
-    base44.auth.me().then(u => { setUser(u); setName(u?.full_name || ''); }).catch(() => {});
+    base44.auth.me().then(u => {
+      setUser(u);
+      setName(u?.full_name || '');
+      setSystemCapacity(u?.battery_capacity_kwh ? String(u.battery_capacity_kwh) : '');
+      setSystemBrand(u?.bess_brand || '');
+    }).catch(() => {});
   }, []);
 
   const handleSave = async () => {
     await base44.auth.updateMe({ full_name: name });
     setUser(u => ({ ...u, full_name: name }));
     setEditing(false);
+  };
+
+  const handleSaveSystem = async () => {
+    const updates = {
+      battery_capacity_kwh: systemCapacity ? Number(systemCapacity) : null,
+      bess_brand: systemBrand || null,
+    };
+    await base44.auth.updateMe(updates);
+    setUser(u => ({ ...u, ...updates }));
+    setEditingSystem(false);
   };
 
   const handlePhotoUpload = async (e) => {
@@ -179,7 +197,7 @@ export default function Profile() {
           { icon: Mail, label: t('email_label'), value: user?.email || '—' },
           { icon: Home, label: t('system_type'), value: 'VPP Home + Solar Club' },
           { icon: Zap, label: t('tariff'), value: '0.61 ₪/kWh' },
-          { icon: Battery, label: lang === 'he' ? 'סוג סוללה' : 'Battery Type', value: 'LFP 10 kWh · SolarEdge' },
+          { icon: Battery, label: lang === 'he' ? 'גודל מערכת / סוללה' : 'System Size / Battery', value: null, isSystem: true },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-muted">
@@ -187,7 +205,40 @@ export default function Profile() {
             </div>
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">{item.label}</p>
-              <p className="text-sm font-semibold text-foreground">{item.value}</p>
+              {item.isSystem ? (
+                editingSystem ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="number"
+                      value={systemCapacity}
+                      onChange={e => setSystemCapacity(e.target.value)}
+                      placeholder={lang === 'he' ? 'kWh' : 'kWh'}
+                      className="w-20 bg-muted border border-primary rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={systemBrand}
+                      onChange={e => setSystemBrand(e.target.value)}
+                      placeholder={lang === 'he' ? 'מותג' : 'Brand'}
+                      className="flex-1 bg-muted border border-primary rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none"
+                    />
+                    <button onClick={handleSaveSystem} className="p-1.5 rounded-lg bg-primary">
+                      <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-foreground">
+                      {user?.battery_capacity_kwh ? `${user.battery_capacity_kwh} kWh${user?.bess_brand ? ` · ${user.bess_brand}` : ''}` : (lang === 'he' ? 'לא הוגדר' : 'Not set')}
+                    </p>
+                    <button onClick={() => setEditingSystem(true)}>
+                      <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                )
+              ) : (
+                <p className="text-sm font-semibold text-foreground">{item.value}</p>
+              )}
             </div>
           </div>
         ))}

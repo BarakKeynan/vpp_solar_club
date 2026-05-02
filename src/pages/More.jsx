@@ -6,7 +6,7 @@ import { useLang } from '@/lib/i18n';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 
 export default function More() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { isAdmin } = useIsAdmin();
 
   const items = [
@@ -14,8 +14,8 @@ export default function More() {
       path: '/user-guide',
       icon: BookOpen,
       emoji: '📖',
-      title: 'מדריך שימוש',
-      subtitle: 'הוראות צעד אחר צעד · עברית ואנגלית · הורדת PDF',
+      title: t('nav_user_guide') || (lang === 'he' ? 'מדריך שימוש' : 'User Manual'),
+      subtitle: lang === 'he' ? 'הוראות צעד אחר צעד · הורדת PDF' : 'Step-by-step instructions · Download PDF',
       color: 'border-emerald-400/40 bg-emerald-400/8',
       accent: 'text-emerald-400',
     },

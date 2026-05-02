@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
 import { GUIDE_HE } from './guide/guideHe';
@@ -70,98 +72,135 @@ function StepCard({ step }) {
 
 // ─── PDF generator ────────────────────────────────────────────────────────────
 
-function buildPDF(g, userName) {
-  const win = window.open('', '_blank');
-  if (!win) {
-    alert('Please allow popups to download the PDF');
-    return;
+async function buildPDF(g, userName) {
+  try {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let yPosition = 15;
+
+    // Hero section
+    doc.setFillColor(16, 185, 129);
+    doc.rect(10, yPosition, pageWidth - 20, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont(undefined, 'bold');
+    doc.text('VPP Solar Club', pageWidth / 2, yPosition + 12, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`${g.welcomePrefix} ${userName} 👋`, pageWidth / 2, yPosition + 21, { align: 'center' });
+
+    yPosition += 40;
+
+    // Prerequisites
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(g.prereqTitle, 15, yPosition);
+    yPosition += 8;
+
+    g.prereqs.filter(p => !p.isNoga && !p.isSolarEdge && !p.isPayment).forEach(p => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = 15;
+      }
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(`${p.icon} ${p.title}`, 15, yPosition);
+      yPosition += 5;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      const bodyLines = doc.splitTextToSize(p.body, pageWidth - 30);
+      doc.text(bodyLines, 20, yPosition);
+      yPosition += bodyLines.length * 3.5 + 2;
+
+      doc.setFontSize(8);
+      doc.setTextColor(52, 211, 153);
+      const noteLines = doc.splitTextToSize(`💡 ${p.note}`, pageWidth - 30);
+      doc.text(noteLines, 20, yPosition);
+      yPosition += noteLines.length * 3 + 3;
+      doc.setTextColor(0, 0, 0);
+    });
+
+    // Steps
+    yPosition += 3;
+    if (yPosition > pageHeight - 40) {
+      doc.addPage();
+      yPosition = 15;
+    }
+
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(g.stepsTitle, 15, yPosition);
+    yPosition += 8;
+
+    g.steps.forEach((s, idx) => {
+      if (yPosition > pageHeight - 25) {
+        doc.addPage();
+        yPosition = 15;
+      }
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(`${idx + 1}. ${s.icon} ${s.title}`, 15, yPosition);
+      yPosition += 5;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      const descLines = doc.splitTextToSize(s.desc, pageWidth - 30);
+      doc.text(descLines, 20, yPosition);
+      yPosition += descLines.length * 3.5 + 2;
+
+      doc.setFontSize(8);
+      const whyLines = doc.splitTextToSize(s.why, pageWidth - 30);
+      doc.text(whyLines, 20, yPosition);
+      yPosition += whyLines.length * 3 + 3;
+    });
+
+    // Tips
+    yPosition += 3;
+    if (yPosition > pageHeight - 35) {
+      doc.addPage();
+      yPosition = 15;
+    }
+
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(g.tipsTitle, 15, yPosition);
+    yPosition += 8;
+
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'normal');
+    g.tips.forEach(tip => {
+      if (yPosition > pageHeight - 15) {
+        doc.addPage();
+        yPosition = 15;
+      }
+      const tipLines = doc.splitTextToSize(`✦ ${tip}`, pageWidth - 30);
+      doc.text(tipLines, 20, yPosition);
+      yPosition += tipLines.length * 3.5 + 2;
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('VPP Solar Club © 2026 · support@vppsolarclub.com', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+    // Download PDF
+    const filename = `VPP_Solar_Club_${g.lang === 'he' ? 'מדריך' : 'Guide'}.pdf`;
+    doc.save(filename);
+  } catch (error) {
+    console.error('PDF error:', error);
   }
-
-  const html = `<!DOCTYPE html>
-<html dir="${g.dir}" lang="${g.lang}">
-<head>
-  <meta charset="UTF-8"/>
-  <title>VPP Solar Club — ${g.pdfTitle}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Heebo', sans-serif; background: #0b1320; color: #e2e8f0;
-           direction: ${g.dir}; padding: 32px; font-size: 13px; line-height: 1.6; }
-    h1 { font-size: 28px; font-weight: 900; color: #10b981; margin-bottom: 4px; }
-    h2 { font-size: 17px; font-weight: 900; color: #fff; margin: 28px 0 14px; }
-    .hero { background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(59,130,246,0.08));
-            border: 1px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
-    .hero-sub { color: #94a3b8; font-size: 12px; margin-top: 4px; }
-    .hero-desc { color: #cbd5e1; font-size: 13px; margin-top: 12px; line-height: 1.7; }
-    .hero-welcome { font-size: 13px; color: #10b981; font-weight: 700; margin-bottom: 4px; }
-    .card { border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
-            border-radius: 14px; padding: 14px; margin-bottom: 12px; break-inside: avoid; }
-    .card-row { display: flex; gap: 12px; align-items: flex-start; }
-    .step-num { display: inline-flex; align-items: center; justify-content: center;
-                width: 36px; height: 36px; border-radius: 10px; font-weight: 900; font-size: 13px; flex-shrink: 0; }
-    .note-box { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
-                border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 11px; color: #34d399; }
-    .why-box { border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 11px; font-weight: 700; }
-    .link { color: #22d3ee; font-size: 11px; font-weight: 700; text-decoration: underline; display: block; margin-top: 4px; }
-    .tips li { padding: 8px 12px; background: rgba(255,255,255,0.03);
-               border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
-               margin-bottom: 6px; font-size: 12px; color: #cbd5e1; list-style: none; }
-    .tips li::before { content: "✦ "; color: #10b981; font-weight: 900; }
-    .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);
-              text-align: center; font-size: 11px; color: #475569; }
-    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-  </style>
-</head>
-<body>
-  <div class="hero">
-    <p class="hero-welcome">${g.welcomePrefix} ${userName} 👋</p>
-    <h1>VPP Solar Club</h1>
-    <p class="hero-sub">${g.pdfTitle} · 2026</p>
-    <p class="hero-desc">${g.appDesc}</p>
-  </div>
-
-  <h2>${g.prereqTitle}</h2>
-  ${g.prereqs.map(p => `
-    <div class="card">
-      <div class="card-row">
-        <span style="font-size:22px;flex-shrink:0">${p.icon}</span>
-        <div>
-          <strong style="color:#fff;font-size:13px">${p.title}</strong>
-          <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:4px">${p.body}</p>
-          ${p.link ? `<a class="link" href="${p.link.url}">${p.link.label}</a>` : ''}
-          <div class="note-box">💡 ${p.note}</div>
-        </div>
-      </div>
-    </div>`).join('')}
-
-  <h2>${g.stepsTitle}</h2>
-  ${g.steps.map(s => `
-    <div class="card" style="border-color:${s.color}30">
-      <div class="card-row">
-        <div class="step-num" style="background:${s.color}18;color:${s.color};border:1px solid ${s.color}40">${s.num}</div>
-        <div>
-          <strong style="color:#fff;font-size:13px">${s.icon} ${s.title}</strong>
-          <p style="color:rgba(255,255,255,0.65);font-size:12px;margin-top:4px">${s.desc}</p>
-          <div class="why-box" style="background:${s.color}10;border:1px solid ${s.color}25;color:${s.color}">${s.why}</div>
-        </div>
-      </div>
-    </div>`).join('')}
-
-  <h2>${g.tipsTitle}</h2>
-  <ul class="tips">
-    ${g.tips.map(tip => `<li>${tip}</li>`).join('')}
-  </ul>
-
-  <div class="footer">
-    VPP Solar Club © 2026 · ${g.rights} · support@vppsolarclub.com
-  </div>
-</body>
-</html>`;
-
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  setTimeout(() => { win.focus(); win.print(); }, 800);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────

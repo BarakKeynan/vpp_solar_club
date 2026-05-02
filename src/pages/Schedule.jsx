@@ -32,21 +32,29 @@ const AI_RECS = [
 ];
 
 function AIModal({ onClose, onApply }) {
+  const [selected, setSelected] = useState(AI_RECS.map((_, i) => i)); // all checked by default
+
+  const toggle = (i) => setSelected(prev =>
+    prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
+  );
+
+  const handleApply = () => onApply(selected);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(5px)' }}
       onClick={onClose}>
       <motion.div
-        initial={{ y: 60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 60, opacity: 0 }}
+        initial={{ y: 40, opacity: 0, scale: 0.97 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 40, opacity: 0, scale: 0.97 }}
         transition={{ type: 'spring', damping: 22, stiffness: 300 }}
-        className="w-full max-w-md rounded-t-3xl p-5 pb-8 space-y-4"
-        style={{ background: 'hsl(222 40% 10%)', border: '1px solid rgba(139,92,246,0.3)' }}
+        className="w-full max-w-sm rounded-3xl p-5 space-y-4"
+        style={{ background: 'hsl(222 40% 10%)', border: '1px solid rgba(139,92,246,0.35)' }}
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -68,33 +76,54 @@ function AIModal({ onClose, onApply }) {
           מבוסס על: תחזית מזג אוויר, מחירי רשת בזמן אמת ודפוס הצריכה שלך ב-30 הימים האחרונים.
         </div>
 
-        {/* Recommendations */}
+        {/* Recommendations with radio/checkboxes */}
         <div className="space-y-2.5">
           {AI_RECS.map((rec, i) => {
             const Icon = rec.icon;
+            const checked = selected.includes(i);
             return (
-              <div key={i} className="rounded-xl p-3 flex items-start gap-3"
-                style={{ background: `${rec.color}0d`, border: `1px solid ${rec.color}30` }}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${rec.color}18` }}>
-                  <Icon className="w-4 h-4" style={{ color: rec.color }} />
+              <button key={i} onClick={() => toggle(i)}
+                className="w-full rounded-xl p-3 flex items-start gap-3 text-left transition-all"
+                style={{
+                  background: checked ? `${rec.color}12` : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${checked ? rec.color + '50' : 'rgba(255,255,255,0.08)'}`,
+                }}>
+                {/* Custom radio circle */}
+                <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5 transition-all"
+                  style={{
+                    background: checked ? rec.color : 'transparent',
+                    border: `2px solid ${checked ? rec.color : 'rgba(255,255,255,0.25)'}`,
+                  }}>
+                  {checked && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
-                <div>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${rec.color}18` }}>
+                  <Icon className="w-3.5 h-3.5" style={{ color: rec.color }} />
+                </div>
+                <div className="flex-1">
                   <p className="text-xs font-black text-white">{rec.title}</p>
                   <p className="text-[11px] text-white/55 leading-relaxed mt-0.5">{rec.desc}</p>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
 
-        {/* Apply button */}
-        <button onClick={onApply}
-          className="w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-          style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.35), rgba(16,185,129,0.25))', border: '1px solid rgba(139,92,246,0.5)', color: '#c4b5fd' }}>
-          <CheckCircle2 className="w-4 h-4" />
-          אשר שינויים — יישם המלצות
-        </button>
+        {/* Buttons row */}
+        <div className="flex gap-2 pt-1">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white/40 transition-all active:scale-95"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            ביטול
+          </button>
+          <button onClick={handleApply}
+            disabled={selected.length === 0}
+            className="flex-2 flex-1 py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-40"
+            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.4), rgba(16,185,129,0.3))', border: '1px solid rgba(139,92,246,0.5)', color: '#c4b5fd' }}>
+            <CheckCircle2 className="w-4 h-4" />
+            אשר שינויים ({selected.length})
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -114,11 +143,14 @@ export default function Schedule() {
     toast.success(v ? t('auto_on_msg') : t('auto_off_msg'));
   };
 
-  const handleApplyAI = () => {
-    setChargeRange([9, 15]);
-    setSellRange([20, 23]);
+  const handleApplyAI = (selected) => {
+    selected.forEach(i => {
+      const rec = AI_RECS[i];
+      if (rec.change?.type === 'charge') setChargeRange(rec.change.value);
+      if (rec.change?.type === 'sell') setSellRange(rec.change.value);
+    });
     setShowAI(false);
-    toast.success('✅ המלצות AI יושמו — שעות עודכנו');
+    toast.success(`✅ ${selected.length} המלצות AI יושמו`);
   };
 
   return (
@@ -227,7 +259,7 @@ export default function Schedule() {
       </button>
 
       <AnimatePresence>
-        {showAI && <AIModal onClose={() => setShowAI(false)} onApply={handleApplyAI} />}
+        {showAI && <AIModal onClose={() => setShowAI(false)} onApply={(sel) => handleApplyAI(sel)} />}
       </AnimatePresence>
     </div>
   );

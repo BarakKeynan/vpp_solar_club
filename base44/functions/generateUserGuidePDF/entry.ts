@@ -173,7 +173,8 @@ Deno.serve(async (req) => {
 
     // Return as base64
     const pdfBytes = doc.output('arraybuffer');
-    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
+    const binaryString = String.fromCharCode.apply(null, new Uint8Array(pdfBytes));
+    const pdfBase64 = btoa(binaryString);
     
     return Response.json({
       success: true,

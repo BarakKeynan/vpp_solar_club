@@ -1,8 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle } from 'lucide-react';
+import { Zap, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Copy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+
+const TEMPLATE_TEXT = 'שלום צוות נגה, אני מעוניין לקבל גישת API לנתוני המערכת שלי עבור אפליקציית ניהול האנרגיה VPP Solar Club. אודה לקבלת Client ID ו-Secret Key עבור המונה שלי.';
+
+function CopyTemplate() {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(TEMPLATE_TEXT);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+  return (
+    <div className="rounded-xl p-3 space-y-2"
+      style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)' }}>
+      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">נוסח מומלץ לפנייה (להעתקה)</p>
+      <p className="text-[11px] text-white/55 leading-relaxed">{TEMPLATE_TEXT}</p>
+      <button onClick={handleCopy}
+        className="flex items-center gap-1.5 text-[11px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95"
+        style={{
+          background: copied ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.1)',
+          border: `1px solid ${copied ? 'rgba(16,185,129,0.5)' : 'rgba(16,185,129,0.25)'}`,
+          color: copied ? '#34d399' : '#6ee7b7',
+        }}>
+        {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+        {copied ? 'הועתק!' : 'העתק טקסט'}
+      </button>
+    </div>
+  );
+}
 
 const WHATSAPP_SUPPORT = '972526000000'; // ← replace with Barak's number
 const SUPPORT_MSG = 'היי ברק, אני צריך עזרה בהוצאת ה-API מול נגה';
@@ -51,7 +78,7 @@ export default function NogaConnectCard() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Zap className="w-4 h-4 text-amber-400" />
-        <p className="text-sm font-black text-white">אישורי Noga Energy (API)</p>
+        <p className="text-sm font-black text-white">חיבור לנתוני אמת (Noga ISO)</p>
         {isConnected && !saving && (
           <span className="mr-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
             style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
@@ -62,17 +89,25 @@ export default function NogaConnectCard() {
 
       {/* Description */}
       <p className="text-xs text-white/55 leading-relaxed">
-        לקבלת <strong className="text-white/80">Client ID + Secret</strong> של Noga ISO, פנו לצוות VPP Solar Club.
-        הם מספקים גישה למחירי חשמל בזמן אמת.
+        כדי שהמערכת תוכל למקסם את הרווחים שלך, יש לחבר את נתוני המונה האישיים שלך מול <strong className="text-white/80">נגה - ניהול מערכת החשמל</strong>.
       </p>
 
-      {/* Note box */}
-      <div className="rounded-xl px-3 py-2.5"
-        style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
-        <p className="text-[11px] text-emerald-400 leading-relaxed">
-          💡 ללא חיבור זה האפליקציה פועלת ב-Simulation Mode — הכל עובד, אבל עם נתוני מחיר מדומים.
-        </p>
+      {/* How to get keys */}
+      <div className="rounded-xl px-3 py-2.5 space-y-1.5"
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <p className="text-[11px] font-black text-white/60 mb-1">איך משיגים את הקודים?</p>
+        <p className="text-[11px] text-white/50 leading-relaxed">1. לחצו על הכפתור מטה למעבר לפורטל נגה.</p>
+        <p className="text-[11px] text-white/50 leading-relaxed">2. הגישו בקשה לגישת API (SMP Price) עבור המונה שלכם.</p>
+        <p className="text-[11px] text-white/50 leading-relaxed">3. העתיקו והדביקו כאן את ה-Client ID וה-Secret שתקבלו במייל.</p>
+        <a href="https://www.noga-iso.co.il/" target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all active:scale-95"
+          style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}>
+          ⚡ מעבר לפורטל נגה
+        </a>
       </div>
+
+      {/* Copy template */}
+      <CopyTemplate />
 
       {/* Inputs */}
       <div className="space-y-2">

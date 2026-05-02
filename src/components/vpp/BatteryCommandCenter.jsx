@@ -7,9 +7,38 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
-import { Zap, TrendingUp, Battery, RefreshCw, CheckCircle2, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { Zap, TrendingUp, Battery, RefreshCw, CheckCircle2, Clock, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 
 const STATUS_POLL_MS = 30000;
+
+// AI recommendation based on current hour & conditions
+function getAiAdvice(virtual) {
+  const h = new Date().getHours();
+  const solarHours = h >= 10 && h <= 16;
+  const peakHours = h >= 20 && h <= 23;
+  const offPeak = h >= 0 && h <= 6;
+  const balance = virtual?.kwhBalance ?? 0;
+
+  const charge = solarHours
+    ? { tip: `☀️ שמש בשיא (${h}:00) — מומלץ לטעון עכשיו עד 95% ולאגור אנרגיה זולה ללילה.`, target: 95 }
+    : offPeak
+    ? { tip: `🌙 שעות שפל (${h}:00) — מחיר רשת נמוך, כדאי לטעון עד 80%.`, target: 80 }
+    : { tip: `⏳ אין שמש כעת — טען מהחווה עד 70% לפני שעת שיא.`, target: 70 };
+
+  const sell = peakHours
+    ? { tip: `🔥 שעת שיא! (${h}:00) — מחיר מקסימלי. מכור עכשיו עד ${Math.min(balance, 15).toFixed(0)} kWh.`, kwh: Math.min(balance, 15), mode: 'now', time: '' }
+    : { tip: `📅 שעת השיא הקרובה: 20:00–23:00 — תזמן מכירה של ${Math.min(balance, 12).toFixed(0)} kWh לשעה 20:30.`, kwh: Math.min(balance, 12), mode: 'scheduled', time: getTodayAt('20:30') };
+
+  return { charge, sell };
+}
+
+function getTodayAt(hhmm) {
+  const [hh, mm] = hhmm.split(':');
+  const d = new Date();
+  d.setHours(Number(hh), Number(mm), 0, 0);
+  if (d < new Date()) d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 16);
+}
 
 export default function BatteryCommandCenter() {
   const [status, setStatus] = useState(null);
@@ -68,6 +97,17 @@ export default function BatteryCommandCenter() {
   const virtual = status?.virtual;
   const isSimulation = status?.mode === 'simulation';
   const socColor = (soc) => soc > 70 ? '#10b981' : soc > 30 ? '#f59e0b' : '#ef4444';
+  const aiAdvice = getAiAdvice(virtual);
+
+  const applyChargeAdvice = () => {
+    setTargetSoc(aiAdvice.charge.target);
+  };
+
+  const applySellAdvice = () => {
+    setKwhToSell(Math.max(1, Math.round(aiAdvice.sell.kwh)));
+    setSellMode(aiAdvice.sell.mode);
+    if (aiAdvice.sell.mode === 'scheduled') setScheduledTime(aiAdvice.sell.time);
+  };
 
   return (
     <div className="space-y-4">
@@ -173,6 +213,21 @@ export default function BatteryCommandCenter() {
           {cmdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Battery className="w-4 h-4" />}
           שלח פקודת טעינה ({targetSoc}%)
         </button>
+
+        {/* AI Tip — Charge */}
+        <div className="rounded-xl p-3 space-y-2"
+          style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)' }}>
+          <div className="flex items-start gap-2">
+            <span className="text-base">🤖</span>
+            <p className="text-[11px] text-violet-300 leading-relaxed">{aiAdvice.charge.tip}</p>
+          </div>
+          <button onClick={applyChargeAdvice}
+            className="w-full py-2 rounded-lg font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+            style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#c4b5fd' }}>
+            <Sparkles className="w-3.5 h-3.5" />
+            יישם המלצה — טען עד {aiAdvice.charge.target}%
+          </button>
+        </div>
       </div>
 
       {/* ── COMMAND 2: Sell to Grid ───────────────────────────────────── */}
@@ -229,6 +284,21 @@ export default function BatteryCommandCenter() {
           {cmdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
           {sellMode === 'now' ? `מכור ${kwhToSell} kWh עכשיו` : `תזמן מכירה ל-${scheduledTime ? new Date(scheduledTime).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--'}`}
         </button>
+
+        {/* AI Tip — Sell */}
+        <div className="rounded-xl p-3 space-y-2"
+          style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)' }}>
+          <div className="flex items-start gap-2">
+            <span className="text-base">🤖</span>
+            <p className="text-[11px] text-violet-300 leading-relaxed">{aiAdvice.sell.tip}</p>
+          </div>
+          <button onClick={applySellAdvice}
+            className="w-full py-2 rounded-lg font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+            style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#c4b5fd' }}>
+            <Sparkles className="w-3.5 h-3.5" />
+            יישם המלצה — {aiAdvice.sell.mode === 'now' ? `מכור עכשיו ${Math.round(aiAdvice.sell.kwh)} kWh` : 'תזמן מכירה ל-20:30'}
+          </button>
+        </div>
       </div>
 
     </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Mail, Home, Zap, Edit2, Check, LogOut, CheckCircle2, FileText, ExternalLink, Battery, Camera, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
+import BluetoothScanner from '@/components/profile/BluetoothScanner';
 
 export default function Profile() {
   const { t, lang } = useLang();
@@ -38,6 +39,12 @@ export default function Profile() {
     await base44.auth.updateMe(updates);
     setUser(u => ({ ...u, ...updates }));
     setEditingSystem(false);
+  };
+
+  const handleBluetoothDetected = ({ brand, capacity }) => {
+    setSystemBrand(brand);
+    setSystemCapacity(capacity ? String(capacity) : '');
+    setEditingSystem(true); // open edit mode so user can confirm before saving
   };
 
   const handlePhotoUpload = async (e) => {
@@ -207,7 +214,9 @@ export default function Profile() {
               <p className="text-xs text-muted-foreground">{item.label}</p>
               {item.isSystem ? (
                 editingSystem ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="space-y-2 mt-1">
+                  <BluetoothScanner onDetected={handleBluetoothDetected} />
+                  <div className="flex items-center gap-2">
                     <input
                       type="number"
                       value={systemCapacity}
@@ -225,6 +234,7 @@ export default function Profile() {
                     <button onClick={handleSaveSystem} className="p-1.5 rounded-lg bg-primary">
                       <Check className="w-3.5 h-3.5 text-primary-foreground" />
                     </button>
+                  </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">

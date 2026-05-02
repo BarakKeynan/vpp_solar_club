@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2, AlertTriangle } from 'lucide-react';
+import { Battery, Zap, Car, Sun, Home, Wifi, Bot, Bell, ChevronLeft, Sparkles, Loader2, AlertTriangle, Flame } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { ClickablePowerNode, ClickableBatteryNode } from '@/components/dashboard/EnergyNodeCard';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
@@ -144,12 +144,20 @@ export default function VPPHome() {
 
   const activeAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id));
 
+  const [ecoprofitEnabled, setEcoprofitEnabled] = useState(false);
+
   const handleAutoOptimize = async () => {
     setIsOptimizing(true);
     await new Promise(r => setTimeout(r, 1800));
     setAutoPilot(true);
+    setEcoprofitEnabled(true);
     setIsOptimizing(false);
     toast.success(t('auto_optimized_msg'));
+  };
+
+  const toggleEcoProfitMode = async () => {
+    setEcoprofitEnabled(!ecoprofitEnabled);
+    toast.success(ecoprofitEnabled ? t('eco_profit_off') : t('eco_profit_on'));
   };
 
   const handleOnboardingDone = () => {
@@ -324,7 +332,49 @@ export default function VPPHome() {
       {/* Physical Battery Status */}
       <PhysicalBatteryStatus />
 
-      {/* Eco-Profit Mode */}
+      {/* Eco-Profit Mode - Quick Toggle Button */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.14 }}>
+        <button
+          onClick={toggleEcoProfitMode}
+          className={`w-full flex items-center justify-between rounded-2xl p-4 transition-all active:scale-95 ${
+            ecoprofitEnabled
+              ? 'border-primary/50'
+              : 'border-border'
+          }`}
+          style={ecoprofitEnabled ? {
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.08))',
+            border: '1px solid rgba(239,68,68,0.4)'
+          } : {
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)'
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl ${ecoprofitEnabled ? 'bg-red-500/20 border-red-500/40' : 'bg-white/10 border-white/20'} border`}>
+              <Flame className={`w-4 h-4 ${ecoprofitEnabled ? 'text-red-400' : 'text-white/40'}`} />
+            </div>
+            <div className="text-right">
+              <p className={`text-sm font-black ${ecoprofitEnabled ? 'text-red-400' : 'text-white'}`}>
+                {lang === 'he' ? 'מצב Profit מלא' : 'Full Profit Mode'}
+              </p>
+              <p className={`text-[10px] ${ecoprofitEnabled ? 'text-red-300/60' : 'text-white/40'}`}>
+                {ecoprofitEnabled
+                  ? (lang === 'he' ? 'אוטומציה מלאה פעילה' : 'Full automation active')
+                  : (lang === 'he' ? 'הפעל אוטומציה מלאה ללא התערבות' : 'Enable full automation')}
+              </p>
+            </div>
+          </div>
+          <div className={`text-xs font-black px-3 py-1.5 rounded-xl ${
+            ecoprofitEnabled
+              ? 'bg-red-500/30 text-red-300'
+              : 'bg-white/5 text-white/60'
+          }`}>
+            {ecoprofitEnabled ? (lang === 'he' ? 'פעיל 🔥' : 'Active 🔥') : (lang === 'he' ? 'בחר' : 'Enable')}
+          </div>
+        </button>
+      </motion.div>
+
+      {/* Eco-Profit Mode Details */}
       <EcoProfitMode />
 
       {/* Weather Widget */}

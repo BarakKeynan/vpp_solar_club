@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText, Eye } from 'lucide-react';
+import { Plug, Wrench, Store, TrendingUp, Shield, Users, LayoutDashboard, FileText, Eye, BookOpen } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 
@@ -10,6 +10,15 @@ export default function More() {
   const { isAdmin } = useIsAdmin();
 
   const items = [
+    {
+      path: '/user-guide',
+      icon: BookOpen,
+      emoji: '📖',
+      title: 'מדריך שימוש',
+      subtitle: 'הוראות צעד אחר צעד · עברית ואנגלית · הורדת PDF',
+      color: 'border-emerald-400/40 bg-emerald-400/8',
+      accent: 'text-emerald-400',
+    },
     {
       path: '/pro-dashboard',
       icon: LayoutDashboard,

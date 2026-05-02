@@ -36,6 +36,7 @@ import BulkAudit from './pages/BulkAudit.jsx';
 import VPPCommandCenter from './pages/VPPCommandCenter.jsx';
 import VPPSettings from './pages/VPPSettings.jsx';
 import AdminPanel from './pages/AdminPanel.jsx';
+import UserGuide from './pages/UserGuide.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Register from './pages/Register.jsx';
 import Accessibility from './pages/Accessibility.jsx';
@@ -108,6 +109,7 @@ const AuthenticatedApp = () => {
         <Route path="/bulk-audit" element={<BulkAudit />} />
         <Route path="/vpp-command-center" element={<VPPCommandCenter />} />
         <Route path="/accessibility" element={<Accessibility />} />
+        <Route path="/user-guide" element={<UserGuide />} />
         <Route element={<AdminRoute />}>
           <Route path="/admin-panel" element={<AdminPanel />} />
           <Route path="/vpp-settings" element={<VPPSettings />} />

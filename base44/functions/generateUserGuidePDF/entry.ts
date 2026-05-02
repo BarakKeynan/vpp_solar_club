@@ -172,7 +172,8 @@ Deno.serve(async (req) => {
     doc.text('VPP Solar Club © 2026 · support@vppsolarclub.com', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Return as base64
-    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    const pdfBytes = doc.output('arraybuffer');
+    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
     
     return Response.json({
       success: true,

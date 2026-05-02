@@ -15,7 +15,26 @@ export default function AIAssistant() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const mediaRecorderRef = useRef(null);
+
+  const speakText = (text) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const clean = text.replace(/[*_~`#>]/g, '').replace(/\n+/g, ' ');
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = lang === 'he' ? 'he-IL' : 'en-US';
+    utter.rate = 1.05;
+    utter.onstart = () => setSpeaking(true);
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(utter);
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
+  };
   const bottomRef = useRef(null);
   const dragRef = useRef(null);
   const [pos, setPos] = useState({ x: 16, y: null });
@@ -28,7 +47,6 @@ export default function AIAssistant() {
   }, []);
 
   const onPointerDown = (e) => {
-    if (open) return;
     dragStart.current = {
       startX: e.clientX - pos.x,
       startY: e.clientY - pos.y,
@@ -49,8 +67,8 @@ export default function AIAssistant() {
     });
   };
 
-  const onPointerUp = (e) => {
-    if (dragStart.current && !dragStart.current.moved) setOpen(true);
+  const onPointerUp = () => {
+    if (dragStart.current && !dragStart.current.moved) setOpen(v => !v);
     dragStart.current = null;
     setDragging(false);
   };
@@ -71,7 +89,10 @@ export default function AIAssistant() {
     const unsub = base44.agents.subscribeToConversation(conversation.id, (data) => {
       setMessages(data.messages || []);
       const last = data.messages?.[data.messages.length - 1];
-      if (last?.role === 'assistant') setLoading(false);
+      if (last?.role === 'assistant') {
+        setLoading(false);
+        speakText(last.content);
+      }
     });
     return unsub;
   }, [conversation?.id]);
@@ -206,9 +227,18 @@ export default function AIAssistant() {
                    </div>
                   </div>
                 </div>
-                <button onClick={() => setOpen(false)} className="p-2 rounded-xl bg-muted">
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {speaking && (
+                    <button onClick={stopSpeaking}
+                      className="p-2 rounded-xl text-[10px] font-bold flex items-center gap-1 animate-pulse"
+                      style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
+                      <span>🔊</span><span>עצור</span>
+                    </button>
+                  )}
+                  <button onClick={() => { setOpen(false); stopSpeaking(); }} className="p-2 rounded-xl bg-muted">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
               </div>
 
               {/* Messages */}

@@ -440,6 +440,23 @@ export const translations = {
     ai_suggested_4: 'איך לשפר את יעילות הפאנלים?',
     ai_welcome: 'שלום! אני העוזר האנרגטי החכם שלך 🌞\nאוכל לענות על שאלות בנושאי אנרגיה סולארית, ביצועי המערכת שלך, מגמות שוק ועוד.\nבמה אוכל לעזור?',
 
+    // Payment Setup
+    payment_header: 'תשלום מאובטח — yPay',
+    payment_sim: '🧪 מצב הדגמה — Demo Only',
+    payment_note1: 'קישור הכרטיס מאפשר למערכת האוטומטית לפעול עבורך.',
+    payment_note2: 'לא יתבצע חיוב בחצי השנה הראשונה.',
+    payment_card_number: 'מספר כרטיס',
+    payment_card_name: 'שם בעל הכרטיס',
+    payment_card_name_ph: 'ישראל ישראלי',
+    payment_expiry: 'תוקף',
+    payment_confirm: 'אישור והפעלה',
+    payment_encrypted: 'פרטי הכרטיס מוצפנים ולא נשמרים בשרתינו',
+    payment_security: '🔒 פרטי האשראי שלך אינם נשמרים במערכת VPP ומאובטחים בתקן המחמיר ביותר על ידי yPay',
+    payment_linking: 'מקשר כרטיס...',
+    payment_done_title: 'אופטימיזציה פעילה ⚡️',
+    payment_done_body: 'שירות האופטימיזציה הופעל בהצלחה. חצי שנה ללא עמלות — חיוב מתחיל לאחר 180 יום.',
+    payment_done_status: 'סטטוס: תקופת הטבה פעילה (ללא עמלות)',
+
     // Auto Optimization
     auto_optimize_btn: 'הפעל אופטימיזציה אוטומטית',
     auto_optimizing: 'מיישם...',
@@ -956,6 +973,23 @@ export const translations = {
     ai_suggested_3: 'What is my expected ROI this year?',
     ai_suggested_4: 'How to improve panel efficiency?',
     ai_welcome: "Hello! I'm your smart energy AI assistant 🌞\nI can answer questions about solar energy, your system performance, market trends and more.\nHow can I help?",
+
+    // Payment Setup
+    payment_header: 'Secure Checkout — yPay',
+    payment_sim: '🧪 Simulation Mode — Demo Only',
+    payment_note1: 'Linking your card enables the automatic system to work for you.',
+    payment_note2: 'No charges during the first 6 months.',
+    payment_card_number: 'Card Number',
+    payment_card_name: 'Cardholder Name',
+    payment_card_name_ph: 'John Smith',
+    payment_expiry: 'Expiry',
+    payment_confirm: 'Confirm & Activate',
+    payment_encrypted: 'Card details are encrypted and not stored on our servers',
+    payment_security: '🔒 Your credit details are not stored in VPP and are secured to the highest standards by yPay',
+    payment_linking: 'Linking card...',
+    payment_done_title: 'Optimization Active ⚡️',
+    payment_done_body: 'Optimization service activated successfully. Enjoy 6 months fee-free — billing starts after 180 days.',
+    payment_done_status: 'Status: Benefit period active (fee-free)',
 
     // Auto Optimization
     auto_optimize_btn: 'Apply Auto Optimization',

@@ -4,24 +4,6 @@ import { X, CreditCard, Shield, ExternalLink, CheckCircle2, Loader2, Lock } from
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 
-const T = {
-  header: { he: 'תשלום מאובטח — yPay', en: 'Secure Checkout — yPay' },
-  sim: { he: '🧪 מצב הדגמה — Demo Only', en: '🧪 Simulation Mode — Demo Only' },
-  note1: { he: 'קישור הכרטיס מאפשר למערכת האוטומטית לפעול עבורך.', en: 'Linking your card enables the automatic system to work for you.' },
-  note2: { he: 'לא יתבצע חיוב בחצי השנה הראשונה.', en: 'No charges during the first 6 months.' },
-  cardNumber: { he: 'מספר כרטיס', en: 'Card Number' },
-  cardName: { he: 'שם בעל הכרטיס', en: 'Cardholder Name' },
-  cardNamePh: { he: 'ישראל ישראלי', en: 'John Smith' },
-  expiry: { he: 'תוקף', en: 'Expiry' },
-  confirm: { he: 'אישור והפעלה', en: 'Confirm & Activate' },
-  encrypted: { he: 'פרטי הכרטיס מוצפנים ולא נשמרים בשרתינו', en: 'Card details are encrypted and not stored on our servers' },
-  security: { he: '🔒 פרטי האשראי שלך אינם נשמרים במערכת VPP ומאובטחים בתקן המחמיר ביותר על ידי yPay', en: '🔒 Your credit details are not stored in VPP and are secured to the highest standards by yPay' },
-  linking: { he: 'מקשר כרטיס...', en: 'Linking card...' },
-  doneTitle: { he: 'אופטימיזציה פעילה ⚡️', en: 'Optimization Active ⚡️' },
-  doneBody: { he: 'שירות האופטימיזציה הופעל בהצלחה. חצי שנה ללא עמלות — חיוב מתחיל לאחר 180 יום.', en: 'Optimization service activated successfully. Enjoy 6 months fee-free — billing starts after 180 days.' },
-  doneStatus: { he: 'סטטוס: תקופת הטבה פעילה (ללא עמלות)', en: 'Status: Benefit period active (fee-free)' },
-};
-
 // After yPay redirects back, the URL will contain ?token_id=xxx&last4=xxxx&brand=xxx
 function useTokenFromUrl(onSuccess) {
   useEffect(() => {
@@ -44,8 +26,7 @@ function useTokenFromUrl(onSuccess) {
 }
 
 export default function PaymentSetup({ onClose, onSuccess }) {
-  const { lang } = useLang();
-  const t = (key) => T[key][lang] || T[key].en;
+  const { lang, t } = useLang();
   const [step, setStep] = useState('checkout'); // checkout | loading | done
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -111,8 +92,8 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                   <Lock className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">{t('header')}</p>
-                  <p className="text-[10px] text-white/35">{t('sim')}</p>
+                  <p className="text-sm font-black text-white">{t('payment_header')}</p>
+                  <p className="text-[10px] text-white/35">{t('payment_sim')}</p>
                 </div>
               </div>
 
@@ -120,14 +101,14 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               <div className="rounded-xl px-3 py-2.5 text-right"
                 style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)' }}>
                 <p className="text-[11px] text-violet-300 leading-relaxed font-bold">
-                  {t('note1')}
+                  {t('payment_note1')}
                 </p>
-                <p className="text-[10px] text-violet-400/60 mt-0.5">{t('note2')}</p>
+                <p className="text-[10px] text-violet-400/60 mt-0.5">{t('payment_note2')}</p>
               </div>
 
               {/* Card Number */}
               <div className="space-y-1.5">
-                <label className="text-[11px] text-white/45 font-bold">{t('cardNumber')}</label>
+                <label className="text-[11px] text-white/45 font-bold">{t('payment_card_number')}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -145,10 +126,10 @@ export default function PaymentSetup({ onClose, onSuccess }) {
 
               {/* Name */}
               <div className="space-y-1.5">
-                <label className="text-[11px] text-white/45 font-bold">{t('cardName')}</label>
+                <label className="text-[11px] text-white/45 font-bold">{t('payment_card_name')}</label>
                 <input
                    type="text"
-                   placeholder={t('cardNamePh')}
+                   placeholder={t('payment_card_name_ph')}
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className="w-full py-3 px-4 rounded-xl text-sm text-white outline-none placeholder:text-white/20"
@@ -159,7 +140,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
               {/* Expiry + CVV */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[11px] text-white/45 font-bold">{t('expiry')}</label>
+                  <label className="text-[11px] text-white/45 font-bold">{t('payment_expiry')}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -199,17 +180,17 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                   boxShadow: isValid ? '0 0 30px rgba(16,185,129,0.2)' : 'none',
                 }}
               >
-                <Shield className="w-4 h-4" /> {t('confirm')}
+                <Shield className="w-4 h-4" /> {t('payment_confirm')}
               </button>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-1.5">
                   <Lock className="w-3 h-3 text-white/20" />
-                  <p className="text-[10px] text-center text-white/20">{t('encrypted')}</p>
+                  <p className="text-[10px] text-center text-white/20">{t('payment_encrypted')}</p>
                 </div>
                 <p className="text-[9px] text-center text-white/25 italic px-2 py-1.5 rounded-lg"
                   style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)' }}>
-                  {t('security')}
+                  {t('payment_security')}
                 </p>
               </div>
             </motion.div>
@@ -220,7 +201,7 @@ export default function PaymentSetup({ onClose, onSuccess }) {
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-4 py-10">
               <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-              <p className="text-sm text-white/50">{t('linking')}</p>
+              <p className="text-sm text-white/50">{t('payment_linking')}</p>
             </motion.div>
           )}
 
@@ -234,13 +215,13 @@ export default function PaymentSetup({ onClose, onSuccess }) {
                 <CheckCircle2 className="w-8 h-8 text-emerald-400" />
               </motion.div>
               <div>
-                <p className="text-base font-black text-white mb-2">{t('doneTitle')}</p>
+                <p className="text-base font-black text-white mb-2">{t('payment_done_title')}</p>
                 <p className="text-xs text-emerald-400/80 leading-relaxed px-2">
-                  {t('doneBody')}
+                  {t('payment_done_body')}
                 </p>
                 <div className="mt-3 rounded-xl px-3 py-2 mx-2"
                   style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
-                  <p className="text-[10px] text-violet-300 font-bold">{t('doneStatus')}</p>
+                  <p className="text-[10px] text-violet-300 font-bold">{t('payment_done_status')}</p>
                 </div>
               </div>
             </motion.div>

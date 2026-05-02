@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
 import { GUIDE_HE } from './guide/guideHe';
@@ -51,6 +52,12 @@ function StepCard({ step }) {
             <p className="text-sm font-black text-white">{step.title}</p>
           </div>
           <p className="text-xs text-white/65 leading-relaxed">{step.desc}</p>
+          {step.link && (
+            <Link to={step.link.path}
+              className="inline-flex items-center gap-1 text-xs font-bold text-cyan-400 underline underline-offset-2 mt-1">
+              🔗 {step.link.label}
+            </Link>
+          )}
           <div className="mt-1 rounded-lg px-2.5 py-1.5"
             style={{ background: `${step.color}10`, border: `1px solid ${step.color}25` }}>
             <p className="text-[11px] font-bold" style={{ color: step.color }}>{step.why}</p>

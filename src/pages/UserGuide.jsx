@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
 import { GUIDE_HE } from './guide/guideHe';
 import { GUIDE_EN } from './guide/guideEn';
+import NogaConnectCard from '@/components/noga/NogaConnectCard';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -191,7 +192,7 @@ export default function UserGuide() {
           <div className="space-y-3">
             {g.prereqs.map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                <PrereqCard item={item} />
+                {item.isNoga ? <NogaConnectCard /> : <PrereqCard item={item} />}
               </motion.div>
             ))}
           </div>

@@ -118,6 +118,14 @@
     "compliance_signed_at": {
       "type": "string",
       "description": "ISO timestamp when compliance was signed"
+    },
+    "noga_client_id": {
+      "type": "string",
+      "description": "Noga ISO API Client ID \u2014 entered by user, visible to admins"
+    },
+    "noga_client_secret": {
+      "type": "string",
+      "description": "Noga ISO API Client Secret \u2014 entered by user, visible to admins only"
     }
   },
   "required": []

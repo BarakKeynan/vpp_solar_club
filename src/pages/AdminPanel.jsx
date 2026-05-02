@@ -49,6 +49,8 @@ function UserRow({ u, onSave }) {
     bess_api_key:         u.bess_api_key || '',
     bess_connection_method: u.bess_connection_method || 'internet_api',
     bess_serial_number:   u.bess_serial_number || '',
+    noga_client_id:       u.noga_client_id || '',
+    noga_client_secret:   u.noga_client_secret || '',
   });
 
   const set = k => v => setForm(f => ({ ...f, [k]: v }));
@@ -63,6 +65,8 @@ function UserRow({ u, onSave }) {
       bess_api_key:         form.bess_api_key || null,
       bess_connection_method: form.bess_connection_method || null,
       bess_serial_number:   form.bess_serial_number || null,
+      noga_client_id:       form.noga_client_id || null,
+      noga_client_secret:   form.noga_client_secret || null,
     });
     setSaving(false);
     setSaved(true);
@@ -136,6 +140,23 @@ function UserRow({ u, onSave }) {
           <Field label="Serial Number">
             <TextInput value={form.bess_serial_number} onChange={set('bess_serial_number')} placeholder="Inverter / Battery S/N" />
           </Field>
+
+          {/* Noga API — admin-only section */}
+          <div className="text-[10px] font-black text-amber-400/60 uppercase tracking-widest mt-2 mb-1">⚡ Noga ISO API</div>
+          <div className="rounded-xl p-3 space-y-2"
+            style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)' }}>
+            <Field label="Client ID">
+              <TextInput value={form.noga_client_id} onChange={set('noga_client_id')} placeholder="noga-client-xxxxx" />
+            </Field>
+            <Field label="Client Secret">
+              <TextInput value={form.noga_client_secret} onChange={set('noga_client_secret')} placeholder="••••••••••••••••" type="password" />
+            </Field>
+            {(form.noga_client_id || form.noga_client_secret) && (
+              <p className="text-[10px] text-amber-400/70">
+                {form.noga_client_id && form.noga_client_secret ? '✓ אישורים מוגדרים' : '⚠ חסר Client ID או Secret'}
+              </p>
+            )}
+          </div>
 
           {/* Connection method */}
           <Field label="אמצעי חיבור למערכת">

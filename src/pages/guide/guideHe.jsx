@@ -26,8 +26,9 @@ export const GUIDE_HE = {
     {
       icon: '⚡',
       title: 'אישורי Noga Energy (API)',
-      body: 'לקבלת Client ID + Secret של Noga ISO פנו לצוות VPP Solar Club. הם מספקים גישה למחירי חשמל בזמן אמת.',
+      body: 'כדי שנוכל למקסם את הרווחים מהגג שלך, המערכת צריכה אישורי גישה דיגיטליים לנגה — Client ID ו-Secret. אלו מאפשרים לאפליקציה לקבל מחירי חשמל בזמן אמת.',
       note: 'ללא חיבור זה האפליקציה פועלת ב-Simulation Mode — הכל עובד, אבל עם נתוני מחיר מדומים.',
+      isNoga: true,
     },
     {
       icon: '📱',

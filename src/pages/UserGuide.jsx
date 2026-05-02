@@ -72,6 +72,10 @@ function StepCard({ step }) {
 
 function buildPDF(g, userName) {
   const win = window.open('', '_blank');
+  if (!win) {
+    alert('Please allow popups to download the PDF');
+    return;
+  }
   win.document.write(`
     <!DOCTYPE html>
     <html dir="${g.dir}" lang="${g.lang}">

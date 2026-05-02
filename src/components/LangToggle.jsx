@@ -6,10 +6,17 @@ export default function LangToggle() {
   const { lang, setLang } = useLang();
   const isHe = lang === 'he';
 
+  const handleLangChange = () => {
+    const newLang = isHe ? 'en' : 'he';
+    setLang(newLang);
+    document.documentElement.dir = newLang === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
+  };
+
   return (
     <motion.button
       whileTap={{ scale: 0.93 }}
-      onClick={() => setLang(isHe ? 'en' : 'he')}
+      onClick={handleLangChange}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all"
       style={{
         background: 'rgba(255,255,255,0.06)',

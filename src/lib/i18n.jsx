@@ -11,6 +11,7 @@ export const translations = {
     nav_profile: 'פרופיל',
     nav_settings: 'הגדרות',
     nav_more: 'עוד',
+    nav_user_guide: 'הוראות שימוש',
 
     // Dashboard
     vpp_mode_home: '🏠 VPP Home',
@@ -552,6 +553,7 @@ export const translations = {
     nav_profile: 'Profile',
     nav_settings: 'Settings',
     nav_more: 'More',
+    nav_user_guide: 'User Guide',
 
     // Dashboard
     vpp_mode_home: '🏠 VPP Home',

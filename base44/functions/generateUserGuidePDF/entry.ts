@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`${g.welcomePrefix} ${userName} 👋`, pageWidth / 2, yPosition + 21, { align: 'center' });
+    doc.text(`${g.welcomePrefix} ${userName}`, pageWidth / 2, yPosition + 21, { align: 'center' });
 
     yPosition += 40;
 
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text(g.prereqTitle, 15, yPosition);
+    doc.text('Prerequisites — Before You Start', 15, yPosition);
     yPosition += 8;
 
     g.prereqs.forEach(p => {
@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
 
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text(g.stepsTitle, 15, yPosition);
+    doc.text('Step-by-Step Usage Guide', 15, yPosition);
     yPosition += 8;
 
     g.steps.forEach((s, idx) => {
@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
 
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text(g.tipsTitle, 15, yPosition);
+    doc.text('Tips for Optimal Use', 15, yPosition);
     yPosition += 8;
 
     doc.setFontSize(9);
@@ -242,7 +242,7 @@ Deno.serve(async (req) => {
         doc.addPage();
         yPosition = 15;
       }
-      const tipLines = doc.splitTextToSize(`✦ ${tip}`, pageWidth - 30);
+      const tipLines = doc.splitTextToSize(`- ${tip}`, pageWidth - 30);
       doc.text(tipLines, 20, yPosition);
       yPosition += tipLines.length * 3.5 + 2;
     });

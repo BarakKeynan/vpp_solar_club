@@ -139,8 +139,9 @@ Deno.serve(async (req) => {
     }
 
     const { lang = 'he' } = await req.json();
-    const g = lang === 'he' ? GUIDE_HE : GUIDE_EN;
-    const userName = user?.full_name || (lang === 'he' ? 'משתמש יקר' : 'Valued User');
+    // jsPDF does not support Hebrew/RTL fonts — always use English content for PDF
+    const g = GUIDE_EN;
+    const userName = user?.full_name || 'Valued User';
 
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -259,7 +260,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       pdf: pdfBase64,
-      filename: `VPP_Solar_Club_${lang === 'he' ? 'מדריך' : 'Guide'}.pdf`
+      filename: 'VPP_Solar_Club_Guide.pdf'
     });
   } catch (error) {
     console.error('PDF generation error:', error);

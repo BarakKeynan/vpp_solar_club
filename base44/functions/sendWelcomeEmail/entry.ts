@@ -185,7 +185,10 @@ const WELCOME_EMAIL_HTML = (firstName) => `
     </ul>
 
     <!-- CTA -->
-    <a class="cta-btn" href="https://app.vppsolarclub.com">כניסה לאפליקציה &larr;</a>
+    <a class="cta-btn" href="https://vppsolarclub.base44.app">כניסה לאפליקציה &larr;</a>
+    <p style="text-align:center; color:#64748b; font-size:12px; margin-top:8px;">
+      או העתיקו את הקישור: <span style="color:#34d399;">https://vppsolarclub.base44.app</span>
+    </p>
 
   </div>
 

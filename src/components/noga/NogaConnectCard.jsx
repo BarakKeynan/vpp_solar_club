@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Copy } from 'lucide-react';
+import { Zap, Eye, EyeOff, CheckCircle2, Loader2, MessageCircle, Copy, XCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
@@ -49,6 +49,8 @@ export default function NogaConnectCard() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [testStatus, setTestStatus] = useState(null); // null | 'testing' | 'success' | 'error'
+  const [testMessage, setTestMessage] = useState('');
 
   useEffect(() => {
     if (user?.noga_client_id) {
@@ -61,14 +63,38 @@ export default function NogaConnectCard() {
   const handleConnect = async () => {
     if (!clientId.trim() || !clientSecret.trim()) return;
     setSaving(true);
-    await base44.auth.updateMe({
-      noga_client_id: clientId.trim(),
-      noga_client_secret: clientSecret.trim(),
-    });
+    setTestStatus('testing');
+    setTestMessage('');
+
+    // Test the credentials via backend
+    try {
+      const res = await base44.functions.invoke('syncEnergyPrices', {});
+      const data = res.data;
+      if (data?.error) throw new Error(data.error);
+
+      // Save credentials
+      await base44.auth.updateMe({
+        noga_client_id: clientId.trim(),
+        noga_client_secret: clientSecret.trim(),
+      });
+
+      setTestStatus('success');
+      setTestMessage(lang === 'he' ? 'המערכת התחברה בהצלחה! הנתונים מתחילים לזרום 🎉' : 'Connected successfully! Data is now flowing 🎉');
+      setSaved(true);
+      setIsConnected(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setTestStatus('error');
+      const msg = err.message || '';
+      if (msg.includes('401') || msg.includes('token') || msg.includes('credentials')) {
+        setTestMessage(lang === 'he' ? '❌ המפתח לא תקין — בדקו את ה-Client ID וה-Secret' : '❌ Invalid credentials — check your Client ID and Secret');
+      } else if (msg.includes('404')) {
+        setTestMessage(lang === 'he' ? '❌ לא נמצא — ודאו שה-Client ID נכון' : '❌ Not found — verify the Client ID is correct');
+      } else {
+        setTestMessage((lang === 'he' ? '❌ שגיאה: ' : '❌ Error: ') + msg);
+      }
+    }
     setSaving(false);
-    setSaved(true);
-    setIsConnected(true);
-    setTimeout(() => setSaved(false), 3000);
   };
 
   const handleHelpWhatsApp = () => {
@@ -168,6 +194,23 @@ export default function NogaConnectCard() {
         </div>
       </div>
 
+      {/* Test result banner */}
+      {testStatus && testStatus !== 'testing' && (
+        <div className="rounded-xl px-3 py-2.5 flex items-start gap-2"
+          style={{
+            background: testStatus === 'success' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)',
+            border: `1px solid ${testStatus === 'success' ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'}`,
+          }}>
+          {testStatus === 'success'
+            ? <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            : <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />}
+          <p className="text-[11px] leading-relaxed font-semibold"
+            style={{ color: testStatus === 'success' ? '#34d399' : '#f87171' }}>
+            {testMessage}
+          </p>
+        </div>
+      )}
+
       {/* Action buttons */}
       <div className="flex gap-2">
         {/* Primary: Connect */}
@@ -183,7 +226,7 @@ export default function NogaConnectCard() {
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
            saved ? <CheckCircle2 className="w-3.5 h-3.5" /> :
            <Zap className="w-3.5 h-3.5" />}
-          {saving ? (lang === 'he' ? 'מאמת...' : 'Verifying...') :
+          {saving ? (lang === 'he' ? 'בודק חיבור...' : 'Testing connection...') :
            saved ? (lang === 'he' ? '✓ נשמר!' : '✓ Saved!') :
            (lang === 'he' ? 'אימות וחיבור' : 'Verify & Connect')}
         </button>

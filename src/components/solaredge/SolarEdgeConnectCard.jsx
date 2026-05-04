@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react';
+import { Sun, Eye, EyeOff, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLang } from '@/lib/i18n';
@@ -12,6 +12,8 @@ export default function SolarEdgeConnectCard() {
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [testStatus, setTestStatus] = useState(null); // null | 'testing' | 'success' | 'error'
+  const [testMessage, setTestMessage] = useState('');
   const isConnected = !!(user?.bess_api_key && user?.site_id);
 
   useEffect(() => {
@@ -22,13 +24,39 @@ export default function SolarEdgeConnectCard() {
   const handleSave = async () => {
     if (!apiKey.trim() || !siteId.trim()) return;
     setSaving(true);
-    await base44.auth.updateMe({
-      bess_api_key: apiKey.trim(),
-      site_id: siteId.trim(),
-    });
+    setTestStatus('testing');
+    setTestMessage('');
+
+    // Test credentials directly against SolarEdge API
+    try {
+      const testRes = await fetch(
+        `https://monitoringapi.solaredge.com/site/${siteId.trim()}/details?api_key=${apiKey.trim()}`
+      );
+      if (testRes.status === 403 || testRes.status === 401) {
+        throw new Error(lang === 'he' ? 'המפתח לא תקין — בדקו את ה-API Key' : 'Invalid API Key — please check your key');
+      }
+      if (testRes.status === 404) {
+        throw new Error(lang === 'he' ? 'ה-Site ID לא נמצא — ודאו שהמספר נכון' : 'Site ID not found — verify the number is correct');
+      }
+      if (!testRes.ok) {
+        throw new Error(lang === 'he' ? `שגיאת שרת: ${testRes.status}` : `Server error: ${testRes.status}`);
+      }
+
+      // Save credentials
+      await base44.auth.updateMe({
+        bess_api_key: apiKey.trim(),
+        site_id: siteId.trim(),
+      });
+
+      setTestStatus('success');
+      setTestMessage(lang === 'he' ? 'המערכת התחברה בהצלחה! הנתונים מתחילים לזרום 🎉' : 'Connected successfully! Data is now flowing 🎉');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setTestStatus('error');
+      setTestMessage(err.message || (lang === 'he' ? '❌ חיבור נכשל' : '❌ Connection failed'));
+    }
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
   };
 
   return (
@@ -103,6 +131,23 @@ export default function SolarEdgeConnectCard() {
         </p>
       </div>
 
+      {/* Test result banner */}
+      {testStatus && testStatus !== 'testing' && (
+        <div className="rounded-xl px-3 py-2.5 flex items-start gap-2"
+          style={{
+            background: testStatus === 'success' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)',
+            border: `1px solid ${testStatus === 'success' ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'}`,
+          }}>
+          {testStatus === 'success'
+            ? <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            : <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />}
+          <p className="text-[11px] leading-relaxed font-semibold"
+            style={{ color: testStatus === 'success' ? '#34d399' : '#f87171' }}>
+            {testMessage}
+          </p>
+        </div>
+      )}
+
       {/* Save button */}
       <button
         onClick={handleSave}
@@ -116,7 +161,7 @@ export default function SolarEdgeConnectCard() {
         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
          saved ? <CheckCircle2 className="w-3.5 h-3.5" /> :
          <Sun className="w-3.5 h-3.5" />}
-        {saving ? (lang === 'he' ? 'שומר...' : 'Saving...') : 
+        {saving ? (lang === 'he' ? 'בודק חיבור...' : 'Testing connection...') : 
          saved ? (lang === 'he' ? '✓ נשמר!' : '✓ Saved!') : 
          (lang === 'he' ? 'שמור וחבר' : 'Save & Connect')}
       </button>

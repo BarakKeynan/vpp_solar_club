@@ -62,15 +62,17 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Send alert emails to connected users
-      const connectedUsers = users.filter(u => u.system_connected && u.email);
-      for (const user of connectedUsers.slice(0, 50)) { // cap at 50
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          to: user.email,
-          subject: '⛈️ מגן סופה הופעל — VPP Solar Club',
-          body: `שלום ${user.full_name || user.email},\n\nזוהתה סופה באזורך (${weather.type}, רוחות ${weather.wind_kmh} קמ"ש).\nמגן הסופה הופעל אוטומטית — הסוללה שלך נטענת ל-100% לגיבוי מלא.\n\nבברכה,\nצוות VPP Solar Club`,
-          from_name: 'VPP Solar Club',
-        }).catch(() => {});
+      // Only send emails for real weather alerts (not mock/simulated)
+      if (!weather.is_mock) {
+        const connectedUsers = users.filter(u => u.system_connected && u.email);
+        for (const user of connectedUsers.slice(0, 50)) { // cap at 50
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: user.email,
+            subject: '⛈️ מגן סופה הופעל — VPP Solar Club',
+            body: `שלום ${user.full_name || user.email},\n\nזוהתה סופה באזורך (${weather.type}, רוחות ${weather.wind_kmh} קמ"ש).\nמגן הסופה הופעל אוטומטית — הסוללה שלך נטענת ל-100% לגיבוי מלא.\n\nבברכה,\nצוות VPP Solar Club`,
+            from_name: 'VPP Solar Club',
+          }).catch(() => {});
+        }
       }
     } else {
       // Clear storm guard when weather is clear

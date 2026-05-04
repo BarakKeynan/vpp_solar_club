@@ -15,10 +15,19 @@ Deno.serve(async (req) => {
     const update = {};
     if (user.role !== correctRole) update.role = correctRole;
 
-    // If admin pre-entered data under this email, it's already on the user record.
-    // Just confirm the role is set and return current state.
-    if (Object.keys(update).length > 0) {
+    const isNewUser = !user.welcome_email_sent;
+
+    if (Object.keys(update).length > 0 || isNewUser) {
+      if (isNewUser) update.welcome_email_sent = true;
       await base44.auth.updateMe(update);
+    }
+
+    // Send welcome email only on first login
+    if (isNewUser && user.email) {
+      const firstName = (user.full_name || '').split(' ')[0] || 'משתמש יקר';
+      await base44.asServiceRole.functions.invoke('sendWelcomeEmail', {
+        data: { email: user.email, full_name: user.full_name || '' }
+      }).catch(e => console.error('Welcome email failed:', e.message));
     }
 
     return Response.json({

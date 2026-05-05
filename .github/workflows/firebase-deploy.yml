@@ -15,3 +15,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: vpp-solar-app
           channelId: live
+          entryPoint: ./base44

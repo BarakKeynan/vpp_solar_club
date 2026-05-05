@@ -27,29 +27,47 @@ export default function SolarEdgeConnectCard() {
     setTestStatus('testing');
     setTestMessage('');
 
-    // Test credentials directly against SolarEdge API
+    // Test credentials via backend (avoids CORS)
     try {
-      const testRes = await fetch(
-        `https://monitoringapi.solaredge.com/site/${siteId.trim()}/details?api_key=${apiKey.trim()}`
-      );
-      if (testRes.status === 403 || testRes.status === 401) {
-        throw new Error(lang === 'he' ? 'המפתח לא תקין — בדקו את ה-API Key' : 'Invalid API Key — please check your key');
-      }
-      if (testRes.status === 404) {
-        throw new Error(lang === 'he' ? 'ה-Site ID לא נמצא — ודאו שהמספר נכון' : 'Site ID not found — verify the number is correct');
-      }
-      if (!testRes.ok) {
-        throw new Error(lang === 'he' ? `שגיאת שרת: ${testRes.status}` : `Server error: ${testRes.status}`);
+      const res = await base44.functions.invoke('testSolarEdgeCredentials', {
+        api_key: apiKey.trim(),
+        site_id: siteId.trim(),
+      });
+      const data = res.data;
+
+      if (data?.error && !data?.success) throw new Error(data.error);
+      if (data?.success === false) {
+        const errCode = data?.error || '';
+        if (errCode === 'invalid_api_key') {
+          throw new Error(lang === 'he' ? 'המפתח לא תקין — בדקו את ה-API Key' : 'Invalid API Key — please check your key');
+        } else if (errCode === 'site_not_found') {
+          throw new Error(lang === 'he' ? 'ה-Site ID לא נמצא — ודאו שהמספר נכון' : 'Site ID not found — verify the number is correct');
+        } else {
+          throw new Error(lang === 'he' ? `שגיאת שרת` : `Server error`);
+        }
       }
 
       // Save credentials
+      const configs = await base44.entities.AppConfig.filter({ key: 'vpp_settings' });
+      const configData = {
+        key: 'vpp_settings',
+        solaredge_api_key: apiKey.trim(),
+        solaredge_site_ids: siteId.trim(),
+      };
+      if (configs.length > 0) {
+        await base44.entities.AppConfig.update(configs[0].id, configData);
+      } else {
+        await base44.entities.AppConfig.create(configData);
+      }
+
       await base44.auth.updateMe({
         bess_api_key: apiKey.trim(),
         site_id: siteId.trim(),
       });
 
+      const siteName = data?.site_name ? ` (${data.site_name})` : '';
       setTestStatus('success');
-      setTestMessage(lang === 'he' ? 'המערכת התחברה בהצלחה! הנתונים מתחילים לזרום 🎉' : 'Connected successfully! Data is now flowing 🎉');
+      setTestMessage((lang === 'he' ? `המערכת התחברה בהצלחה${siteName}! 🎉` : `Connected successfully${siteName}! 🎉`));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {

@@ -66,17 +66,27 @@ export default function NogaConnectCard() {
     setTestStatus('testing');
     setTestMessage('');
 
-    // Test the credentials via backend
+    // Save credentials to AppConfig first so syncEnergyPrices can test them
     try {
+      // First save to AppConfig (where syncEnergyPrices reads from)
+      const configs = await base44.entities.AppConfig.filter({ key: 'vpp_settings' });
+      const configData = {
+        key: 'vpp_settings',
+        noga_client_id: clientId.trim(),
+        noga_client_secret: clientSecret.trim(),
+        live_mode: true,
+      };
+      if (configs.length > 0) {
+        await base44.entities.AppConfig.update(configs[0].id, configData);
+      } else {
+        await base44.entities.AppConfig.create(configData);
+      }
+
+      // Now test by calling syncEnergyPrices (it will use the saved creds in live mode)
       const res = await base44.functions.invoke('syncEnergyPrices', {});
       const data = res.data;
       if (data?.error) throw new Error(data.error);
-
-      // Save credentials
-      await base44.auth.updateMe({
-        noga_client_id: clientId.trim(),
-        noga_client_secret: clientSecret.trim(),
-      });
+      if (data?.is_mock) throw new Error('credentials_invalid');
 
       setTestStatus('success');
       setTestMessage(lang === 'he' ? 'המערכת התחברה בהצלחה! הנתונים מתחילים לזרום 🎉' : 'Connected successfully! Data is now flowing 🎉');
@@ -84,9 +94,17 @@ export default function NogaConnectCard() {
       setIsConnected(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
+      // Revert live_mode to false if test failed
+      try {
+        const configs = await base44.entities.AppConfig.filter({ key: 'vpp_settings' });
+        if (configs.length > 0) {
+          await base44.entities.AppConfig.update(configs[0].id, { live_mode: false });
+        }
+      } catch (_) {}
+
       setTestStatus('error');
       const msg = err.message || '';
-      if (msg.includes('401') || msg.includes('token') || msg.includes('credentials')) {
+      if (msg === 'credentials_invalid' || msg.includes('401') || msg.includes('token') || msg.includes('credentials')) {
         setTestMessage(lang === 'he' ? '❌ המפתח לא תקין — בדקו את ה-Client ID וה-Secret' : '❌ Invalid credentials — check your Client ID and Secret');
       } else if (msg.includes('404')) {
         setTestMessage(lang === 'he' ? '❌ לא נמצא — ודאו שה-Client ID נכון' : '❌ Not found — verify the Client ID is correct');

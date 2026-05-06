@@ -94,7 +94,7 @@ export default function AlertsPanel() {
       '-created_date',
       20
     );
-    setAlerts(data);
+    setAlerts(Array.isArray(data) ? data : []);
     setLoading(false);
   };
 

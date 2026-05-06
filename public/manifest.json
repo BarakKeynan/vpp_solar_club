@@ -1,0 +1,16 @@
+{
+  "name": "VPP Solar Club",
+  "short_name": "VPP Solar",
+  "description": "ניהול אנרגיה חכם - VPP Solar Club",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "https://base44.com/logo_v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

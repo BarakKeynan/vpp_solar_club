@@ -59,8 +59,7 @@ export default function ConnectedDevices() {
     }, 600);
   };
 
-  const onlineCount = devices.filter(d => d.status !== 'offline').length;
-
+const onlineCount = (devices || []).filter(d => d.status !== 'offline').length;
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
       {/* Header Card */}

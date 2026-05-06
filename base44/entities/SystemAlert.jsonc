@@ -1,0 +1,54 @@
+{
+  "name": "SystemAlert",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Alert type identifier (e.g. fleet_low_energy, power_spike, thermal_warning)"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "warning"
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable alert message in Hebrew"
+    },
+    "value": {
+      "type": "number",
+      "description": "Actual measured value that triggered the alert"
+    },
+    "threshold": {
+      "type": "number",
+      "description": "Threshold that was breached"
+    },
+    "site_id": {
+      "type": "string",
+      "description": "Site identifier if alert is site-specific"
+    },
+    "is_resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this alert has been resolved"
+    },
+    "resolved_at": {
+      "type": "string",
+      "description": "ISO timestamp when alert was resolved"
+    },
+    "email_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether an email notification was sent for this alert"
+    }
+  },
+  "required": [
+    "type",
+    "severity",
+    "message"
+  ]
+}

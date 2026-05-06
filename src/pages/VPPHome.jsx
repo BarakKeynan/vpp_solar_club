@@ -28,6 +28,7 @@ import BillingStatusCard from '@/components/billing/BillingStatusCard';
 import PhysicalBatteryStatus from '@/components/dashboard/PhysicalBatteryStatus';
 import StormGuardBanner from '@/components/dashboard/StormGuardBanner';
 import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
+import AlertsPanel from '@/components/alerts/AlertsPanel';
 
 function PowerNode({ icon: Icon, label, value, colorClass }) {
   return (
@@ -373,6 +374,13 @@ export default function VPPHome() {
 
       {/* Storm Guard Banner */}
       <StormGuardBanner />
+
+      {/* System Alerts Panel */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.16 }}
+        className="rounded-2xl p-4"
+        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <AlertsPanel />
+      </motion.div>
 
       {/* Simple Savings + Battery Health (user-friendly) */}
       <SimpleSavingsCard />

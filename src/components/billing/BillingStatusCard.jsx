@@ -11,8 +11,12 @@ export default function BillingStatusCard() {
   const [showSetup, setShowSetup] = useState(false);
 
   const fetchStatus = async () => {
-    const res = await base44.functions.invoke('ypayBilling', { action: 'get_status' });
-    setStatus(res.data);
+    try {
+      const res = await base44.functions.invoke('ypayBilling', { action: 'get_status' });
+      setStatus(res.data);
+    } catch {
+      setStatus({ has_billing_token: false });
+    }
   };
 
   useEffect(() => { fetchStatus(); }, []);

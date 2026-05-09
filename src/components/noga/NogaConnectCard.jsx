@@ -9,18 +9,19 @@ export default function NogaConnectCard() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [isConnected, setIsConnected] = useState(false);
-  const [connecting, setConnecting] = useState(false);
+  const [activating, setActivating] = useState(false);
 
   useEffect(() => {
-    if (user?.noga_client_id) setIsConnected(true);
+    if (user?.noga_synced) setIsConnected(true);
   }, [user]);
 
-  const handleConnect = async () => {
-    setConnecting(true);
-    // Redirect to Noga OAuth / portal for authorization
-    window.open('https://www.noga-iso.co.il/', '_blank');
-    // Simulate pending state
-    setTimeout(() => setConnecting(false), 2000);
+  const handleActivate = async () => {
+    setActivating(true);
+    try {
+      await base44.functions.invoke('syncEnergyPrices', {});
+      setIsConnected(true);
+    } catch (_) {}
+    setActivating(false);
   };
 
   return (
@@ -31,66 +32,52 @@ export default function NogaConnectCard() {
       <div className="flex items-center gap-2">
         <Zap className="w-4 h-4 text-amber-400" />
         <p className="text-sm font-black text-white">
-          {isHe ? 'סנכרון נתוני שוק (Noga ISO)' : 'Market Data Sync (Noga ISO)'}
+          {isHe ? 'סנכרון תעריפי בורסה (Noga ISO)' : 'Exchange Rate Sync (Noga ISO)'}
         </p>
+        {isConnected && (
+          <span className="mr-auto text-[10px] font-black px-2 py-0.5 rounded-full"
+            style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }}>
+            🟢 {isHe ? 'פעיל' : 'Active'}
+          </span>
+        )}
       </div>
 
       {/* Description */}
       <p className="text-xs text-white/60 leading-relaxed">
         {isHe
-          ? 'כדי שהאלגוריתם יוכל לבצע אופטימיזציה בזמן אמת ולחסוך בעלויות, עלינו לסנכרן את נתוני הצריכה שלך עם מחירי הרשת.'
-          : 'To enable real-time optimization and cost savings, we need to sync your consumption data with grid prices.'}
+          ? 'כדי למקסם רווחים, המערכת מתחברת לנתוני "נגה" ומזהה את שעות השפל והשיא בזמן אמת.'
+          : 'To maximize profits, the system connects to Noga data and identifies peak and off-peak hours in real time.'}
       </p>
 
-      {/* Connection status */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-bold text-white/50">{isHe ? 'סטטוס חיבור:' : 'Connection status:'}</span>
-        {isConnected ? (
-          <span className="flex items-center gap-1 text-xs font-black text-emerald-400">
-            <span>🟢</span> {isHe ? 'מחובר ומסונכרן' : 'Connected & synced'}
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 text-xs font-black text-amber-400">
-            <span>🟡</span> {isHe ? 'ממתין להרשאה דיגיטלית' : 'Awaiting digital authorization'}
-          </span>
-        )}
+      {/* Already done note */}
+      <div className="rounded-xl px-3 py-2.5 flex items-start gap-2"
+        style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)' }}>
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400/70 flex-shrink-0 mt-0.5" />
+        <p className="text-[11px] text-white/55 leading-relaxed">
+          {isHe
+            ? 'ביצענו עבורך את החיבור הטכני. כל שנותר הוא להפעיל:'
+            : 'We\'ve handled the technical connection for you. All that\'s left is to activate:'}
+        </p>
       </div>
 
-      {/* How it works */}
-      {!isConnected && (
-        <div className="rounded-xl px-3 py-3 space-y-2"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <p className="text-[11px] font-black text-white/50 mb-1">
-            {isHe ? 'איך זה עובד?' : 'How does it work?'}
-          </p>
-          {isHe ? (
-            <>
-              <p className="text-[11px] text-white/45 leading-relaxed">1. לוחצים על הכפתור למטה.</p>
-              <p className="text-[11px] text-white/45 leading-relaxed">2. מאשרים את הגישה לנתוני המונה בדף ההזדהות המאובטח.</p>
-              <p className="text-[11px] text-white/45 leading-relaxed">3. זהו! המערכת תתחיל למקסם את הרווחים שלך באופן אוטומטי.</p>
-            </>
-          ) : (
-            <>
-              <p className="text-[11px] text-white/45 leading-relaxed">1. Click the button below.</p>
-              <p className="text-[11px] text-white/45 leading-relaxed">2. Approve meter data access on the secure authorization page.</p>
-              <p className="text-[11px] text-white/45 leading-relaxed">3. Done! The system will start maximizing your profits automatically.</p>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Connect button */}
-      {!isConnected && (
+      {/* Activate button */}
+      {!isConnected ? (
         <button
-          onClick={handleConnect}
-          disabled={connecting}
+          onClick={handleActivate}
+          disabled={activating}
           className="w-full py-3 rounded-xl text-sm font-black flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-60"
           style={{ background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.5)', color: '#fbbf24' }}>
-          {connecting
-            ? <Loader2 className="w-4 h-4 animate-spin" />
-            : <Zap className="w-4 h-4" />}
-          {isHe ? 'התחברות מאובטחת ומתן הרשאה' : 'Secure Connection & Authorization'}
+          {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+          {activating
+            ? (isHe ? 'מפעיל...' : 'Activating...')
+            : (isHe ? 'הפעלת סנכרון אוטומטי' : 'Activate Auto Sync')}
         </button>
+      ) : (
+        <div className="w-full py-3 rounded-xl text-sm font-black flex items-center justify-center gap-2"
+          style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', color: '#34d399' }}>
+          <CheckCircle2 className="w-4 h-4" />
+          {isHe ? 'סנכרון אוטומטי פעיל' : 'Auto Sync Active'}
+        </div>
       )}
 
       {/* Security note */}
@@ -98,8 +85,8 @@ export default function NogaConnectCard() {
         <Lock className="w-3 h-3 text-white/25 flex-shrink-0 mt-0.5" />
         <p className="text-[10px] text-white/30 leading-relaxed">
           {isHe
-            ? 'החיבור מתבצע תחת תקני האבטחה המחמירים של נגה. המפתחות הסודיים שלך לעולם לא נחשפים.'
-            : 'Connection is secured under Noga\'s strict security standards. Your secret keys are never exposed.'}
+            ? 'החיבור מאובטח ברמת השרת ואינו דורש הזנת מפתחות מצדך.'
+            : 'Connection is secured at the server level and requires no keys from you.'}
         </p>
       </div>
     </div>

@@ -247,45 +247,45 @@ export default function WelcomePage({ onDismiss }) {
           </motion.div>
         </div>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons — side by side */}
         <motion.div
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.82 }}
-          className="w-full max-w-[300px] space-y-3 pt-2"
+          className="w-full max-w-[300px] flex gap-3 pt-2"
         >
           {/* Primary — gold/teal gradient */}
           <motion.button
             onClick={handleGuide}
             whileTap={{ scale: 0.96 }}
-            className="w-full py-4 rounded-2xl font-black flex items-center justify-center gap-2.5 transition-all"
+            className="flex-1 py-3 rounded-2xl font-black flex flex-col items-center justify-center gap-1.5 transition-all"
             style={{
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #059669 100%)',
-              boxShadow: '0 6px 32px rgba(245,158,11,0.5), 0 1px 0 rgba(255,255,255,0.25) inset',
+              boxShadow: '0 4px 20px rgba(245,158,11,0.45)',
               color: '#fff',
-              fontSize: '15px',
+              fontSize: '12px',
               textShadow: '0 1px 3px rgba(0,0,0,0.4)',
             }}
           >
-            <BookOpen className="w-4 h-4 flex-shrink-0" />
-            להוראות שימוש ומדריכים
+            <BookOpen className="w-5 h-5 flex-shrink-0" />
+            <span>הוראות שימוש</span>
           </motion.button>
 
           {/* Secondary — subtle glass */}
           <motion.button
             onClick={handleSkip}
             whileTap={{ scale: 0.96 }}
-            className="w-full py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
+            className="flex-1 py-3 rounded-2xl font-bold flex flex-col items-center justify-center gap-1.5 transition-all"
             style={{
               background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.2)',
               backdropFilter: 'blur(8px)',
-              color: 'rgba(255,255,255,0.6)',
-              fontSize: '14px',
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: '12px',
             }}
           >
-            <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-            דלג לדשבורד
+            <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+            <span>דלג לדשבורד</span>
           </motion.button>
         </motion.div>
       </div>

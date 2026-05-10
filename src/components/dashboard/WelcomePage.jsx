@@ -137,7 +137,7 @@ function LogoMark() {
 export default function WelcomePage({ onDismiss }) {
   const navigate = useNavigate();
   const handleGuide = () => { onDismiss(); navigate('/user-guide'); };
-  const handleSkip = () => { onDismiss(); };
+  const handleSkip = () => { onDismiss(); navigate('/Dashboard'); };
 
   return (
     <motion.div

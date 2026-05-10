@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -107,6 +107,21 @@ export default function UserGuide() {
   const g = lang === 'he' ? GUIDE_HE : GUIDE_EN;
   const userName = user?.full_name || (lang === 'he' ? 'משתמש יקר' : 'Valued User');
 
+  // Checklist state — persisted in localStorage
+  const STORAGE_KEY = 'vpp_guide_checklist';
+  const [checked, setChecked] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  });
+  const toggle = (key) => {
+    setChecked(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+  const doneCount = Object.values(checked).filter(Boolean).length;
+  const totalCount = g.prereqs.filter(p => !p.isNoga && !p.isSolarEdge && !p.isPayment).length + g.steps.length;
+
   return (
     <div className="min-h-screen pb-28 bg-background" dir={g.dir}>
 
@@ -132,6 +147,17 @@ export default function UserGuide() {
         <h1 className="text-2xl font-black text-white">VPP Solar Club</h1>
         <p className="text-[11px] text-muted-foreground mt-0.5">{g.pdfTitle} · 2026</p>
         <p className="text-xs text-white/60 leading-relaxed mt-3">{g.appDesc}</p>
+        {/* Progress bar */}
+        <div className="mt-4 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-white/40">{lang === 'he' ? 'התקדמות' : 'Progress'}</span>
+            <span className="text-[11px] font-black text-primary">{doneCount}/{totalCount}</span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <div className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${totalCount ? (doneCount / totalCount) * 100 : 0}%`, background: 'linear-gradient(90deg, #10b981, #3b82f6)' }} />
+          </div>
+        </div>
       </div>
 
       <div className="px-4 space-y-8">
@@ -140,11 +166,39 @@ export default function UserGuide() {
         <section>
           <h2 className="text-base font-black text-white mb-3">{g.prereqTitle}</h2>
           <div className="space-y-3">
-            {g.prereqs.map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                {item.isNoga ? <NogaConnectCard /> : item.isSolarEdge ? <SolarEdgeConnectCard /> : item.isPayment ? <PaymentSetupCard /> : <PrereqCard item={item} />}
-              </motion.div>
-            ))}
+            {g.prereqs.map((item, i) => {
+              const key = `prereq_${i}`;
+              const isDone = !!checked[key];
+              if (item.isNoga || item.isSolarEdge || item.isPayment) {
+                return (
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
+                    {item.isNoga ? <NogaConnectCard /> : item.isSolarEdge ? <SolarEdgeConnectCard /> : <PaymentSetupCard />}
+                  </motion.div>
+                );
+              }
+              return (
+                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
+                  className="relative">
+                  <div style={{ opacity: isDone ? 0.6 : 1, transition: 'opacity 0.3s' }}>
+                    <PrereqCard item={item} />
+                  </div>
+                  {/* Checkbox overlay */}
+                  <button onClick={() => toggle(key)}
+                    className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all active:scale-95"
+                    style={{
+                      background: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)',
+                      border: `1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.3)'}`,
+                    }}>
+                    {isDone
+                      ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      : <XCircle className="w-4 h-4 text-red-400/70" />}
+                    <span className="text-[10px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(248,113,113,0.8)' }}>
+                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'טרם בוצע' : 'Pending')}
+                    </span>
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 
@@ -152,11 +206,32 @@ export default function UserGuide() {
         <section>
           <h2 className="text-base font-black text-white mb-3">{g.stepsTitle}</h2>
           <div className="space-y-3">
-            {g.steps.map((step, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <StepCard step={step} />
-              </motion.div>
-            ))}
+            {g.steps.map((step, i) => {
+              const key = `step_${i}`;
+              const isDone = !!checked[key];
+              return (
+                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                  className="relative">
+                  <div style={{ opacity: isDone ? 0.6 : 1, transition: 'opacity 0.3s' }}>
+                    <StepCard step={step} />
+                  </div>
+                  {/* Checkbox overlay */}
+                  <button onClick={() => toggle(key)}
+                    className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all active:scale-95"
+                    style={{
+                      background: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)',
+                      border: `1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.3)'}`,
+                    }}>
+                    {isDone
+                      ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      : <XCircle className="w-4 h-4 text-red-400/70" />}
+                    <span className="text-[10px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(248,113,113,0.8)' }}>
+                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'טרם בוצע' : 'Pending')}
+                    </span>
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 

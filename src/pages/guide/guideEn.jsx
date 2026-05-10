@@ -93,5 +93,5 @@ export const GUIDE_EN = {
     'In winter, sunshine is weaker — rely more on community farms.',
   ],
   ecoTip: 'Enable ECO Profit Mode for full automation with zero intervention.',
-  ecoTipLink: '/Dashboard',
+  ecoTipLink: '/Dashboard?open=eco-profit',
 };

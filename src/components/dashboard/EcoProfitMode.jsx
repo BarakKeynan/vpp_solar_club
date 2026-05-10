@@ -235,6 +235,12 @@ export default function EcoProfitMode() {
   const [ecoData, setEcoData] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  // Auto-open if navigated from user guide with ?open=eco-profit
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('open') === 'eco-profit') setSheetOpen(true);
+  }, []);
+
   useEffect(() => {
     base44.entities.AppConfig.filter({ key: 'eco_profit_state' }).then(configs => {
       const cfg = configs[0];

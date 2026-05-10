@@ -93,5 +93,5 @@ export const GUIDE_HE = {
     'בחורף השמש חלשה — הסתמכו יותר על חוות הקהילה.',
   ],
   ecoTip: 'הפעילו ECO Profit Mode לאוטומציה מלאה ללא התערבות.',
-  ecoTipLink: '/Dashboard',
+  ecoTipLink: '/Dashboard?open=eco-profit',
 };

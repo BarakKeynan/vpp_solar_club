@@ -17,7 +17,6 @@ import InPlaceOnboarding from '@/components/onboarding/InPlaceOnboarding';
 import BillingStatusCard from '@/components/billing/BillingStatusCard';
 import StormGuardBanner from '@/components/dashboard/StormGuardBanner';
 import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
-import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 
 // PowerNode helper (kept for structure)
@@ -111,9 +110,6 @@ export default function VPPHome() {
           }} />
         )}
       </AnimatePresence>
-
-      {/* Welcome Banner */}
-      <WelcomeBanner userName={user?.full_name} />
 
       {/* Not Connected Banner */}
       {user && !user.system_connected && (

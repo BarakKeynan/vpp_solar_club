@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import VPPHome from './VPPHome.jsx';
 import SolarClub from './SolarClub.jsx';
+import WelcomePage from '@/components/dashboard/WelcomePage.jsx';
 import { useLang } from '@/lib/i18n';
 
 export default function Dashboard() {
   const [mode, setMode] = useState('home'); // 'home' | 'club'
   const { t } = useLang();
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !localStorage.getItem('vpp_welcome_seen');
+  });
+
+  const handleDismissWelcome = () => {
+    localStorage.setItem('vpp_welcome_seen', '1');
+    setShowWelcome(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      <AnimatePresence>
+        {showWelcome && <WelcomePage onDismiss={handleDismissWelcome} />}
+      </AnimatePresence>
       {/* Mode Toggle */}
       <div className="sticky top-0 z-10 px-4 pt-4 pb-3" style={{ background: 'hsl(222 47% 6% / 0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'rgba(255,255,255,0.05)' }}>

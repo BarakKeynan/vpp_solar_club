@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Bot, Loader2, Sparkles, Mic, MicOff } from 'lucide-react';
+import { X, Send, Bot, Loader2, Sparkles, Mic, MicOff, LayoutDashboard } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLang } from '@/lib/i18n';
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
 
 // Translation keys will be used instead
 
 export default function AIAssistant() {
   const { lang, t } = useLang();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -41,9 +43,9 @@ export default function AIAssistant() {
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef(null);
 
-  // Initialize position bottom-right on mount
+  // Initialize position bottom-right above nav bar
   useEffect(() => {
-    setPos({ x: window.innerWidth - 160, y: window.innerHeight - 160 });
+    setPos({ x: window.innerWidth - 68, y: window.innerHeight - 148 });
   }, []);
 
   const onPointerDown = (e) => {
@@ -167,15 +169,18 @@ export default function AIAssistant() {
 
   return (
     <>
-      {/* FAB Button – fixed bottom-right above nav bar, icon only */}
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="fixed z-50 flex items-center justify-center rounded-full shadow-xl select-none"
+      {/* FAB Button – draggable, icon only */}
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        className="fixed z-50 flex items-center justify-center rounded-full shadow-xl select-none touch-none"
         style={{
-          right: 16,
-          bottom: 88,
+          left: pos.x,
+          top: pos.y,
           width: 52,
           height: 52,
+          cursor: dragging ? 'grabbing' : 'grab',
           background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #10B981 100%)',
           boxShadow: '0 4px 24px rgba(59,130,246,0.45), 0 0 12px rgba(16,185,129,0.3)',
         }}
@@ -188,7 +193,7 @@ export default function AIAssistant() {
             className="absolute inset-0 rounded-full bg-white/30"
           />
         </div>
-      </button>
+      </div>
 
       {/* Chat Panel */}
       <AnimatePresence>
@@ -226,16 +231,25 @@ export default function AIAssistant() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {speaking && (
-                    <button onClick={stopSpeaking}
-                      className="p-2 rounded-xl text-[10px] font-bold flex items-center gap-1 animate-pulse"
-                      style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
-                      <span>🔊</span><span>{lang === 'he' ? 'עצור' : 'Stop'}</span>
-                    </button>
-                  )}
-                  <button onClick={() => { setOpen(false); stopSpeaking(); }} className="p-2 rounded-xl bg-muted">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
+                 {speaking && (
+                   <button onClick={stopSpeaking}
+                     className="p-2 rounded-xl text-[10px] font-bold flex items-center gap-1 animate-pulse"
+                     style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
+                     <span>🔊</span><span>{lang === 'he' ? 'עצור' : 'Stop'}</span>
+                   </button>
+                 )}
+                 <button
+                   onClick={() => { setOpen(false); stopSpeaking(); navigate('/Dashboard'); }}
+                   className="p-2 rounded-xl flex items-center gap-1.5 text-[10px] font-bold"
+                   style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}
+                   title={lang === 'he' ? 'דלג לדשבורד' : 'Go to Dashboard'}
+                 >
+                   <LayoutDashboard className="w-3.5 h-3.5" />
+                   <span className="hidden sm:inline">{lang === 'he' ? 'דשבורד' : 'Dashboard'}</span>
+                 </button>
+                 <button onClick={() => { setOpen(false); stopSpeaking(); }} className="p-2 rounded-xl bg-muted">
+                   <X className="w-4 h-4 text-muted-foreground" />
+                 </button>
                 </div>
               </div>
 

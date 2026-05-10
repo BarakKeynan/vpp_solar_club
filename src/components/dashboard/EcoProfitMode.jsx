@@ -261,7 +261,6 @@ export default function EcoProfitMode() {
     }).catch(() => {});
   }, [ecoData]);
 
-  // Always show the card (even in standby), as the button should always be accessible
   const isDischarging = ecoData?.mode === 'discharging';
   const isCharging = ecoData?.mode === 'charging';
 

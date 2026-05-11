@@ -18,6 +18,7 @@ import BillingStatusCard from '@/components/billing/BillingStatusCard';
 import StormGuardBanner from '@/components/dashboard/StormGuardBanner';
 import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
+import VPPConnectCard from '@/components/dashboard/VPPConnectCard';
 
 // PowerNode helper (kept for structure)
 
@@ -56,6 +57,14 @@ export default function VPPHome() {
       setShowCompliance(true);
     }
   }, [complianceDone, complianceLoading]);
+
+  const [nogaPrice, setNogaPrice] = useState(null);
+
+  useEffect(() => {
+    base44.entities.NogaPrice.list('-created_date', 1).then(p => {
+      if (p[0]) setNogaPrice(p[0]);
+    }).catch(() => {});
+  }, []);
 
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
@@ -174,8 +183,60 @@ export default function VPPHome() {
             <p className="text-[10px] text-white/40">{t('sold_to_grid')}</p>
             <p className="text-sm font-black text-secondary">9.8 kWh ⚡</p>
           </div>
+          {nogaPrice && (
+            <>
+              <div className="w-px h-6 bg-white/10" />
+              <div>
+                <p className="text-[10px] text-white/40">{lang === 'he' ? 'מחיר נגה' : 'Noga Rate'}</p>
+                <p className="text-sm font-black" style={{ color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399' }}>
+                  ₪{nogaPrice.price?.toFixed(3)}
+                  {nogaPrice.is_mock && <span className="text-[9px] text-white/30"> demo</span>}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </motion.div>
+
+      {/* VPP Brain Status Row */}
+      {nogaPrice && (
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+          className="grid grid-cols-3 gap-2">
+          {[
+            {
+              icon: '📡',
+              label: lang === 'he' ? 'נגה' : 'Noga',
+              value: `₪${nogaPrice.price?.toFixed(3)}`,
+              color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399',
+              sub: lang === 'he' ? 'מחיר חשמל' : 'Grid price',
+            },
+            {
+              icon: '☀️',
+              label: lang === 'he' ? 'סולאר' : 'Solar',
+              value: '4.2 kW',
+              color: '#f59e0b',
+              sub: lang === 'he' ? 'ייצור עכשיו' : 'Producing now',
+            },
+            {
+              icon: '🤖',
+              label: lang === 'he' ? 'מוח VPP' : 'VPP Brain',
+              value: (new Date().getHours() >= 17 && new Date().getHours() <= 21)
+                ? (lang === 'he' ? 'מוכר' : 'Selling')
+                : (lang === 'he' ? 'טוען' : 'Charging'),
+              color: '#60a5fa',
+              sub: lang === 'he' ? 'פעולה אוטומטית' : 'Auto action',
+            },
+          ].map((item, i) => (
+            <div key={i} className="rounded-xl px-3 py-2.5 text-center"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <span className="text-base">{item.icon}</span>
+              <p className="text-[10px] text-white/40 mt-0.5">{item.label}</p>
+              <p className="text-sm font-black mt-0.5" style={{ color: item.color }}>{item.value}</p>
+              <p className="text-[9px] text-white/30">{item.sub}</p>
+            </div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Power Flow */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
@@ -244,6 +305,9 @@ export default function VPPHome() {
           </motion.div>
         )}
       </motion.div>
+
+      {/* VPP Connect — device control hub */}
+      <VPPConnectCard />
 
       {/* Eco Profit Mode — opens bottom sheet */}
       <EcoProfitMode />

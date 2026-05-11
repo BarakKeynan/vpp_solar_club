@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Circle, ChevronRight, Zap, Battery, Home, Clock, BarChart2, Settings, Users, Gift, ArrowLeftRight, Download, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLang } from '@/lib/i18n';
 import NogaConnectCard from '@/components/noga/NogaConnectCard';
 import SolarEdgeConnectCard from '@/components/solaredge/SolarEdgeConnectCard';
 import PaymentSetupCard from '@/components/billing/PaymentSetupCard';
@@ -401,7 +402,7 @@ const STORAGE_KEY_CHECKED = 'vpp_guide_checked_v2';
 export default function UserGuide() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [lang, setLang] = useState('he');
+  const { lang, setLang } = useLang();
   const isHe = lang === 'he';
 
   const [persona, setPersona] = useState(() => {
@@ -445,7 +446,7 @@ export default function UserGuide() {
   };
 
   return (
-    <div key={lang} className="min-h-screen pb-28" style={{ background: '#121212', direction: isHe ? 'rtl' : 'ltr' }}>
+    <div className="min-h-screen pb-28" style={{ background: '#121212', direction: isHe ? 'rtl' : 'ltr' }}>
 
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3"

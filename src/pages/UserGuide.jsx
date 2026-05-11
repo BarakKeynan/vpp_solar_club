@@ -444,7 +444,7 @@ export default function UserGuide() {
   };
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#121212', direction: isHe ? 'rtl' : 'ltr' }}>
+    <div key={lang} className="min-h-screen pb-28" style={{ background: '#121212', direction: isHe ? 'rtl' : 'ltr' }}>
 
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3"
@@ -483,14 +483,14 @@ export default function UserGuide() {
               <span className="text-2xl">☀️</span>
             </div>
           </div>
-          <h1 className="text-xl font-black text-white leading-snug">
+          <h1 className="text-xl font-black text-white leading-snug" key={`title-${lang}`}>
             {isHe ? 'ברוכים הבאים למרכז' : 'Welcome to Your'}
             <br />
             <span style={{ color: '#D4AF37' }}>
               {isHe ? 'ניהול האנרגיה שלכם' : 'Energy Management Center'}
             </span>
           </h1>
-          <p className="text-xs text-white/50 leading-relaxed max-w-xs mx-auto">
+          <p className="text-xs text-white/50 leading-relaxed max-w-xs mx-auto" key={`desc-${lang}`}>
             {isHe
               ? 'פלטפורמה חכמה לניהול אנרגיה סולארית — ממקסמת את הרווח שלך אוטומטית.'
               : 'Smart solar energy platform — automatically maximizing your profit.'}

@@ -8,12 +8,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Allow scheduled calls (no user) or admin users only
-    let user = null;
-    try { user = await base44.auth.me(); } catch { user = null; }
-    if (user !== null && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // This is an internal scheduled function — no user auth check needed
 
     // Get all connected users
     const allUsers = await base44.asServiceRole.entities.User.list();

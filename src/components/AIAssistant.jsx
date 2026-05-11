@@ -39,37 +39,46 @@ export default function AIAssistant() {
   };
   const bottomRef = useRef(null);
   const dragRef = useRef(null);
+  const FAB_SIZE = 52;
+  const clampX = (x) => Math.max(8, Math.min(window.innerWidth - FAB_SIZE - 8, x));
+  const clampY = (y) => Math.max(8, Math.min(window.innerHeight - FAB_SIZE - 80, y)); // 80 = bottom nav height
   const [pos, setPos] = useState({ x: 16, y: null });
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef(null);
 
   // Initialize position bottom-right above nav bar
   useEffect(() => {
-    setPos({ x: window.innerWidth - 68, y: window.innerHeight - 148 });
+    setPos({ x: window.innerWidth - FAB_SIZE - 16, y: window.innerHeight - FAB_SIZE - 90 });
   }, []);
 
   const onPointerDown = (e) => {
+    e.preventDefault();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     dragStart.current = {
-      startX: e.clientX - pos.x,
-      startY: e.clientY - pos.y,
+      startX: clientX - pos.x,
+      startY: clientY - pos.y,
       moved: false,
     };
     setDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    if (e.currentTarget.setPointerCapture && e.pointerId != null) {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
   };
 
   const onPointerMove = (e) => {
     if (!dragStart.current) return;
-    const dx = Math.abs(e.clientX - (dragStart.current.startX + pos.x));
-    const dy = Math.abs(e.clientY - (dragStart.current.startY + pos.y));
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const newX = clientX - dragStart.current.startX;
+    const newY = clientY - dragStart.current.startY;
+    const dx = Math.abs(newX - pos.x);
+    const dy = Math.abs(newY - pos.y);
     if (dx > 4 || dy > 4) dragStart.current.moved = true;
-    setPos({
-      x: Math.max(0, Math.min(window.innerWidth - 140, e.clientX - dragStart.current.startX)),
-      y: Math.max(0, Math.min(window.innerHeight - 60, e.clientY - dragStart.current.startY)),
-    });
+    setPos({ x: clampX(newX), y: clampY(newY) });
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (e) => {
     if (dragStart.current && !dragStart.current.moved) setOpen(v => !v);
     dragStart.current = null;
     setDragging(false);
@@ -174,7 +183,10 @@ export default function AIAssistant() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className="fixed z-50 flex items-center justify-center rounded-full shadow-xl select-none touch-none"
+        onTouchStart={onPointerDown}
+        onTouchMove={onPointerMove}
+        onTouchEnd={onPointerUp}
+        className="fixed z-[9999] flex items-center justify-center rounded-full shadow-xl select-none touch-none"
         style={{
           left: pos.x,
           top: pos.y,

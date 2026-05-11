@@ -9,7 +9,8 @@ import SolarEdgeConnectCard from '@/components/solaredge/SolarEdgeConnectCard';
 import PaymentSetupCard from '@/components/billing/PaymentSetupCard';
 
 // ─── Persona Quiz ──────────────────────────────────────────────────────────────
-function PersonaQuiz({ onComplete }) {
+function PersonaQuiz({ onComplete, lang }) {
+  const isHe = lang === 'he';
   const [step, setStep] = useState(1);
   const [hasBattery, setHasBattery] = useState(null);
   const [manufacturer, setManufacturer] = useState(null);
@@ -41,12 +42,12 @@ function PersonaQuiz({ onComplete }) {
       <AnimatePresence mode="wait">
         {step >= 1 && (
           <motion.div key="q1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-            <p className="text-sm font-black text-white/80">מהו מבנה המערכת שלך?</p>
+            <p className="text-sm font-black text-white/80">{isHe ? 'מהו מבנה המערכת שלך?' : 'What is your system setup?'}</p>
             <div className="grid grid-cols-2 gap-3">
               <QuizButton
                 selected={hasBattery === true}
                 icon="🔋"
-                label="יש לי סוללה פיזית"
+                label={isHe ? 'יש לי סוללה פיזית' : 'I have a physical battery'}
                 sub="BESS"
                 onClick={() => handleBattery(true)}
                 color="#D4AF37"
@@ -54,8 +55,8 @@ function PersonaQuiz({ onComplete }) {
               <QuizButton
                 selected={hasBattery === false}
                 icon="⚡"
-                label="אין לי סוללה"
-                sub="סוללה וירטואלית"
+                label={isHe ? 'אין לי סוללה' : 'No physical battery'}
+                sub={isHe ? 'סוללה וירטואלית' : 'Virtual Battery'}
                 onClick={() => handleBattery(false)}
                 color="#10b981"
               />
@@ -68,20 +69,20 @@ function PersonaQuiz({ onComplete }) {
       <AnimatePresence>
         {step >= 2 && (
           <motion.div key="q2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-            <p className="text-sm font-black text-white/80">בחר את יצרן המערכת:</p>
+            <p className="text-sm font-black text-white/80">{isHe ? 'בחר את יצרן המערכת:' : 'Select your system manufacturer:'}</p>
             <div className="grid grid-cols-2 gap-3">
               <QuizButton
                 selected={manufacturer === 'solaredge'}
                 icon="☀️"
                 label="SolarEdge"
-                sub="פורטל רשמי"
+                sub={isHe ? 'פורטל רשמי' : 'Official Portal'}
                 onClick={() => handleManufacturer('solaredge')}
                 color="#3b82f6"
               />
               <QuizButton
                 selected={manufacturer === 'other'}
                 icon="🔧"
-                label="אחר / Other"
+                label={isHe ? 'אחר / Other' : 'Other'}
                 sub="API / Webhook"
                 onClick={() => handleManufacturer('other')}
                 color="#8b5cf6"
@@ -97,7 +98,7 @@ function PersonaQuiz({ onComplete }) {
           <motion.div key="q3se" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl p-4 space-y-3"
             style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.25)' }}>
-            <p className="text-xs font-black text-amber-300">🔑 פרטי SolarEdge</p>
+            <p className="text-xs font-black text-amber-300">🔑 {isHe ? 'פרטי SolarEdge' : 'SolarEdge Credentials'}</p>
             <input value={apiKey} onChange={e => setApiKey(e.target.value)}
               placeholder="API Key" dir="ltr"
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-amber-500/50" />
@@ -107,7 +108,7 @@ function PersonaQuiz({ onComplete }) {
             <button onClick={handleFinish}
               className="w-full py-2.5 rounded-xl text-sm font-black transition-all active:scale-95"
               style={{ background: 'linear-gradient(135deg, #D4AF37, #b8962e)', color: '#121212' }}>
-              שמור והמשך →
+              {isHe ? 'שמור והמשך →' : 'Save & Continue →'}
             </button>
           </motion.div>
         )}
@@ -115,14 +116,14 @@ function PersonaQuiz({ onComplete }) {
           <motion.div key="q3other" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl p-4 space-y-3"
             style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.25)' }}>
-            <p className="text-xs font-black text-purple-300">🔌 Webhook / API URL של היצרן</p>
+            <p className="text-xs font-black text-purple-300">🔌 {isHe ? 'Webhook / API URL של היצרן' : 'Manufacturer Webhook / API URL'}</p>
             <input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)}
               placeholder="https://api.manufacturer.com/..." dir="ltr"
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-purple-400/50" />
             <button onClick={handleFinish}
               className="w-full py-2.5 rounded-xl text-sm font-black transition-all active:scale-95"
               style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
-              שמור והמשך →
+              {isHe ? 'שמור והמשך →' : 'Save & Continue →'}
             </button>
           </motion.div>
         )}
@@ -521,7 +522,7 @@ export default function UserGuide() {
                 {isHe ? '2 שאלות מהירות להתאמת המדריך עבורך' : '2 quick questions to tailor the guide for you'}
               </p>
             </div>
-            <PersonaQuiz onComplete={handlePersonaComplete} />
+            <PersonaQuiz onComplete={handlePersonaComplete} lang={lang} />
           </div>
         ) : (
           /* Progress */

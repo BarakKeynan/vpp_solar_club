@@ -85,7 +85,13 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-heebo);
+    -webkit-spell-check: false;
   }
+}
+
+* {
+  -webkit-spell-check: false !important;
+  spellcheck: false;
 }
 
 /* Hide browser built-in password reveal/lock icons */

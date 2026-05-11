@@ -15,8 +15,7 @@ import PaymentSetupCard from '@/components/billing/PaymentSetupCard';
 
 function PrereqCard({ item }) {
   return (
-    <div className="rounded-2xl p-4 space-y-2"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+    <div className="p-4 space-y-2">
       <div className="flex items-start gap-3">
         <span className="text-2xl flex-shrink-0">{item.icon}</span>
         <div className="flex-1 space-y-1">
@@ -40,8 +39,7 @@ function PrereqCard({ item }) {
 
 function StepCard({ step }) {
   return (
-    <div className="rounded-2xl p-4 space-y-2"
-      style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${step.color}30` }}>
+    <div className="p-4 space-y-2">
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm"
           style={{ background: `${step.color}15`, color: step.color, border: `1px solid ${step.color}40` }}>
@@ -178,22 +176,20 @@ export default function UserGuide() {
               }
               return (
                 <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-                  className="relative">
-                  <div style={{ opacity: isDone ? 0.6 : 1, transition: 'opacity 0.3s' }}>
-                    <PrereqCard item={item} />
-                  </div>
-                  {/* Checkbox overlay */}
+                  className="rounded-2xl overflow-hidden"
+                  style={{ opacity: isDone ? 0.65 : 1, transition: 'opacity 0.3s', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <PrereqCard item={item} />
                   <button onClick={() => toggle(key)}
-                    className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all active:scale-95"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 border-t transition-all active:scale-[0.98]"
                     style={{
-                      background: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)',
-                      border: `1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.3)'}`,
+                      background: isDone ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.02)',
+                      borderColor: isDone ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)',
                     }}>
                     {isDone
                       ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      : <XCircle className="w-4 h-4 text-red-400/70" />}
-                    <span className="text-[10px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(248,113,113,0.8)' }}>
-                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'טרם בוצע' : 'Pending')}
+                      : <XCircle className="w-4 h-4 text-red-400/50" />}
+                    <span className="text-[11px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(255,255,255,0.3)' }}>
+                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'סמן כבוצע' : 'Mark as done')}
                     </span>
                   </button>
                 </motion.div>
@@ -211,22 +207,20 @@ export default function UserGuide() {
               const isDone = !!checked[key];
               return (
                 <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className="relative">
-                  <div style={{ opacity: isDone ? 0.6 : 1, transition: 'opacity 0.3s' }}>
-                    <StepCard step={step} />
-                  </div>
-                  {/* Checkbox overlay */}
+                  className="rounded-2xl overflow-hidden"
+                  style={{ opacity: isDone ? 0.65 : 1, transition: 'opacity 0.3s', background: 'rgba(255,255,255,0.03)', border: `1px solid ${step.color}30` }}>
+                  <StepCard step={step} />
                   <button onClick={() => toggle(key)}
-                    className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all active:scale-95"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 border-t transition-all active:scale-[0.98]"
                     style={{
-                      background: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)',
-                      border: `1px solid ${isDone ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.3)'}`,
+                      background: isDone ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.02)',
+                      borderColor: isDone ? 'rgba(16,185,129,0.3)' : `${step.color}20`,
                     }}>
                     {isDone
                       ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      : <XCircle className="w-4 h-4 text-red-400/70" />}
-                    <span className="text-[10px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(248,113,113,0.8)' }}>
-                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'טרם בוצע' : 'Pending')}
+                      : <XCircle className="w-4 h-4 text-red-400/50" />}
+                    <span className="text-[11px] font-black" style={{ color: isDone ? '#34d399' : 'rgba(255,255,255,0.3)' }}>
+                      {isDone ? (lang === 'he' ? 'בוצע ✓' : 'Done ✓') : (lang === 'he' ? 'סמן כבוצע' : 'Mark as done')}
                     </span>
                   </button>
                 </motion.div>

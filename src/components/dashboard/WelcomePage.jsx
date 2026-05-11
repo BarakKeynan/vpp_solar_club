@@ -170,9 +170,9 @@ export default function WelcomePage({ onDismiss }) {
       </div>
 
       {/* Main content */}
-      <div className="relative z-20 flex-1 flex flex-col items-center justify-between px-6 pb-10 text-center overflow-y-auto">
+      <div className="relative z-20 flex-1 flex flex-col items-center justify-between px-6 pb-24 text-center overflow-y-auto">
 
-        <div className="flex-1 flex flex-col items-center justify-center gap-5">
+        <div className="flex-1 flex flex-col items-center justify-center gap-3">
 
           {/* Logo mark */}
           <motion.div
@@ -209,8 +209,8 @@ export default function WelcomePage({ onDismiss }) {
 
           {/* Headline + body */}
           <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.54 }}
-            className="space-y-3 max-w-[300px]">
-            <h1 className="text-xl font-black text-white leading-snug" dir="rtl">
+            className="space-y-2 max-w-[300px]">
+            <h1 className="text-lg font-black text-white leading-snug" dir="rtl">
               ברוכים הבאים ל-Solar Club
               <br />
               <span style={{
@@ -228,7 +228,7 @@ export default function WelcomePage({ onDismiss }) {
 
           {/* Stats */}
           <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.68 }}
-            className="flex gap-3 w-full max-w-[300px]">
+            className="flex gap-3 w-full max-w-[300px] mt-1">
             {[
               { val: '₪4,230', label: 'חיסכון חודשי', color: '#10b981' },
               { val: '18.4', label: 'kWh ייצור', color: '#f59e0b' },
@@ -252,7 +252,7 @@ export default function WelcomePage({ onDismiss }) {
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.82 }}
-          className="w-full max-w-[300px] flex gap-3 pt-2"
+          className="w-full max-w-[300px] flex gap-3 pt-1"
         >
           {/* Primary — gold/teal gradient */}
           <motion.button

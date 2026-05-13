@@ -20,6 +20,7 @@ import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import VPPConnectCard from '@/components/dashboard/VPPConnectCard';
 import NogaMarketModal from '@/components/dashboard/NogaMarketModal';
+import SmartSellModal from '@/components/dashboard/SmartSellModal';
 
 // PowerNode helper (kept for structure)
 
@@ -68,6 +69,7 @@ export default function VPPHome() {
   }, []);
 
   const [showNogaModal, setShowNogaModal] = useState(false);
+  const [showSmartSell, setShowSmartSell] = useState(false);
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [selectedBattery, setSelectedBattery] = useState(null);
@@ -160,6 +162,14 @@ export default function VPPHome() {
         lang={lang}
       />
 
+      {/* Smart Sell Modal */}
+      <SmartSellModal
+        open={showSmartSell}
+        onClose={() => setShowSmartSell(false)}
+        nogaPrice={nogaPrice}
+        lang={lang}
+      />
+
       {/* VPP Brain Status Row — moved to top */}
       {nogaPrice && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
@@ -192,7 +202,9 @@ export default function VPPHome() {
             <p className="text-[9px] text-white/30">{lang === 'he' ? 'ייצור עכשיו' : 'Producing now'}</p>
           </div>
           {/* VPP Brain */}
-          <div className="rounded-xl px-3 py-2.5 text-center"
+          <button
+            onClick={() => setShowSmartSell(true)}
+            className="rounded-xl px-3 py-2.5 text-center transition-all active:scale-95"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <span className="text-base">🤖</span>
             <p className="text-[10px] text-white/40 mt-0.5">{lang === 'he' ? 'מוח VPP' : 'VPP Brain'}</p>
@@ -201,8 +213,8 @@ export default function VPPHome() {
                 ? (lang === 'he' ? 'מוכר' : 'Selling')
                 : (lang === 'he' ? 'טוען' : 'Charging')}
             </p>
-            <p className="text-[9px] text-white/30">{lang === 'he' ? 'פעולה אוטומטית' : 'Auto action'}</p>
-          </div>
+            <p className="text-[9px] text-white/30">{lang === 'he' ? 'לחץ לפרטים' : 'Tap for details'}</p>
+          </button>
         </motion.div>
       )}
 

@@ -14,7 +14,7 @@ function useMarketData(nogaPrice) {
   };
 }
 
-function TrendBadge({ current, prev, unit = '₪' }) {
+function TrendBadge({ current, prev, unit = '₪', lang = 'he' }) {
   const [showTrend, setShowTrend] = useState(false);
   const up = current >= prev;
   const diff = Math.abs(current - prev).toFixed(unit === 'MW' ? 0 : 3);
@@ -44,7 +44,7 @@ function TrendBadge({ current, prev, unit = '₪' }) {
               color: up ? '#34d399' : '#f87171',
             }}
           >
-            {up ? '▲' : '▼'} {diff} {unit} {up ? 'vs שעה קודמת' : 'vs שעה קודמת'}
+            {up ? '▲' : '▼'} {diff} {unit} vs {lang === 'he' ? 'שעה קודמת' : 'prev hour'}
           </motion.div>
         )}
       </AnimatePresence>
@@ -59,7 +59,7 @@ const CARDS = (data, lang) => [
     labelEn: 'System Marginal Price',
     value: `₪${data.smp.value.toFixed(3)}`,
     valueColor: data.smp.value >= 0.6 ? '#f59e0b' : '#34d399',
-    trend: <TrendBadge current={data.smp.value} prev={data.smp.prev} />,
+    trend: <TrendBadge current={data.smp.value} prev={data.smp.prev} lang={lang} />,
     sub: lang === 'he' ? 'לפריקת סוללה מיידית' : 'For immediate discharge',
   },
   {
@@ -68,7 +68,7 @@ const CARDS = (data, lang) => [
     labelEn: 'Market Clearing Price',
     value: `₪${data.mcp.value.toFixed(3)}`,
     valueColor: '#60a5fa',
-    trend: <TrendBadge current={data.mcp.value} prev={data.mcp.prev} />,
+    trend: <TrendBadge current={data.mcp.value} prev={data.mcp.prev} lang={lang} />,
     sub: lang === 'he' ? 'לתכנון מחזור טעינה' : 'Day-ahead planning',
   },
   {
@@ -77,7 +77,7 @@ const CARDS = (data, lang) => [
     labelEn: 'Demand Forecast',
     value: `${data.demand.value.toLocaleString()} MW`,
     valueColor: data.demand.value > 7500 ? '#f59e0b' : '#34d399',
-    trend: <TrendBadge current={data.demand.value} prev={data.demand.prev} unit="MW" />,
+    trend: <TrendBadge current={data.demand.value} prev={data.demand.prev} unit="MW" lang={lang} />,
     sub: lang === 'he' ? 'עומס רשת ארצי' : 'National grid load',
   },
   {
@@ -140,7 +140,7 @@ export default function NogaMarketModal({ open, onClose, nogaPrice, lang = 'he' 
                 <X className="w-3.5 h-3.5 text-white/50" />
               </button>
               <div className="text-right flex-1 mx-3">
-                <p className="text-sm font-black text-white">נתוני שוק בזמן אמת</p>
+                <p className="text-sm font-black text-white">{lang === 'he' ? 'נתוני שוק בזמן אמת' : 'Live Market Data'}</p>
                 <p className="text-[10px] font-bold" style={{ color: 'rgba(212,175,55,0.7)' }}>
                   Noga ISO · {lang === 'he' ? 'עדכון אחרון' : 'Last update'}: {new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -185,7 +185,9 @@ export default function NogaMarketModal({ open, onClose, nogaPrice, lang = 'he' 
             <div className="mt-4 pt-3 rounded-xl px-3 py-2.5"
               style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)' }}>
               <p className="text-[10px] text-white/40 leading-relaxed text-center">
-                המערכת מבצעת אופטימיזציה של פריקה וטעינה בהתבסס על נתונים אלו למקסום רווחים
+                {lang === 'he'
+                  ? 'המערכת מבצעת אופטימיזציה של פריקה וטעינה בהתבסס על נתונים אלו למקסום רווחים'
+                  : 'The system optimizes charging and discharging based on this data to maximize profits'}
               </p>
             </div>
           </motion.div>

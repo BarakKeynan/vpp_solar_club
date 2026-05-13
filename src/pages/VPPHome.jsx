@@ -150,55 +150,7 @@ export default function VPPHome() {
       {/* Smart Energy Push Banner */}
       <SmartEnergyBanner />
 
-      {/* Savings Hero Card */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
-        className="rounded-2xl px-5 py-4"
-        style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.14), rgba(16,185,129,0.04))', border: '1px solid rgba(16,185,129,0.25)' }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] text-emerald-400/70 font-bold">Live</span>
-          </div>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('savings_today')}</p>
-        </div>
-        <div className="flex items-end justify-between">
-          <p className="text-4xl font-black text-primary leading-none">+187 ₪</p>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
-            <TrendingUp className="w-3 h-3 text-emerald-400" />
-            <span className="text-[10px] font-black text-emerald-400">+12% {lang === 'he' ? 'מאתמול' : 'vs yesterday'}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
-          <div>
-            <p className="text-[10px] text-white/40">{t('savings_month')}</p>
-            <p className="text-sm font-black text-white">+4,230 ₪</p>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div>
-            <p className="text-[10px] text-white/40">{t('production_today')}</p>
-            <p className="text-sm font-black text-accent">18.4 kWh ☀️</p>
-          </div>
-          <div className="w-px h-6 bg-white/10" />
-          <div>
-            <p className="text-[10px] text-white/40">{t('sold_to_grid')}</p>
-            <p className="text-sm font-black text-secondary">9.8 kWh ⚡</p>
-          </div>
-          {nogaPrice && (
-            <>
-              <div className="w-px h-6 bg-white/10" />
-              <div>
-                <p className="text-[10px] text-white/40">{lang === 'he' ? 'מחיר נגה' : 'Noga Rate'}</p>
-                <p className="text-sm font-black" style={{ color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399' }}>
-                  ₪{nogaPrice.price?.toFixed(3)}
-                  {nogaPrice.is_mock && <span className="text-[9px] text-white/30"> demo</span>}
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </motion.div>
-
-      {/* VPP Brain Status Row */}
+      {/* VPP Brain Status Row — moved to top */}
       {nogaPrice && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
           className="grid grid-cols-3 gap-2">
@@ -259,6 +211,56 @@ export default function VPPHome() {
           <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
         </div>
       </motion.div>
+
+      {/* Savings Hero Card */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
+        className="rounded-2xl px-5 py-4"
+        style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.14), rgba(16,185,129,0.04))', border: '1px solid rgba(16,185,129,0.25)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] text-emerald-400/70 font-bold">Live</span>
+          </div>
+          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t('savings_today')}</p>
+        </div>
+        <div className="flex items-end justify-between">
+          <p className="text-4xl font-black text-primary leading-none">+187 ₪</p>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
+            <TrendingUp className="w-3 h-3 text-emerald-400" />
+            <span className="text-[10px] font-black text-emerald-400">+12% {lang === 'he' ? 'מאתמול' : 'vs yesterday'}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
+          <div>
+            <p className="text-[10px] text-white/40">{t('savings_month')}</p>
+            <p className="text-sm font-black text-white">+4,230 ₪</p>
+          </div>
+          <div className="w-px h-6 bg-white/10" />
+          <div>
+            <p className="text-[10px] text-white/40">{t('production_today')}</p>
+            <p className="text-sm font-black text-accent">18.4 kWh ☀️</p>
+          </div>
+          <div className="w-px h-6 bg-white/10" />
+          <div>
+            <p className="text-[10px] text-white/40">{t('sold_to_grid')}</p>
+            <p className="text-sm font-black text-secondary">9.8 kWh ⚡</p>
+          </div>
+          {nogaPrice && (
+            <>
+              <div className="w-px h-6 bg-white/10" />
+              <div>
+                <p className="text-[10px] text-white/40">{lang === 'he' ? 'מחיר נגה' : 'Noga Rate'}</p>
+                <p className="text-sm font-black" style={{ color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399' }}>
+                  ₪{nogaPrice.price?.toFixed(3)}
+                  {nogaPrice.is_mock && <span className="text-[9px] text-white/30"> demo</span>}
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </motion.div>
+
+
 
       {/* Auto-Pilot Toggle */}
       <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.12 }}

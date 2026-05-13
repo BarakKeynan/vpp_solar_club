@@ -151,6 +151,28 @@ export default function VPPHome() {
       {/* Billing Status */}
       <BillingStatusCard />
 
+      {/* Power Flow */}
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+        className="bg-card rounded-2xl border border-border p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground font-medium">{t('energy_flow')}</p>
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399' }}>
+            {lang === 'he' ? 'זרימה חיה' : 'Live flow'}
+          </span>
+        </div>
+        <div className="flex items-center justify-center gap-1">
+          <ClickablePowerNode nodeKey="solar" icon={Sun} label={t('sun')} value="4.2 kW" colorClass="border-accent text-accent" isHe={lang === 'he'} />
+          <FlowDots active />
+          <ClickableBatteryNode label={t('battery')} value="82%" isHe={lang === 'he'} />
+          <FlowDots active />
+          <ClickablePowerNode nodeKey="home" icon={Home} label={t('house')} value="1.8 kW" colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
+        </div>
+        <div className="flex items-center justify-center gap-8">
+          <ClickablePowerNode nodeKey="ev" icon={Car} label={t('ev')} value={t('charging')} colorClass="border-accent text-accent" isHe={lang === 'he'} />
+          <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
+        </div>
+      </motion.div>
+
       {/* Smart Energy Push Banner */}
       <SmartEnergyBanner />
 
@@ -217,28 +239,6 @@ export default function VPPHome() {
           </button>
         </motion.div>
       )}
-
-      {/* Power Flow */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-        className="bg-card rounded-2xl border border-border p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground font-medium">{t('energy_flow')}</p>
-          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399' }}>
-            {lang === 'he' ? 'זרימה חיה' : 'Live flow'}
-          </span>
-        </div>
-        <div className="flex items-center justify-center gap-1">
-          <ClickablePowerNode nodeKey="solar" icon={Sun} label={t('sun')} value="4.2 kW" colorClass="border-accent text-accent" isHe={lang === 'he'} />
-          <FlowDots active />
-          <ClickableBatteryNode label={t('battery')} value="82%" isHe={lang === 'he'} />
-          <FlowDots active />
-          <ClickablePowerNode nodeKey="home" icon={Home} label={t('house')} value="1.8 kW" colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
-        </div>
-        <div className="flex items-center justify-center gap-8">
-          <ClickablePowerNode nodeKey="ev" icon={Car} label={t('ev')} value={t('charging')} colorClass="border-accent text-accent" isHe={lang === 'he'} />
-          <ClickablePowerNode nodeKey="grid" icon={Zap} label={t('grid')} value={t('exporting')} colorClass="border-secondary text-secondary" isHe={lang === 'he'} />
-        </div>
-      </motion.div>
 
       {/* Savings Hero Card */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}

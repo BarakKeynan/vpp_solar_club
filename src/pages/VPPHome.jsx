@@ -19,6 +19,7 @@ import StormGuardBanner from '@/components/dashboard/StormGuardBanner';
 import EcoProfitMode from '@/components/dashboard/EcoProfitMode';
 import ProviderInsightCard from '@/components/dashboard/ProviderInsightCard';
 import VPPConnectCard from '@/components/dashboard/VPPConnectCard';
+import NogaMarketModal from '@/components/dashboard/NogaMarketModal';
 
 // PowerNode helper (kept for structure)
 
@@ -66,6 +67,7 @@ export default function VPPHome() {
     }).catch(() => {});
   }, []);
 
+  const [showNogaModal, setShowNogaModal] = useState(false);
   const [autoPilot, setAutoPilot] = useState(false);
   const [showBatterySelect, setShowBatterySelect] = useState(false);
   const [selectedBattery, setSelectedBattery] = useState(null);
@@ -150,43 +152,57 @@ export default function VPPHome() {
       {/* Smart Energy Push Banner */}
       <SmartEnergyBanner />
 
+      {/* Noga Market Modal */}
+      <NogaMarketModal
+        open={showNogaModal}
+        onClose={() => setShowNogaModal(false)}
+        nogaPrice={nogaPrice}
+        lang={lang}
+      />
+
       {/* VPP Brain Status Row — moved to top */}
       {nogaPrice && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
           className="grid grid-cols-3 gap-2">
-          {[
-            {
-              icon: '📡',
-              label: lang === 'he' ? 'נגה' : 'Noga',
-              value: `₪${nogaPrice.price?.toFixed(3)}`,
-              color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399',
-              sub: lang === 'he' ? 'מחיר חשמל' : 'Grid price',
-            },
-            {
-              icon: '☀️',
-              label: lang === 'he' ? 'סולאר' : 'Solar',
-              value: '4.2 kW',
-              color: '#f59e0b',
-              sub: lang === 'he' ? 'ייצור עכשיו' : 'Producing now',
-            },
-            {
-              icon: '🤖',
-              label: lang === 'he' ? 'מוח VPP' : 'VPP Brain',
-              value: (new Date().getHours() >= 17 && new Date().getHours() <= 21)
+          {/* Noga widget — clickable */}
+          <button
+            onClick={() => setShowNogaModal(true)}
+            className="rounded-xl px-3 py-2.5 text-center transition-all active:scale-95"
+            style={{
+              background: 'rgba(212,175,55,0.07)',
+              border: '1px solid rgba(212,175,55,0.3)',
+              boxShadow: '0 0 12px rgba(212,175,55,0.08)',
+            }}
+          >
+            <span className="text-base">📡</span>
+            <p className="text-[10px] text-white/40 mt-0.5">{lang === 'he' ? 'נגה' : 'Noga'}</p>
+            <p className="text-sm font-black mt-0.5" style={{ color: nogaPrice.price >= 0.6 ? '#f59e0b' : '#34d399' }}>
+              ₪{nogaPrice.price?.toFixed(3)}
+            </p>
+            <p className="text-[9px]" style={{ color: 'rgba(212,175,55,0.5)' }}>
+              {lang === 'he' ? 'לחץ לפרטים' : 'Tap for details'}
+            </p>
+          </button>
+          {/* Solar */}
+          <div className="rounded-xl px-3 py-2.5 text-center"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="text-base">☀️</span>
+            <p className="text-[10px] text-white/40 mt-0.5">{lang === 'he' ? 'סולאר' : 'Solar'}</p>
+            <p className="text-sm font-black mt-0.5" style={{ color: '#f59e0b' }}>4.2 kW</p>
+            <p className="text-[9px] text-white/30">{lang === 'he' ? 'ייצור עכשיו' : 'Producing now'}</p>
+          </div>
+          {/* VPP Brain */}
+          <div className="rounded-xl px-3 py-2.5 text-center"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="text-base">🤖</span>
+            <p className="text-[10px] text-white/40 mt-0.5">{lang === 'he' ? 'מוח VPP' : 'VPP Brain'}</p>
+            <p className="text-sm font-black mt-0.5" style={{ color: '#60a5fa' }}>
+              {(new Date().getHours() >= 17 && new Date().getHours() <= 21)
                 ? (lang === 'he' ? 'מוכר' : 'Selling')
-                : (lang === 'he' ? 'טוען' : 'Charging'),
-              color: '#60a5fa',
-              sub: lang === 'he' ? 'פעולה אוטומטית' : 'Auto action',
-            },
-          ].map((item, i) => (
-            <div key={i} className="rounded-xl px-3 py-2.5 text-center"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <span className="text-base">{item.icon}</span>
-              <p className="text-[10px] text-white/40 mt-0.5">{item.label}</p>
-              <p className="text-sm font-black mt-0.5" style={{ color: item.color }}>{item.value}</p>
-              <p className="text-[9px] text-white/30">{item.sub}</p>
-            </div>
-          ))}
+                : (lang === 'he' ? 'טוען' : 'Charging')}
+            </p>
+            <p className="text-[9px] text-white/30">{lang === 'he' ? 'פעולה אוטומטית' : 'Auto action'}</p>
+          </div>
         </motion.div>
       )}
 

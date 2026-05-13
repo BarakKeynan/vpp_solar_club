@@ -120,15 +120,14 @@ export default function NogaMarketModal({ open, onClose, nogaPrice, lang = 'he' 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 rounded-3xl p-5"
+            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 rounded-3xl p-5 max-h-[70vh] overflow-y-auto"
+            style={{ maxWidth: 420, margin: '0 auto', left: '50%', transform: 'translate(-50%, -50%)' }}
             style={{
               background: 'rgba(12,18,14,0.92)',
               border: '1px solid rgba(212,175,55,0.45)',
               boxShadow: '0 0 60px rgba(212,175,55,0.12), 0 20px 60px rgba(0,0,0,0.6)',
               backdropFilter: 'blur(24px)',
               direction: lang === 'he' ? 'rtl' : 'ltr',
-              maxWidth: 420,
-              margin: '0 auto',
             }}
             onClick={e => e.stopPropagation()}
           >

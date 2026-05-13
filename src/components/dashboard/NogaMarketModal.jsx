@@ -114,18 +114,19 @@ export default function NogaMarketModal({ open, onClose, nogaPrice, lang = 'he' 
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {/* Modal — bottom sheet so nav bar never covers it */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
             transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 rounded-3xl p-5 max-h-[70vh] overflow-y-auto"
-            style={{ maxWidth: 420, margin: '0 auto', left: '50%', transform: 'translate(-50%, -50%)' }}
+            className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl p-5 pb-28 overflow-y-auto"
             style={{
-              background: 'rgba(12,18,14,0.92)',
+              maxHeight: '80vh',
+              background: 'rgba(12,18,14,0.97)',
               border: '1px solid rgba(212,175,55,0.45)',
-              boxShadow: '0 0 60px rgba(212,175,55,0.12), 0 20px 60px rgba(0,0,0,0.6)',
+              borderBottom: 'none',
+              boxShadow: '0 0 60px rgba(212,175,55,0.12), 0 -10px 40px rgba(0,0,0,0.6)',
               backdropFilter: 'blur(24px)',
               direction: lang === 'he' ? 'rtl' : 'ltr',
             }}

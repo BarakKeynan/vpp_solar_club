@@ -45,24 +45,24 @@ function PulsingRing({ color = 'cyan', size = 'lg' }) {
 }
 
 // ── Welcome Screen ─────────────────────────────────────────────────────────
-function WelcomeStep({ user, onStart }) {
+function WelcomeStep({ user, onPhysical, onVirtual }) {
   return (
     <motion.div
       key="welcome"
       initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}
-      className="flex flex-col items-center text-center px-6 pt-16 gap-8"
+      className="flex flex-col items-center text-center px-6 pt-12 pb-10 gap-7"
     >
       {/* Logo */}
       <motion.img
         initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1, duration: 0.7 }}
         src="https://media.base44.com/images/public/69badf95d1c3200592bebb1e/f004e2167_Screenshot_20260422_170358_Gallery.jpg"
         alt="VPP Solar Club"
-        className="w-40 h-auto object-contain rounded-2xl"
+        className="w-36 h-auto object-contain rounded-2xl"
         style={{ filter: 'drop-shadow(0 0 32px rgba(34,211,238,0.35))' }}
       />
 
       {/* Greeting */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <motion.h1
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
           className="text-3xl font-black text-white leading-snug"
@@ -72,47 +72,179 @@ function WelcomeStep({ user, onStart }) {
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="text-base leading-relaxed"
+          className="text-sm leading-relaxed"
           style={{ color: 'rgba(255,255,255,0.5)' }}
         >
-          בואו נחבר את המערכת הסולארית שלך<br />
-          ונתחיל לייעל את האנרגיה שלך.
+          לפני שנתחיל — ספר לנו על המערכת שלך
         </motion.p>
       </div>
 
-      {/* Feature pills */}
+      {/* Battery type choice */}
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-        className="flex flex-wrap justify-center gap-2"
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+        className="w-full space-y-3"
       >
-        {['⚡ חיסכון עד 60%', '🌱 100% ירוק', '🤖 AI חכם', '🔋 VPP Club'].map(item => (
-          <span key={item} className="text-xs font-bold px-3 py-1.5 rounded-full"
-            style={{ background: 'rgba(34,211,238,0.08)', color: 'rgba(147,210,245,0.8)', border: '1px solid rgba(34,211,238,0.2)' }}>
-            {item}
-          </span>
-        ))}
+        <p className="text-xs font-black text-white/40 uppercase tracking-widest mb-1">יש לך סוללה פיזית?</p>
+
+        {/* Physical battery */}
+        <button
+          onClick={onPhysical}
+          className="w-full rounded-2xl p-4 text-right flex items-center gap-4 transition-all active:scale-[0.98]"
+          style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.35)' }}
+        >
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(52,211,153,0.15)' }}>
+            <span className="text-2xl">🔋</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-black text-white">כן, יש לי סוללה פיזית</p>
+            <p className="text-xs text-white/40 mt-0.5">SolarEdge, Tesla, BYD, Sungrow ועוד</p>
+          </div>
+          <span className="text-white/30 text-lg">←</span>
+        </button>
+
+        {/* Virtual battery */}
+        <button
+          onClick={onVirtual}
+          className="w-full rounded-2xl p-4 text-right flex items-center gap-4 transition-all active:scale-[0.98]"
+          style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.3)' }}
+        >
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(96,165,250,0.15)' }}>
+            <span className="text-2xl">🤖</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-black text-white">אין לי סוללה פיזית</p>
+            <p className="text-xs text-white/40 mt-0.5">השתמש במכשירים חכמים כסוללה וירטואלית</p>
+          </div>
+          <span className="text-white/30 text-lg">←</span>
+        </button>
       </motion.div>
 
-      {/* CTA */}
-      <motion.button
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-        onClick={onStart}
-        className="w-full max-w-xs py-5 rounded-2xl font-black text-white text-lg transition-all active:scale-95"
-        style={{
-          background: 'linear-gradient(135deg, rgba(34,211,238,0.22), rgba(52,211,153,0.18))',
-          border: '1px solid rgba(34,211,238,0.45)',
-          boxShadow: '0 0 40px rgba(34,211,238,0.2)',
-        }}
-      >
-        חבר את המערכת שלי ←
-      </motion.button>
-
       <motion.p
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
         className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}
       >
-        תהליך אוטומטי · ללא צורך בידע טכני
+        ניתן לשנות בכל עת מתוך ההגדרות
       </motion.p>
+    </motion.div>
+  );
+}
+
+// ── Instructions Step (Physical Battery) ───────────────────────────────────
+function PhysicalBatteryInstructions({ onStartScan, onSkip }) {
+  const [scanning, setScanning] = useState(false);
+  return (
+    <motion.div
+      key="physical-instructions"
+      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}
+      className="flex flex-col px-6 pt-8 pb-10 gap-6 text-right w-full"
+      dir="rtl"
+    >
+      <div className="space-y-1">
+        <p className="text-xs font-black text-emerald-400 uppercase tracking-widest">סוללה פיזית</p>
+        <h2 className="text-2xl font-black text-white">חיבור ממיר / סוללה</h2>
+        <p className="text-sm text-white/45 leading-relaxed">
+          האפליקציה תסרוק ותאתר את הממיר שלך דרך Bluetooth ורשת מקומית — לא נדרש ידע טכני.
+        </p>
+      </div>
+
+      {/* Steps */}
+      <div className="space-y-3">
+        {[
+          { num: '1', icon: '📶', text: 'וודא שה-Bluetooth מופעל בטלפון' },
+          { num: '2', icon: '🏠', text: 'היה קרוב למערכת הסולארית שלך (חצר / גג)' },
+          { num: '3', icon: '🔋', text: 'הסריקה תזהה ממירים: SolarEdge, Sungrow, Fronius ועוד' },
+          { num: '4', icon: '🔑', text: 'לאחר האיתור תתבקש להזין API Key לאישור סופי' },
+        ].map(s => (
+          <div key={s.num} className="flex items-center gap-3 rounded-xl px-3 py-3"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="text-xl flex-shrink-0">{s.icon}</span>
+            <p className="text-sm text-white/70">{s.text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Scan button */}
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={() => { setScanning(true); onStartScan(); }}
+        disabled={scanning}
+        className="w-full py-5 rounded-2xl font-black text-white text-lg flex items-center justify-center gap-3 transition-all active:scale-95"
+        style={{
+          background: scanning ? 'rgba(52,211,153,0.2)' : 'linear-gradient(135deg, rgba(34,211,238,0.85), rgba(52,211,153,0.75))',
+          border: '1px solid rgba(52,211,153,0.5)',
+          boxShadow: scanning ? 'none' : '0 0 32px rgba(52,211,153,0.3)',
+          color: '#020d08',
+        }}
+      >
+        {scanning
+          ? <><Loader2 className="w-5 h-5 animate-spin" style={{ color: '#020d08' }} /> סורק...</>
+          : <><Bluetooth className="w-5 h-5" /> סרוק ואתר מכשירים</>}
+      </motion.button>
+
+      <button onClick={onSkip} className="text-sm text-white/25 text-center w-full active:opacity-50">
+        דלג — אמלא פרטים ידנית
+      </button>
+    </motion.div>
+  );
+}
+
+// ── Instructions Step (Virtual Battery) ────────────────────────────────────
+function VirtualBatteryInstructions({ onStartScan, onSkip }) {
+  const [scanning, setScanning] = useState(false);
+  return (
+    <motion.div
+      key="virtual-instructions"
+      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }}
+      className="flex flex-col px-6 pt-8 pb-10 gap-6 text-right w-full"
+      dir="rtl"
+    >
+      <div className="space-y-1">
+        <p className="text-xs font-black text-blue-400 uppercase tracking-widest">סוללה וירטואלית</p>
+        <h2 className="text-2xl font-black text-white">איתור מכשירים חכמים</h2>
+        <p className="text-sm text-white/45 leading-relaxed">
+          גם ללא סוללה פיזית ניתן להצטרף ל-VPP! הסריקה תאתר מכשירים חכמים (מזגן, דוד, מכונת כביסה ועוד) ותאחד אותם לסוללה וירטואלית.
+        </p>
+      </div>
+
+      {/* Steps */}
+      <div className="space-y-3">
+        {[
+          { icon: '📶', text: 'וודא שאתה מחובר לרשת ה-WiFi הביתית' },
+          { icon: '🏠', text: 'הסריקה תמפה מכשירי IoT ברשת המקומית' },
+          { icon: '🤖', text: 'ה-AI יחשב כמה אנרגיה וירטואלית ניתן לגייס' },
+          { icon: '⚡', text: 'המכשירים יתנהלו חכם לחיסכון ולרווח מהרשת' },
+        ].map((s, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-3"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <span className="text-xl flex-shrink-0">{s.icon}</span>
+            <p className="text-sm text-white/70">{s.text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Scan button */}
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={() => { setScanning(true); onStartScan(); }}
+        disabled={scanning}
+        className="w-full py-5 rounded-2xl font-black text-white text-lg flex items-center justify-center gap-3 transition-all active:scale-95"
+        style={{
+          background: scanning ? 'rgba(96,165,250,0.2)' : 'linear-gradient(135deg, rgba(96,165,250,0.85), rgba(96,165,250,0.6))',
+          border: '1px solid rgba(96,165,250,0.5)',
+          boxShadow: scanning ? 'none' : '0 0 32px rgba(96,165,250,0.25)',
+          color: '#020d08',
+        }}
+      >
+        {scanning
+          ? <><Loader2 className="w-5 h-5 animate-spin" style={{ color: '#020d08' }} /> מאתר מכשירים...</>
+          : <><Wifi className="w-5 h-5" /> סרוק ואתר מכשירים</>}
+      </motion.button>
+
+      <button onClick={onSkip} className="text-sm text-white/25 text-center w-full active:opacity-50">
+        דלג — הצטרף ללא סריקה
+      </button>
     </motion.div>
   );
 }
@@ -409,20 +541,18 @@ function SuccessStep({ virtualBESS, userName }) {
 export default function Onboarding() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [step, setStep] = useState('welcome'); // welcome | scanning | smart-summary | found | apikey | success
+  // welcome | physical-instructions | virtual-instructions | scanning | smart-summary | found | apikey | success
+  const [step, setStep] = useState('welcome');
   const [connecting, setConnecting] = useState(false);
   const [bessData, setBessData] = useState({});
-  const [virtualBESS, setVirtualBESS] = useState(null); // { devices, totalKwh, isVirtualBESS }
+  const [virtualBESS, setVirtualBESS] = useState(null);
+  const [detectedSiteId, setDetectedSiteId] = useState('');
 
   useEffect(() => {
     base44.auth.me().then(u => setUser(u));
   }, []);
 
-  // Simulate BT detection of Site ID
-  const [detectedSiteId, setDetectedSiteId] = useState('');
-
   const handleScanDone = () => {
-    // After BT scan → show Smart Summary (device discovery)
     setDetectedSiteId('728341');
     setStep('smart-summary');
   };
@@ -463,7 +593,6 @@ export default function Onboarding() {
       <div className="absolute inset-0 z-0"
         style={{ background: 'linear-gradient(160deg, rgba(2,8,20,0.94) 0%, rgba(4,14,32,0.90) 50%, rgba(2,10,22,0.97) 100%)' }}
       />
-      {/* Cyan glow */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div style={{
           position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)',
@@ -475,7 +604,24 @@ export default function Onboarding() {
 
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full py-8 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {step === 'welcome'        && <WelcomeStep key="welcome" user={user} onStart={() => setStep('scanning')} />}
+          {step === 'welcome' && (
+            <WelcomeStep key="welcome" user={user}
+              onPhysical={() => setStep('physical-instructions')}
+              onVirtual={() => setStep('virtual-instructions')}
+            />
+          )}
+          {step === 'physical-instructions' && (
+            <PhysicalBatteryInstructions key="physical-instructions"
+              onStartScan={() => setStep('scanning')}
+              onSkip={() => setStep('apikey')}
+            />
+          )}
+          {step === 'virtual-instructions' && (
+            <VirtualBatteryInstructions key="virtual-instructions"
+              onStartScan={() => setStep('scanning')}
+              onSkip={() => handleApiKeyDone({ brand: '', apiKey: '', siteId: '', serial: '', connMethod: 'internet_api' })}
+            />
+          )}
           {step === 'scanning'       && <ScanningStep key="scanning" onDone={handleScanDone} />}
           {step === 'smart-summary'  && <SmartSummaryStep key="smart-summary" userName={user?.full_name} siteId={detectedSiteId} onConfirm={handleSmartSummaryDone} />}
           {step === 'found'          && <FoundStep key="found" onConnect={() => setStep('apikey')} connecting={false} virtualBESS={virtualBESS} />}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, X } from 'lucide-react';
+import { Bluetooth, MapPin, Zap, CheckCircle2, Loader2, X, Search, Wifi } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const INVERTER = {
@@ -32,6 +32,50 @@ function PulsingRing() {
         <Bluetooth className="w-7 h-7 text-cyan-400" />
       </div>
     </div>
+  );
+}
+
+function ReadyStep({ onStartScan }) {
+  return (
+    <motion.div
+      key="ready"
+      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+      className="flex flex-col items-center text-center gap-6"
+    >
+      <div className="w-20 h-20 rounded-full flex items-center justify-center"
+        style={{ background: 'rgba(34,211,238,0.1)', border: '2px solid rgba(34,211,238,0.3)' }}>
+        <Wifi className="w-9 h-9 text-cyan-400" />
+      </div>
+
+      <div className="space-y-2">
+        <h2 className="text-lg font-black text-white">חיבור מערכת סולארית</h2>
+        <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          על מנת שנוכל לנהל ולמטב את המערכת שלך,<br />יש לחבר את הממיר / הסוללה לאפליקציה.
+        </p>
+        <p className="text-xs leading-relaxed pt-1" style={{ color: 'rgba(34,211,238,0.55)' }}>
+          הסריקה מחפשת ממירים חכמים (SolarEdge, Sungrow, Fronius ועוד) דרך Bluetooth ורשת מקומית.
+        </p>
+      </div>
+
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        onClick={onStartScan}
+        className="w-full max-w-xs py-4 rounded-2xl font-black text-white text-base flex items-center justify-center gap-2.5 transition-all"
+        style={{
+          background: 'linear-gradient(135deg, rgba(34,211,238,0.85), rgba(34,211,238,0.55))',
+          border: '1px solid rgba(34,211,238,0.5)',
+          boxShadow: '0 0 28px rgba(34,211,238,0.25)',
+          color: '#0a1628',
+        }}
+      >
+        <Search className="w-5 h-5" />
+        סרוק ואתר מכשירים
+      </motion.button>
+
+      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+        ניתן לדלג ולחבר מאוחר יותר דרך ההגדרות
+      </p>
+    </motion.div>
   );
 }
 
@@ -168,7 +212,7 @@ function SuccessStep() {
 
 // ── Main Modal Export ──────────────────────────────────────────────────────
 export default function InPlaceOnboarding({ onDone, onClose }) {
-  const [step, setStep] = useState('scanning'); // scanning | found | success
+  const [step, setStep] = useState('ready'); // ready | scanning | found | success
   const [connecting, setConnecting] = useState(false);
 
   const handleConnect = async () => {
@@ -223,6 +267,7 @@ export default function InPlaceOnboarding({ onDone, onClose }) {
         </div>
 
         <AnimatePresence mode="wait">
+          {step === 'ready' && <ReadyStep key="ready" onStartScan={() => setStep('scanning')} />}
           {step === 'scanning' && <ScanningStep key="scanning" onDone={() => setStep('found')} />}
           {step === 'found' && <FoundStep key="found" onConnect={handleConnect} connecting={connecting} />}
           {step === 'success' && <SuccessStep key="success" />}
